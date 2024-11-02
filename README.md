@@ -64,6 +64,7 @@ npm run dev  # Pokreni React Vite development server
 
 ## 1. Početak coding sessiona
 
+Uvjerite se da ste na develop branchu.  
 Napravite pull promjena koje su drugi napravili. Eventualne konflikte riješiti prema uputama u prezentaciji.  
 Napraviti korake 3. - 7. koji ste napravili i prilikom inicijalnog postavljanja projekta.
 
