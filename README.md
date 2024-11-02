@@ -15,7 +15,7 @@ git checkout develop
 cd izvorni_kod
 ```
 
-## 2. Stvori Python virtualno okruženje
+## 2. Stvori Python virtual environment
 
 ```bash
 python -m venv env  # Postavi virtualno okruženje na Windowsu
@@ -23,13 +23,14 @@ python -m venv env  # Postavi virtualno okruženje na Windowsu
 python3 -m venv env  # Kreiraj virtualno okruženje na Linux/Mac
 ```
 
-## 3. Aktivirajte virtualno okruženje:
+## 3. Aktivirajte virutal environment:
 
 ```bash
 env\Scripts\activate  # Aktiviraj virtualno okruženje na Windows
 # ili
 source env/bin/activate  # Aktiviraj virtualno okruženje na Linux/Mac
 ```
+Nakon što se aktivira virtual environment, Python uvijek pokrećete preko naredbe ```bash python ``` bez obzira na OS.
 
 ## 4. Instaliraj Python dependencies
 
@@ -45,7 +46,7 @@ npm install  # Instaliraj Node.js dependencies
 cd ..
 ```
 
-## 6. Pokreni razvojni server za Django
+## 6. Pokreni development server za Django
 
 ```bash
 cd backend
