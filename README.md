@@ -26,9 +26,9 @@ python3 -m venv env  # Kreiraj virtual environment na Linux/Mac
 ## 3. Aktivirajte virutal environment:
 
 ```bash
-env\Scripts\activate  # Aktiviraj virtual environment, Windows
+env\Scripts\activate  # Aktiviraj virtual environment na Windows
 # ili
-source env/bin/activate  # Aktiviraj virtual environment, Linux/Mac
+source env/bin/activate  # Aktiviraj virtual environment na Linux/Mac
 ```
 Nakon što se aktivira virtual environment, Python uvijek pokrećete preko naredbe `python` bez obzira na OS.
 
