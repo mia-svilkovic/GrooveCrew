@@ -12,6 +12,7 @@ Ovo su upute koje je potrebno pratiti prilikom inicijalnog postavljanja projekta
 git clone https://github.com/mia-svilkovic/GrooveCrew.git
 cd GrooveCrew
 git checkout develop
+cd izvorni_kod
 ```
 
 ## 2. Stvori Python virtualno okruženje
