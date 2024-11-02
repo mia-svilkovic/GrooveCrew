@@ -18,9 +18,9 @@ cd izvorni_kod
 ## 2. Stvori Python virtual environment
 
 ```bash
-python -m venv env  # Postavi virtualno okruženje na Windowsu
+python -m venv env  # Postavi virtual environment na Windowsu
 # ili
-python3 -m venv env  # Kreiraj virtualno okruženje na Linux/Mac
+python3 -m venv env  # Kreiraj virtual environment na Linux/Mac
 ```
 
 ## 3. Aktivirajte virutal environment:
