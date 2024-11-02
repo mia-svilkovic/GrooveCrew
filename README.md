@@ -30,7 +30,11 @@ env\Scripts\activate  # Aktiviraj virtualno okruženje na Windows
 # ili
 source env/bin/activate  # Aktiviraj virtualno okruženje na Linux/Mac
 ```
-Nakon što se aktivira virtual environment, Python uvijek pokrećete preko naredbe ```bash python ``` bez obzira na OS.
+Nakon što se aktivira virtual environment, Python uvijek pokrećete preko naredbe
+```bash
+python
+```
+bez obzira na OS.
 
 ## 4. Instaliraj Python dependencies
 
