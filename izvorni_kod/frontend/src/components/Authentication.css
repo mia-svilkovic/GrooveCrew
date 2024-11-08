@@ -1,0 +1,27 @@
+.auth-container {
+    display: flex;   
+    width: 200px;
+    flex-direction: column;
+    background-color: black;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .auth-container button {
+    font-size: 1.5rem;
+    margin: 5px;
+    font-weight: bold;
+    padding: 10px 20px;
+    min-width: 130px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    color:white;
+    transition: background-color 0.5s ease;
+    background-color: hsl(45 100% 50%);
+  }
+
+  .auth-container button:hover {
+    background-color: hsl(45, 65%, 50%);
+  }
+
+
