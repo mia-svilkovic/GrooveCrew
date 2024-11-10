@@ -17,11 +17,9 @@ function Header() {
         <img src={logo} alt="logo" />
         <img src={user} alt="user" onClick={toggleAuth} />
       </header>
-      <div className="auth-container">
-        {showAuth && <Authentication />}
-        </div>
+      <div className="auth-container">{showAuth && <Authentication />}</div>
     </div>
   );
 }
 
-export default Header
+export default Header;

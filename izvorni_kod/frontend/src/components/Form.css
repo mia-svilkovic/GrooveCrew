@@ -1,0 +1,67 @@
+.modal-overlay { /*zatamnjivanje ekrana*/
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999; 
+}
+
+.form-container {
+  background-color: black;
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+  width: 300px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-container h2 {
+  margin-bottom: 20px;
+}
+
+.form-container form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.form-container input {
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  border: none;
+}
+
+.form-container button {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: hsl(45, 100%, 50%);
+  color: white;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.form-container button:hover {
+  background-color: hsl(45, 65%, 50%);
+}
+
+.close-button {
+  margin-top: 15px;
+  background-color: #555;
+}
+
+.close-button:hover {
+  background-color: #777;
+}
