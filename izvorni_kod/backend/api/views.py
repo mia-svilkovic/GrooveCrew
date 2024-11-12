@@ -1,6 +1,7 @@
-from django.contrib.auth import get_user_model, authenticate, login
+from django.contrib.auth import get_user_model, authenticate
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework_simplejwt.tokens import RefreshToken
 import json
 
 User = get_user_model()
@@ -15,13 +16,22 @@ def userRegister(request):
         last_name = data.get('last_name')
         username = data.get('username')
 
-
         if User.objects.filter(email=email).exists():
             return JsonResponse({'error': 'Email already registered'}, status=400)
 
-        user = User.objects.create_user(email=email, password=password, first_name=first_name, last_name=last_name, username = username)
-        return JsonResponse({'message': 'User registered successfully'}, status=201)
+        # Kreiraj korisnika
+        user = User.objects.create_user(email=email, password=password, first_name=first_name, last_name=last_name, username=username)
+        
+        # JWT token
+        refresh = RefreshToken.for_user(user)
+        return JsonResponse({
+            'message': 'User registered successfully',
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)
+        }, status=201)
+        
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 @csrf_exempt
 def userLogin(request):
@@ -32,9 +42,16 @@ def userLogin(request):
 
         user = authenticate(request, email=email, password=password)
         if user is not None:
-            login(request, user)
-            return JsonResponse({'message': 'Login successful'}, status=200)
+
+            # JWT token
+            refresh = RefreshToken.for_user(user)
+            return JsonResponse({
+                'message': 'Login successful',
+                'refresh': str(refresh),
+                'access': str(refresh.access_token)
+            }, status=200)
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=400)
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
