@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model, authenticate
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.shortcuts import render
 import json
 
 User = get_user_model()
@@ -55,3 +56,5 @@ def userLogin(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
+def frontend_view(request):
+    return render(request, 'index.html')
