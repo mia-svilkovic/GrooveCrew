@@ -5,7 +5,7 @@ function FormLogin({ onClose }) {
 
   return (
     <div className="form-container">
-      <h2>Login</h2>
+      <h2>LOG IN</h2>
       <form>
         <input type="text" placeholder="Korisničko ime" required />
         <input type="password" placeholder="Lozinka" required />

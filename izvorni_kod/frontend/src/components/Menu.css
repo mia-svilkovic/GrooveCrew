@@ -6,7 +6,7 @@
     left:0 ;             
     justify-content: space-evenly;     
     gap: 20px;                   
-    background-color: #fff500;   
+    background-color: #aca968;   
     padding: 10px;      
   }
   
@@ -16,10 +16,16 @@
     margin: 10px 10px;
     padding: 10px;
   }
+
+  .menu-item :hover{
+    background-color: #898752;
+    cursor: pointer;
+  }
+
   
   .menu-item img {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 35px;
     margin-right: 10px;
   }
   
