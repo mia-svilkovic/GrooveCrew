@@ -150,5 +150,5 @@ def test_token(request):
     try:
         user, response = validate_access_token(request)
         return response
-    except AuthenticationFailed as e:
+    except Exception as e:
         return JsonResponse({'error': str(e)}, status=401)

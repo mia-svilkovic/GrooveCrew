@@ -21,24 +21,25 @@ def validate_access_token(request):
         # Try to validate the access token
         validated_token = jwt_authenticator.get_validated_token(access_token)
         user = jwt_authenticator.get_user(validated_token)
-        return user  # Return the user if token is valid
+        response = JsonResponse("User is alredy logged in", safe = False)
+        return user, response  # Return the user if token is valid
 
     except AuthenticationFailed:
         # If access token is expired, attempt to use the refresh token
         if refresh_token:
             try:
-                # Generate a new access token from the refresh token
-                new_access_token = RefreshToken(refresh_token).access_token
+                refresh = RefreshToken(refresh_token)
+                new_access_token = refresh.access_token
 
                 # Set the new access token as a cookie in the response
-                response = JsonResponse("Session refreshed.")
+                response = JsonResponse({"detail": "Session refreshed."})
                 response.set_cookie(
                     'access', str(new_access_token),
-                    httponly=True, secure=False  
+                    httponly=True, secure=False, samesite='Lax'  # 'Lax' is safer for cross-site cookies
                 )
 
                 # Revalidate using the new access token
-                validated_token = jwt_authenticator.get_validated_token(new_access_token)
+                validated_token = jwt_authenticator.get_validated_token(str(new_access_token))
                 user = jwt_authenticator.get_user(validated_token)
                 return user, response  # Return both user and response to set the new cookie
 
