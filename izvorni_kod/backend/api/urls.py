@@ -13,4 +13,6 @@ urlpatterns = [
    
    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Endpoint za dobijanje access i refresh tokena
    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Endpoint za osvežavanje access tokena
+
+   path('test_token/', views.test_token, name="test_token"),
 ]

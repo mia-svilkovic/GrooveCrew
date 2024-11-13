@@ -7,8 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import render
 import json
 from .models import VinylRecord, Photograph, GoldmineCondition
-from django.core.exceptions import ObjectDoesNotExist
-
+from .auth_util import validate_access_token
 
 User = get_user_model()
 
@@ -25,16 +24,26 @@ def userRegister(request):
         if User.objects.filter(email=email).exists():
             return JsonResponse({'error': 'Email already registered'}, status=400)
 
-        # Kreiraj korisnika
+        # Create user
         user = User.objects.create_user(email=email, password=password, first_name=first_name, last_name=last_name, username=username)
         
-        # JWT token
+        # Generate JWT token
         refresh = RefreshToken.for_user(user)
-        return JsonResponse({
-            'message': 'User registered successfully',
-            'refresh': str(refresh),
-            'access': str(refresh.access_token)
-        }, status=201)
+        access_token = refresh.access_token
+
+        # Set tokens as HttpOnly cookies
+        response = JsonResponse({'message': 'register successful'})
+        response.set_cookie(
+            'access', str(access_token),
+            httponly=True,  # Prevent JavaScript access
+            secure=False    
+        )
+        response.set_cookie(
+            'refresh', str(refresh),
+            httponly=True,
+            secure=False
+        )
+        return response
         
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
@@ -48,14 +57,23 @@ def userLogin(request):
 
         user = authenticate(request, email=email, password=password)
         if user is not None:
-
-            # JWT token
+            # Generate JWT token
             refresh = RefreshToken.for_user(user)
-            return JsonResponse({
-                'message': 'Login successful',
-                'refresh': str(refresh),
-                'access': str(refresh.access_token)
-            }, status=200)
+            access_token = refresh.access_token
+
+            # Set tokens as HttpOnly cookies
+            response = JsonResponse({'message': 'Login successful'})
+            response.set_cookie(
+                'access', str(access_token),
+                httponly=True,  # Prevent JavaScript access
+                secure=False    
+            )
+            response.set_cookie(
+                'refresh', str(refresh),
+                httponly=True,
+                secure=False
+            )
+            return response
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=400)
     return JsonResponse({'error': 'Invalid request method'}, status=400)
@@ -71,18 +89,16 @@ def add_vinyl_record(request):
     if request.method == 'POST':
 
         try:
-            # Try to authenticate the user using the JWT token in the header
-            user, auth = JWTAuthentication().authenticate(request)
-        except AuthenticationFailed:
-            # If authentication fails, return a 401 Unauthorized response
-            return JsonResponse({"error": "Authentication failed. Please log in."}, status=401)
+            user, response = validate_access_token(request)
+        except AuthenticationFailed as e:
+            return JsonResponse({'error: ': str(e)}, status=401)
 
         # Extract form data
         data = request.POST
-        user_id = request.user.id  # Assuming the user is logged in
+        user_id = user.id  # Assuming the user is logged in
 
         # Get form data
-        photo = data.get("photo")  # assuming this is the binary content
+        photo = request.FILES.get('photo')  # assuming this is the binary content
         artist = data.get("artist")
         album_name = data.get("album_name")
         release_year = data.get("release_year")
@@ -119,14 +135,20 @@ def add_vinyl_record(request):
         # Create Photograph if there is any photo data (binary)
         if photo:
             photograph = Photograph.objects.create(
-                binary_content=photo,
+                binary_content=photo.read(),
                 vinyl_record=vinyl_record
             )  
 
-        # Return success response (you can also return the vinyl record details if needed)
         return JsonResponse({"success": True})
     return JsonResponse({"error": "Invalid method"}, status=400)
 
 def get_records(request):
     items = list(VinylRecord.objects.values())
     return JsonResponse(items, safe=False)
+
+def test_token(request):
+    try:
+        user, response = validate_access_token(request)
+        return response
+    except AuthenticationFailed as e:
+        return JsonResponse({'error': str(e)}, status=401)
