@@ -44,3 +44,37 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
       verbose_name = 'user'
       verbose_name_plural = 'users'
 
+class GoldmineCondition(models.Model):
+    name = models.CharField(max_length=32)
+    abbreviation = models.CharField(max_length=8)
+    description = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.name
+
+class VinylRecord(models.Model):
+    release_code = models.CharField(max_length=128)       
+    artist = models.CharField(max_length=128)               
+    album_name = models.CharField(max_length=128)          
+    release_year = models.IntegerField()                    
+    genre = models.CharField(max_length=64)                    
+    location = models.JSONField()                            
+    available_for_exchange = models.BooleanField()             
+    additional_description = models.CharField(max_length=256)          
+    
+    # Foreign Keys
+    record_condition = models.ForeignKey(GoldmineCondition, on_delete=models.CASCADE, related_name="record_condition")  
+    cover_condition = models.ForeignKey(GoldmineCondition, on_delete=models.CASCADE, related_name="cover_condition")    
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)                                          
+
+    def __str__(self):
+        return f"{self.release_code} - {self.album_name}"
+    
+
+class Photograph(models.Model):
+    binary_content = models.BinaryField()                   
+    vinyl_record = models.ForeignKey(VinylRecord, on_delete=models.CASCADE)   #Id of record
+
+    def __str__(self):
+        return f"Photo for record with id: {self.vinyl_record.id}"
+
