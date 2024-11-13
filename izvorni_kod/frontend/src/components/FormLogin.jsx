@@ -6,15 +6,18 @@ function FormLogin({ onClose }) {
   const [password, setPassword] = useState("");
 
   const handleLogin = async (event) => {
-    event.preventDefault(); 
+    event.preventDefault();
 
     try {
-      const response = await fetch("./loginAuth/", {
+      const response = await fetch("loginAuth/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username: username,
+          password: password,
+        }),
       });
 
       if (response.ok) {

@@ -12,17 +12,17 @@ function FormRegister({ onClose }) {
     event.preventDefault(); // Prevent default form submission
     console.log([name, lastname, username, email, password]);
     try {
-      const response = await fetch("./registerAuth/", {
+      const response = await fetch("registerAuth/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name,
-          lastname,
-          username,
-          email,
-          password,
+          first_name: name,        // Map `name` to `first_name`
+          last_name: lastname,     // Map `lastname` to `last_name`
+          username: username,
+          email: email,
+          password: password,
         }),
       });
 
