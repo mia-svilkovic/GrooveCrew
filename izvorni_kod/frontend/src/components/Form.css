@@ -12,10 +12,10 @@
 }
 
 .form-container {
-  background-color: black;
+  background-color: #dedede;
   padding: 20px;
   border-radius: 10px;
-  color: white;
+  color: black;
   width: 300px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000; 
@@ -41,20 +41,29 @@
   border: none;
 }
 
-.form-container button {
+
+.form-container select {
   padding: 10px;
+  margin: 5px 0;
   border-radius: 5px;
+  border: none;
+}
+
+.form-container button {
+
+  padding: 10px;
+  border-radius: 30px;
   border: none;
   cursor: pointer;
   font-weight: bold;
-  background-color: hsl(45, 100%, 50%);
-  color: white;
+  background-color: #fff500;
+  color: black;
   margin-top: 10px;
   transition: background-color 0.3s ease;
 }
 
 .form-container button:hover {
-  background-color: hsl(45, 65%, 50%);
+  background-color: #e5dd04;
 }
 
 .close-button {

@@ -6,6 +6,7 @@ import logo from "../pictures/logo.png";
 import user from "../pictures/user.png";
 import menu from "../pictures/menu.png";
 
+
 function Header() {
   const [showAuth, setShowAuth] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -16,17 +17,18 @@ function Header() {
   return (
     <div className="container">
       <header className="header-container">
-        <img src={menu} alt="menu" onClick={toggleMenu}/>
+      <img src={menu} alt="menu" onClick={toggleMenu}/>
         <img src={logo} alt="logo" />
         <img src={user} alt="user" onClick={toggleAuth} />
       </header>
-      <div className="auth-container">{showAuth && <Authentication />}</div>
-    
-      <Menu showMenu={showMenu} />
+      <div className="auth-container">
+        {showAuth && <Authentication />}
+      </div>
 
-    </div>      
+      <div className="menu-container"><Menu showMenu={showMenu} /></div>
+
+    </div>
   );
 }
 
-
-export default Header;
+export default Header
