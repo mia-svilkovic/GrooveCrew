@@ -46,7 +46,7 @@ function FormAdd({ onClose }) {
           <button type="submit">Add vinyl</button>
         </form>
         <button className="cancle-button" onClick={onClose}>
-          Cancle
+          Cancel
         </button>
       </div>
     );
