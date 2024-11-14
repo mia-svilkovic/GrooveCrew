@@ -82,7 +82,7 @@ def userLogin(request):
 def frontend_view(request):
     return render(request, 'index.html')
 
-
+#treba manualno dodati goldmine u bazu
 @csrf_exempt
 def add_vinyl_record(request):
 

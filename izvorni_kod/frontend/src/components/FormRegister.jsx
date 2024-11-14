@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "./Form.css";
-URL = "http://localhost:8000";
 
 function FormRegister({ onClose }) {
   const [name, setName] = useState("");
@@ -13,7 +12,7 @@ function FormRegister({ onClose }) {
     event.preventDefault(); // Prevent default form submission
     console.log([name, lastname, username, email, password]);
     try {
-      const response = await fetch(URL + "/registerAuth", {
+      const response = await fetch("/registerAuth/", {
         mode: "no-cors",
         method: "POST",
         headers: {

@@ -35,7 +35,7 @@ function FormAdd({ onClose }) {
     formData.append("additional_description", additionalDescription);
 
     try {
-      const response = await fetch("add_record/", {
+      const response = await fetch("/add_record/", {
         method: "POST",
         body: formData, // Send the form data directly
       });
@@ -44,7 +44,8 @@ function FormAdd({ onClose }) {
         const data = await response.json();
         console.log("Record added successfully:", data);
       } else {
-        console.error("Failed to add record");
+        const errorData = await response.json();
+        console.error("Failed to add record:", errorData);
       }
     } catch (error) {
       console.error("Error adding record:", error);

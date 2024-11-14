@@ -1,28 +1,27 @@
 import React, { useState } from "react";
 import "./Form.css";
-URL = "http://localhost:8000";
 
 function FormLogin({ onClose }) {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await fetch(URL + "/loginAuth", {
+      const response = await fetch("/loginAuth/", {
         method: "POST",
         mode: "no-cors",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: username,
+          email: email,
           password: password,
         }),
       });
 
-      if (response.status == 201) {
+      if (response.ok) {
         const data = await response.json();
         console.log("Login successful:", data);
       } else {
@@ -39,9 +38,9 @@ function FormLogin({ onClose }) {
       <form onSubmit={handleLogin}>
         <input
           type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
         <input

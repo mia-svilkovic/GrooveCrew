@@ -5,8 +5,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 urlpatterns = [
    path('home/', views.frontend_view, name='frontend_login'),      # Homepage
 
-   path('loginAuth', views.userLogin, name="loginAuth"),
-   path('registerAuth', views.userRegister, name="registerAuth"),
+   path('loginAuth/', views.userLogin, name="loginAuth"),
+   path('registerAuth/', views.userRegister, name="registerAuth"),
    
    path('add_record/', views.add_vinyl_record, name="add_record"), # Endpoint za dodavanje ploce
    path('get_records/', views.get_records, name="get_records"),    # Endpoint za dohvacanje svih ploca u obliku JSON
