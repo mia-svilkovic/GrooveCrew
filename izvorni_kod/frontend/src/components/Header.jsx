@@ -17,15 +17,16 @@ function Header() {
   return (
     <div className="container">
       <header className="header-container">
-      <img src={menu} alt="menu" onClick={toggleMenu}/>
+        <img src={menu} alt="menu" onClick={toggleMenu}/>
         <img src={logo} alt="logo" />
         <img src={user} alt="user" onClick={toggleAuth} />
       </header>
       <div className="auth-container">
         {showAuth && <Authentication />}
       </div>
-
+      
       <div className="menu-container"><Menu showMenu={showMenu} /></div>
+      
 
     </div>
   );
