@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import "./Form.css";
+URL = "http://localhost:8000";
 
 function FormAdd({ onClose }) {
-  const [photo, setPhoto] = useState(null); // Holds binary data of the photo
+  const [photo, setPhoto] = useState(null); // Holds the photo file directly
   const [artist, setArtist] = useState("");
   const [albumName, setAlbumName] = useState("");
   const [releaseYear, setReleaseYear] = useState("");
@@ -15,34 +16,28 @@ function FormAdd({ onClose }) {
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhoto(Array.from(new Uint8Array(reader.result))); // Convert to binary array
-      };
-      reader.readAsArrayBuffer(file); // Read file as binary
+      setPhoto(file); // Store the file directly
     }
   };
 
   const handleAddRecord = async (event) => {
     event.preventDefault();
 
+    const formData = new FormData();
+    formData.append("photo", photo); // Add the file directly
+    formData.append("artist", artist);
+    formData.append("album_name", albumName);
+    formData.append("release_year", releaseYear);
+    formData.append("release_code", releaseCode);
+    formData.append("genre", genre);
+    formData.append("location", location);
+    formData.append("goldmine_standard", goldmineStandard);
+    formData.append("additional_description", additionalDescription);
+
     try {
       const response = await fetch("add_record/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          photo: photo, // Binary array data
-          artist: artist,
-          album_name: albumName,
-          release_year: releaseYear,
-          release_code: releaseCode,
-          genre: genre,
-          location: location,
-          goldmine_standard: goldmineStandard,
-          additional_description: additionalDescription,
-        }),
+        body: formData, // Send the form data directly
       });
 
       if (response.ok) {
@@ -134,7 +129,7 @@ function FormAdd({ onClose }) {
         />
         <button type="submit">Add vinyl</button>
       </form>
-      <button className="cancle-button" onClick={onClose}>
+      <button className="cancel-button" onClick={onClose}>
         Cancel
       </button>
     </div>
