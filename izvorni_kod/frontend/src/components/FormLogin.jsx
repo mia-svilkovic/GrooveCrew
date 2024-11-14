@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./Form.css";
+URL = "http://localhost:8000";
 
 function FormLogin({ onClose }) {
   const [username, setUsername] = useState("");
@@ -9,8 +10,9 @@ function FormLogin({ onClose }) {
     event.preventDefault();
 
     try {
-      const response = await fetch("loginAuth/", {
+      const response = await fetch(URL + "/loginAuth", {
         method: "POST",
+        mode: "no-cors",
         headers: {
           "Content-Type": "application/json",
         },
@@ -20,7 +22,7 @@ function FormLogin({ onClose }) {
         }),
       });
 
-      if (response.ok) {
+      if (response.status == 201) {
         const data = await response.json();
         console.log("Login successful:", data);
       } else {

@@ -23,3 +23,9 @@ img:hover {
     flex-direction: column;
     align-items: end;
 }
+
+.menu-container{
+    width:100% ;
+    display:flex;
+    flex-direction: column;
+}

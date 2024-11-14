@@ -54,7 +54,7 @@ def userLogin(request):
         data = json.loads(request.body)
         email = data.get('email')
         password = data.get('password')
-
+        
         user = authenticate(request, email=email, password=password)
         if user is not None:
             # Generate JWT token
