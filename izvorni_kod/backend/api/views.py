@@ -1,154 +1,88 @@
-from django.contrib.auth import get_user_model, authenticate
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.exceptions import AuthenticationFailed
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.shortcuts import render
-import json
-from .models import VinylRecord, Photograph, GoldmineCondition
-from .auth_util import validate_access_token
+from django.contrib.auth import authenticate
 
-User = get_user_model()
+from .models import Record, GoldmineCondition
+from .serializers import UserSerializer, RecordSerializer, GoldmineConditionSerializer
 
-@csrf_exempt
-def userRegister(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        email = data.get('email')
-        password = data.get('password')
-        first_name = data.get('first_name')
-        last_name = data.get('last_name')
-        username = data.get('username')
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register(request):
+   try:
+       serializer = UserSerializer(data=request.data)
+       if serializer.is_valid():
+           user = serializer.save()
+           refresh = RefreshToken.for_user(user)
+           return Response({
+               'user': UserSerializer(user).data,
+               'refresh': str(refresh),
+               'access': str(refresh.access_token),
+           }, status=status.HTTP_201_CREATED)
+       return Response({
+           'errors': serializer.errors
+       }, status=status.HTTP_400_BAD_REQUEST)
+   except Exception as e:
+       return Response({
+           'error': str(e)
+       }, status=status.HTTP_400_BAD_REQUEST)
 
-        if User.objects.filter(email=email).exists():
-            return JsonResponse({'error': 'Email already registered'}, status=400)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login(request):
+   try:
+       email = request.data.get('email')
+       password = request.data.get('password')
 
-        # Create user
-        user = User.objects.create_user(email=email, password=password, first_name=first_name, last_name=last_name, username=username)
-        
-        # Generate JWT token
-        refresh = RefreshToken.for_user(user)
-        access_token = refresh.access_token
+       if not email or not password:
+           return Response({
+               'error': 'Please provide both email and password'
+           }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Set tokens as HttpOnly cookies
-        response = JsonResponse({'message': 'register successful'})
-        response.set_cookie(
-            'access', str(access_token),
-            httponly=True,  # Prevent JavaScript access
-            secure=False    
-        )
-        response.set_cookie(
-            'refresh', str(refresh),
-            httponly=True,
-            secure=False
-        )
-        return response
-        
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
+       user = authenticate(email=email, password=password)
 
+       if not user:
+           return Response({
+               'error': 'Invalid credentials'
+           }, status=status.HTTP_401_UNAUTHORIZED)
 
-@csrf_exempt
-def userLogin(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        email = data.get('email')
-        password = data.get('password')
-        
-        user = authenticate(request, email=email, password=password)
-        if user is not None:
-            # Generate JWT token
-            refresh = RefreshToken.for_user(user)
-            access_token = refresh.access_token
+       if not user.is_active:
+           return Response({
+               'error': 'Account is not active'
+           }, status=status.HTTP_403_FORBIDDEN)
 
-            # Set tokens as HttpOnly cookies
-            response = JsonResponse({'message': 'Login successful'})
-            response.set_cookie(
-                'access', str(access_token),
-                httponly=True,  # Prevent JavaScript access
-                secure=False    
-            )
-            response.set_cookie(
-                'refresh', str(refresh),
-                httponly=True,
-                secure=False
-            )
-            return response
-        else:
-            return JsonResponse({'error': 'Invalid credentials'}, status=400)
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
+       refresh = RefreshToken.for_user(user)
+       return Response({
+           'user': UserSerializer(user).data,
+           'refresh': str(refresh),
+           'access': str(refresh.access_token),
+       })
+   except Exception as e:
+       return Response({
+           'error': str(e)
+       }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+   
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def record_list(request):
+    records = Record.objects.all()
+    serializer = RecordSerializer(records, many=True)
+    return Response(serializer.data)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def record_create(request):
+   serializer = RecordSerializer(data=request.data, context={'request': request})
+   if serializer.is_valid():
+       serializer.save()
+       return Response(serializer.data, status=status.HTTP_201_CREATED)
+   return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def frontend_view(request):
-    return render(request, 'index.html')
-
-#treba manualno dodati goldmine u bazu
-@csrf_exempt
-def add_vinyl_record(request):
-
-    if request.method == 'POST':
-
-        try:
-            user, response = validate_access_token(request)
-        except AuthenticationFailed as e:
-            return JsonResponse({'error: ': str(e)}, status=401)
-
-        # Extract form data
-        data = request.POST
-        user_id = user.id  # Assuming the user is logged in
-
-        # Get form data
-        photo = request.FILES.get('photo')  # assuming this is the binary content
-        artist = data.get("artist")
-        album_name = data.get("album_name")
-        release_year = data.get("release_year")
-        release_code = data.get("release_code")
-        genre = data.get("genre")
-        location = data.get("location")
-        goldmine_standard = data.get("goldmine_standard")  # trebala bi bit kratica
-        additional_description = data.get("additional_description")
-
-
-        
-        # Assuming goldmine_standard is an abbreviation or some unique field
-        record_condition = GoldmineCondition.objects.get(abbreviation=goldmine_standard)
-        
-        # Assuming `user_id` is passed, you can fetch the CustomUser instance
-        user = User.objects.get(id=user_id)
-
-
-        # Create VinylRecord instance
-        vinyl_record = VinylRecord.objects.create(
-            release_code=release_code,
-            artist=artist,
-            album_name=album_name,
-            release_year=release_year,
-            genre=genre,
-            location=location,  # It needs to be in JSON Format
-            available_for_exchange=True,  # Or you can handle this logic if it's a form field
-            additional_description=additional_description,
-            record_condition=record_condition,
-            cover_condition=record_condition,  # If it's the same as the record condition, otherwise pass a separate condition
-            user=user
-        )
-
-        # Create Photograph if there is any photo data (binary)
-        if photo:
-            photograph = Photograph.objects.create(
-                binary_content=photo.read(),
-                vinyl_record=vinyl_record
-            )  
-
-        return JsonResponse({"success": True})
-    return JsonResponse({"error": "Invalid method"}, status=400)
-
-def get_records(request):
-    items = list(VinylRecord.objects.values())
-    return JsonResponse(items, safe=False)
-
-def test_token(request):
-    try:
-        user, response = validate_access_token(request)
-        return response
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=401)
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def goldmine_condition_list(request):
+    goldmine_conditions = GoldmineCondition.objects.all()
+    serializer = GoldmineConditionSerializer(goldmine_conditions, many=True)
+    return Response(serializer.data)

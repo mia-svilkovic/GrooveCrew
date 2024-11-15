@@ -1,28 +1,23 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import User
 
 class CustomUserAdmin(UserAdmin):
-    # properties to display in the admin list
-    list_display = ('email', 'username', 'first_name', 'last_name', 'is_staff', 'is_active')
-    
-    # Fields to use for editing an individual user's profile
+    model = User
+    list_display = ('email', 'username', 'first_name', 'last_name', 'is_staff', 'is_superuser')
+    list_filter = ('is_active', 'is_staff', 'is_superuser')
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'username')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
+        (None, {'fields': ('email', 'username', 'password')}),
+        ('Personal info', {'fields': ('first_name', 'last_name')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
     )
-    # Fields to display when creating a new user through the admin
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'first_name', 'last_name', 'username', 'password1', 'password2', 'is_staff', 'is_active')}
+            'fields': ('email', 'username', 'first_name', 'last_name', 'password1', 'password2', 'is_active', 'is_staff', 'is_superuser')}
         ),
     )
-
-    # Fields to search by in the admin list view
-    search_fields = ('email', 'first_name', 'last_name', 'username')
+    search_fields = ('email', 'username', 'first_name', 'last_name')
     ordering = ('email',)
 
-# Register CustomUser with the specified admin configuration
-admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(User, CustomUserAdmin)
