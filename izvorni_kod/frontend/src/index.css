@@ -1,21 +1,15 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body{
-    background-color: #fefefe;
+body {
+  background-color: #fefefe;
 }
 
-header{
-    height: 80px;
-    background-color: black;
-    width: 100%;
+header {
+  height: 80px;
+  background-color: black;
+  width: 100%;
 }
-
-
-
-
-
-

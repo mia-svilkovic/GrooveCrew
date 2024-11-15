@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import "./Form.css";
-URL = "http://localhost:8000";
+
+// Koristi environment varijablu za API URL
+const URL = import.meta.env.VITE_API_URL;
 
 function FormAdd({ onClose }) {
-  const [photo, setPhoto] = useState(null); // Holds the photo file directly
   const [artist, setArtist] = useState("");
   const [albumName, setAlbumName] = useState("");
   const [releaseYear, setReleaseYear] = useState("");
@@ -12,19 +13,13 @@ function FormAdd({ onClose }) {
   const [location, setLocation] = useState("");
   const [goldmineStandard, setGoldmineStandard] = useState("");
   const [additionalDescription, setAdditionalDescription] = useState("");
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setPhoto(file); // Store the file directly
-    }
-  };
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleAddRecord = async (event) => {
     event.preventDefault();
 
     const formData = new FormData();
-    formData.append("photo", photo); // Add the file directly
     formData.append("artist", artist);
     formData.append("album_name", albumName);
     formData.append("release_year", releaseYear);
@@ -35,20 +30,27 @@ function FormAdd({ onClose }) {
     formData.append("additional_description", additionalDescription);
 
     try {
-      const response = await fetch("/add_record/", {
+      const response = await fetch(`${URL}/add_record/`, {
         method: "POST",
-        body: formData, // Send the form data directly
+        body: formData,
       });
 
       if (response.ok) {
         const data = await response.json();
         console.log("Record added successfully:", data);
+        setSuccessMessage("Vinyl added successfully!");
+        setErrorMessage(""); // Clear any previous error messages
+        onClose(); // Call onClose after successful submission
       } else {
         const errorData = await response.json();
         console.error("Failed to add record:", errorData);
+        setErrorMessage("Failed to add vinyl. Please try again.");
+        setSuccessMessage(""); // Clear success message if there was an error
       }
     } catch (error) {
       console.error("Error adding record:", error);
+      setErrorMessage("Error adding vinyl. Please check your connection.");
+      setSuccessMessage(""); // Clear success message if there was an error
     }
   };
 
@@ -56,14 +58,6 @@ function FormAdd({ onClose }) {
     <div className="form-container">
       <h2>ADD VINYL</h2>
       <form onSubmit={handleAddRecord}>
-        <label htmlFor="chooseImage">Cover image:</label>
-        <input
-          type="file"
-          id="chooseImage"
-          accept="image/*"
-          onChange={handleImageChange}
-          required
-        />
         <input
           type="text"
           placeholder="Artist"
@@ -84,6 +78,8 @@ function FormAdd({ onClose }) {
           value={releaseYear}
           onChange={(e) => setReleaseYear(e.target.value)}
           required
+          min="1900"
+          max={new Date().getFullYear()} // Set to current year as max value
         />
         <input
           type="text"
@@ -130,6 +126,8 @@ function FormAdd({ onClose }) {
         />
         <button type="submit">Add vinyl</button>
       </form>
+      {successMessage && <p className="success-message">{successMessage}</p>}
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
       <button className="cancel-button" onClick={onClose}>
         Cancel
       </button>
