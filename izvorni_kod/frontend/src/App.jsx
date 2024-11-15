@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Home from "./components/pages/Home";
 import { UserProvider } from "./contexts/UserContext"; // Importiraj UserProvider
+import "./App.css";
 
 function App() {
   return (

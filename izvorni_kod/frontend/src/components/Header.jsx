@@ -35,9 +35,7 @@ function Header() {
   return (
     <div className="container">
       <header className="header-container">
-        <button className="icon-button" onClick={toggleMenu}>
-          <img src={menuIcon} alt="Menu" />
-        </button>
+        <img src={menuIcon} alt="Menu" onClick={toggleMenu} />
         <img
           src={logo}
           alt="Logo"
@@ -51,14 +49,11 @@ function Header() {
           <span className="username">Prijavljeni ste kao:{user.username}</span>
         ) : null}
 
-        <button className="icon-button" onClick={toggleAuth}>
-          <img src={userIcon} alt="User" />
-        </button>
+        <img src={userIcon} alt="User" onClick={toggleAuth} />
       </header>
 
       {showAuth && <Authentication />}
 
-      {/* <Menu isOpen={showMenu} /> */}
       <div className="menu-container">
         <Menu isOpen={showMenu} />
       </div>

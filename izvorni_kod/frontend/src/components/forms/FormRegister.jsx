@@ -120,11 +120,13 @@ function FormRegister({ onClose }) {
           onChange={(e) => setPasswordConfirm(e.target.value)}
           required
         />
-        <button type="submit">Register</button>
+        <button type="submit" className="form-button">
+          Register
+        </button>
       </form>
       {successMessage && <p className="success-message">{successMessage}</p>}
       {errorMessage && <p className="error-message">{errorMessage}</p>}
-      <button className="close-button" onClick={onClose}>
+      <button className="close-button form-button" onClick={onClose}>
         Close
       </button>
     </div>

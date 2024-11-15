@@ -25,14 +25,14 @@ function Menu({ isOpen }) {
       {isOpen && (
         <div className="menu-bar">
           {MENU_ITEMS.map((item, index) => (
-            <button
+            <div
               key={index}
               className="menu-item"
               onClick={() => handleMenuClick(item.path)}
             >
               <img src={item.icon} alt={item.label} />
               <span>{item.label}</span>
-            </button>
+            </div>
           ))}
         </div>
       )}

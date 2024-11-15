@@ -88,11 +88,13 @@ function FormLogin({ onClose }) {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Login</button>
+        <button type="submit" className="form-button">
+          Login
+        </button>
       </form>
       {successMessage && <p className="success-message">{successMessage}</p>}
       {errorMessage && <p className="error-message">{errorMessage}</p>}
-      <button className="close-button" onClick={onClose}>
+      <button className="close-button form-button" onClick={onClose}>
         Close
       </button>
     </div>
