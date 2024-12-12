@@ -4,43 +4,84 @@ Aplikacija je dostupna na sljedećoj poveznici: https://groovecrew-frontend.onre
 # Opis projekta
 Ovaj projekt je reultat timskog rada u sklopu projeknog zadatka kolegija [Programsko inženjerstvo](https://www.fer.unizg.hr/predmet/proinz) na Fakultetu elektrotehnike i računarstva Sveučilišta u Zagrebu. 
 
-Kratko opisati cilj Vašeg projekta. Vaša motivacija?  (Napomena: odgovor nije »Zato što je to bio zadatak i nismo imali ideje za drugo.«). Koji problem rješavate?
-> Obzirom da je ovo zadani projekt navedite i što želite/jeste novo  naučili.
+## Motivacija projekta
+Skupljanje gramofonskih ploča posljednjih je godina doživjelo veliki preporod, postavši omiljeni hobi za glazbene entuzijaste. U doba u kojem dominira digitalni streaming, vinil nudi opipljivu i nostalgičnu vezu s glazbom koju mnogi ljudi smatraju nezamjenjivom. Zbog ograničenog broja izdanja, prestanka izdavanja ili velike potražnje, teško je uvijek pronaći željene ploče.
 
-> Dobro izrađen opis omogućuje vam da pokažete svoj rad drugim programerima, kao i potencijalnim poslodavcima. Ne samo da prvi dojam na stranici opisa često razlikuje dobar projekt od lošeg projekta već i predstavlja dobru praksu koju morate savladati.
-
-# Funkcijski zahtjevi
-> Navedite ključne zahtjeve Vašeg projekta.
+## Cilj projekta
+Cilj je stvoriti funkcionalnu platformu koja olakšava razmjenu gramofonskih ploča između glazbenih entuzijasta. Na jednom mjestu korisnik objavljuje ploče koje nudi za zamjenu, pregledava i pronalazi željene ploče i realizira zamjenu.
 
 
 # Tehnologije
 
-#Instalcija
+Instalacija:
+## 1. Kloniraj repo s GitHub-a
+
+```bash
+git clone https://github.com/mia-svilkovic/GrooveCrew.git
+cd GrooveCrew
+```
+
+## 2. Stvori Python virtual environment
+
+```bash
+cd izvorni_kod/backend
+# Postavi virtual environment
+python -m venv env  # Windowsu
+# ili
+python3 -m venv env  # Linux/Mac
+```
+
+## 3. Aktivirajte virutal environment:
+
+```bash
+env\Scripts\activate  # Windows
+# ili
+source env/bin/activate  # Linux/Mac
+```
+
+## 4. Instaliraj Python dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+## 5. Pokreni development server za Django
+
+```bash
+python manage.py migrate  # Pokreni migracije
+python manage.py runserver  # Pokreni Django development server
+```
+
+## 6. Instaliraj Node.js dependencies za React front-end
+
+```bash
+# pozicioniranje u frontend folder
+cd ../frontend
+npm install  # Instaliraj Node.js dependencies
+```
+
+## 7. Pokreni development server za React
+
+```bash
+npm run dev  # Pokreni React Vite development server
+```
+
+
 # Članovi tima 
-> Popis članova tima/linkovi/ glavni doprinos
->
-
-# Kontribucije
->Pravila ovise o organizaciji tima i su često izdvojena u CONTRIBUTING.md
-
+- Marko Kliček
+- Antonio Macan
+- Filip Marković
+- Karlo Peršić
+- Antonio Ružić
+- Mia Svilković
+- Tonka Šegvić
 
 
 # 📝 Kodeks ponašanja [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
-Kao studenti sigurno ste upoznati s minimumom prihvatljivog ponašanja definiran u [KODEKS PONAŠANJA STUDENATA FAKULTETA ELEKTROTEHNIKE I RAČUNARSTVA SVEUČILIŠTA U ZAGREBU](https://www.fer.hr/_download/repository/Kodeks_ponasanja_studenata_FER-a_procisceni_tekst_2016%5B1%5D.pdf), te dodatnim naputcima za timski rad na predmetu [Programsko inženjerstvo](https://wwww.fer.hr).
-Očekujemo da ćete poštovati [etički kodeks IEEE-a](https://www.ieee.org/about/corporate/governance/p7-8.html) koji ima važnu obrazovnu funkciju sa svrhom postavljanja najviših standarda integriteta, odgovornog ponašanja i etičkog ponašanja u profesionalnim aktivnosti. Time profesionalna zajednica programskih inženjera definira opća načela koja definiranju  moralni karakter, donošenje važnih poslovnih odluka i uspostavljanje jasnih moralnih očekivanja za sve pripadnike zajenice.
+Kao studenti upoznati smo s minimumom prihvatljivog ponašanja definiranim u [KODEKS PONAŠANJA STUDENATA FAKULTETA ELEKTROTEHNIKE I RAČUNARSTVA SVEUČILIŠTA U ZAGREBU](https://www.fer.hr/_download/repository/Kodeks_ponasanja_studenata_FER-a_procisceni_tekst_2016%5B1%5D.pdf), te dodatnim naputcima za timski rad na predmetu [Programsko inženjerstvo](https://wwww.fer.hr).
+Poštujemo [etički kodeks IEEE-a](https://www.ieee.org/about/corporate/governance/p7-8.html) koji ima važnu obrazovnu funkciju sa svrhom postavljanja najviših standarda integriteta, odgovornog ponašanja i etičkog ponašanja u profesionalnim aktivnosti. Time profesionalna zajednica programskih inženjera definira opća načela koja definiranju  moralni karakter, donošenje važnih poslovnih odluka i uspostavljanje jasnih moralnih očekivanja za sve pripadnike zajenice.
 
 Kodeks ponašanja skup je provedivih pravila koja služe za jasnu komunikaciju očekivanja i zahtjeva za rad zajednice/tima. Njime se jasno definiraju obaveze, prava, neprihvatljiva ponašanja te  odgovarajuće posljedice (za razliku od etičkog kodeksa). U ovom repozitoriju dan je jedan od široko prihvačenih kodeks ponašanja za rad u zajednici otvorenog koda.
->### Poboljšajte funkcioniranje tima:
->* definirajte načina na koji će rad biti podijeljen među članovima grupe
->* dogovorite kako će grupa međusobno komunicirati.
->* ne gubite vrijeme na dogovore na koji će grupa rješavati sporove primjenite standarde!
->* implicitno podrazmijevamo da će svi članovi grupe slijediti kodeks ponašanja.
- 
->###  Prijava problema
->Najgore što se može dogoditi je da netko šuti kad postoje problemi. Postoji nekoliko stvari koje možete učiniti kako biste najbolje riješili sukobe i probleme:
->* Obratite mi se izravno [e-pošta](mailto:vlado.sruk@fer.hr) i  učinit ćemo sve što je u našoj moći da u punom povjerenju saznamo koje korake trebamo poduzeti kako bismo riješili problem.
->* Razgovarajte s vašim asistentom jer ima najbolji uvid u dinamiku tima. Zajedno ćete saznati kako riješiti sukob i kako izbjeći daljnje utjecanje u vašem radu.
->* Ako se osjećate ugodno neposredno razgovarajte o problemu. Manje incidente trebalo bi rješavati izravno. Odvojite vrijeme i privatno razgovarajte s pogođenim članom tima te vjerujte u iskrenost.
 
 # 📝 Licenca
 Važeča (1)
