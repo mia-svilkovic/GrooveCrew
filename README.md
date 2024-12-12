@@ -2,7 +2,7 @@
 Aplikacija je dostupna na sljedećoj poveznici: https://groovecrew-frontend.onrender.com/ 
 
 # Opis projekta
-Ovaj projekt je reultat timskog rada u sklopu projeknog zadatka kolegija [Programsko inženjerstvo](https://www.fer.unizg.hr/predmet/proinz) na Fakultetu elektrotehnike i računarstva Sveučilišta u Zagrebu. 
+Ovaj projekt rezultat je timskog rada razvijenog u sklopu projektnog zadatka kolegija [Programsko inženjerstvo](https://www.fer.unizg.hr/predmet/proinz) na Fakultetu elektrotehnike i računarstva Sveučilišta u Zagrebu.
 
 ## Motivacija projekta
 Skupljanje gramofonskih ploča posljednjih je godina doživjelo veliki preporod, postavši omiljeni hobi za glazbene entuzijaste. U doba u kojem dominira digitalni streaming, vinil nudi opipljivu i nostalgičnu vezu s glazbom koju mnogi ljudi smatraju nezamjenjivom. Zbog ograničenog broja izdanja, prestanka izdavanja ili velike potražnje, teško je uvijek pronaći željene ploče.
