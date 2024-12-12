@@ -2,3 +2,6 @@ django
 djangorestframework
 djangorestframework-simplejwt
 psycopg
+django-allauth
+requests
+cryptography
