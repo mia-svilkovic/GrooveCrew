@@ -1,8 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Form.css";
-URL = "http://localhost:8000";
 
-function FormAdd({ onClose }) {
+// Koristi environment varijablu za API URL
+const URL = import.meta.env.VITE_API_URL;
+//console.log(URL) ;
+
+
+//const token = localStorage.getItem('access') ;
+
+function FormAdd({ onClose, gStand }) {
+
+  console.log(gStand);
+
   const [photo, setPhoto] = useState(null); // Holds the photo file directly
   const [artist, setArtist] = useState("");
   const [albumName, setAlbumName] = useState("");
@@ -10,8 +19,13 @@ function FormAdd({ onClose }) {
   const [releaseCode, setReleaseCode] = useState("");
   const [genre, setGenre] = useState("");
   const [location, setLocation] = useState("");
-  const [goldmineStandard, setGoldmineStandard] = useState("");
+  //const [goldmineStandard, setGoldmineStandard] = useState("");
   const [additionalDescription, setAdditionalDescription] = useState("");
+  const [releaseMark, setReleaseMark] = useState("");
+  const [recordCondition, setRecordCondition] = useState("");
+  const [sleeveCondition, setSleeveCondition] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -24,31 +38,54 @@ function FormAdd({ onClose }) {
     event.preventDefault();
 
     const formData = new FormData();
-    formData.append("photo", photo); // Add the file directly
     formData.append("artist", artist);
     formData.append("album_name", albumName);
     formData.append("release_year", releaseYear);
     formData.append("release_code", releaseCode);
     formData.append("genre", genre);
     formData.append("location", location);
-    formData.append("goldmine_standard", goldmineStandard);
+    //formData.append("goldmine_standard", goldmineStandard);
     formData.append("additional_description", additionalDescription);
+    formData.append("release_mark", releaseMark) ;
+    formData.append("record_condition", recordCondition) ;
+    formData.append("sleeve_condition", sleeveCondition) ;
+
+    const handleImageChange = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        setPhoto(file); // Store the file directly
+      }
+    };
 
     try {
-      const response = await fetch("/add_record/", {
+      const response = await fetch(`${URL}add_record/`, {
         method: "POST",
-        body: formData, // Send the form data directly
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access') }`, 
+          'Content-Type': 'application/json',  
+        },
+        body: formData,
       });
+
+      const textResponse = await response.text(); // Read raw text response
+      console.log("Raw Response:", textResponse);
 
       if (response.ok) {
         const data = await response.json();
         console.log("Record added successfully:", data);
+        setSuccessMessage("Vinyl added successfully!");
+        setErrorMessage(""); // Clear any previous error messages
+        onClose(); // Call onClose after successful submission
       } else {
         const errorData = await response.json();
         console.error("Failed to add record:", errorData);
+        setErrorMessage("Failed to add vinyl. Please try again.");
+        setSuccessMessage(""); // Clear success message if there was an error
       }
     } catch (error) {
       console.error("Error adding record:", error);
+      setErrorMessage("Error adding vinyl. Please check your connection.");
+      setSuccessMessage(""); // Clear success message if there was an error
     }
   };
 
@@ -84,6 +121,8 @@ function FormAdd({ onClose }) {
           value={releaseYear}
           onChange={(e) => setReleaseYear(e.target.value)}
           required
+          min="1900"
+          max={new Date().getFullYear()} // Set to current year as max value
         />
         <input
           type="text"
@@ -99,22 +138,30 @@ function FormAdd({ onClose }) {
           onChange={(e) => setGenre(e.target.value)}
           required
         />
-        <select
-          id="Goldmine selection"
-          value={goldmineStandard}
-          onChange={(e) => setGoldmineStandard(e.target.value)}
+
+         <select
+          id="Goldmine record"
+          value={recordCondition}
+          onChange={(e) => setRecordCondition(e.target.value)}
           required
         >
           <option value="" disabled>
-            Goldmine Standard
+            Record Goldmine Standard
           </option>
-          <option value="M">M</option>
-          <option value="NM">NM</option>
-          <option value="E">E</option>
-          <option value="VG">VG</option>
-          <option value="G">G</option>
-          <option value="P">P</option>
-        </select>
+          {gStand.map(i => <option key={i.id} value={i.id}>{i.abbreviation}</option>)}
+        </select> 
+        <select
+          id="Goldmine sleeve"
+          value={sleeveCondition}
+          onChange={(e) => setSleeveCondition(e.target.value)}
+          required
+        >
+          <option value="" disabled>
+            Sleeve Goldmine Standard
+          </option>
+          {gStand.map(i => <option key={i.id} value={i.id}>{i.abbreviation}</option>)}
+        </select> 
+        
         <input
           type="text"
           placeholder="Location"
@@ -128,8 +175,18 @@ function FormAdd({ onClose }) {
           value={additionalDescription}
           onChange={(e) => setAdditionalDescription(e.target.value)}
         />
+        <input
+          type="text"
+          placeholder="release mark"
+          value={releaseMark}
+          onChange={(e) => setReleaseMark(e.target.value)}
+          required
+        />
+
         <button type="submit">Add vinyl</button>
       </form>
+      {successMessage && <p className="success-message">{successMessage}</p>}
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
       <button className="cancel-button" onClick={onClose}>
         Cancel
       </button>

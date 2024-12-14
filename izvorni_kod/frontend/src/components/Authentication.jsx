@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 import "./Authentication.css";
-import FormLogin from "./FormLogin";
-import FormRegister from "./FormRegister";
+import FormLogin from "./forms/FormLogin";
+import FormRegister from "./forms/FormRegister";
 
 function Authentication() {
-  const [activeForm, setActiveForm] = useState(null); // null means no form is open
+  const [activeForm, setActiveForm] = useState(null);
 
   const openLoginForm = () => setActiveForm("login");
-
   const openRegisterForm = () => setActiveForm("register");
-
   const closeForm = () => setActiveForm(null);
 
   return (
@@ -26,7 +24,7 @@ function Authentication() {
       )}
       {activeForm === "login" && (
         <div className="modal-overlay">
-          <FormLogin onClose={closeForm} />{" "}
+          <FormLogin onClose={closeForm} />
         </div>
       )}
       {activeForm === "register" && (

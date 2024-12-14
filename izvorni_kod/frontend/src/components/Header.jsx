@@ -1,35 +1,69 @@
 import "./Header.css";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Authentication from "./Authentication";
 import Menu from "./Menu";
-import logo from "../pictures/logo.png";
-import user from "../pictures/user.png";
-import menu from "../pictures/menu.png";
-
+import logo from "../assets/images/logo.png";
+import userIcon from "../assets/images/user.png";
+import menuIcon from "../assets/images/menu.png";
+import { useUser } from "../contexts/UserContext"; // Uvozimo useUser hook
 
 function Header() {
   const [showAuth, setShowAuth] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const navigate = useNavigate();
 
-  const toggleAuth = () => setShowAuth((prev) => !prev);
-  const toggleMenu = () => setShowMenu((prev) => !prev);
+  // Dohvatimo podatke o korisniku iz UserContexta
+  const { user } = useUser();
+
+  const toggleAuth = () => {
+    setShowAuth(!showAuth);
+    if (showMenu) setShowMenu(false);
+  };
+
+  const toggleMenu = () => {
+    setShowMenu(!showMenu);
+    if (showAuth) setShowAuth(false);
+  };
+
+  const handleLogoClick = () => {
+    navigate("/");
+    if (showMenu) setShowMenu(false);
+    if (showAuth) setShowAuth(false);
+  };
 
   return (
     <div className="container">
       <header className="header-container">
-        <img src={menu} alt="menu" onClick={toggleMenu}/>
-        <img src={logo} alt="logo" />
-        <img src={user} alt="user" onClick={toggleAuth} />
-      </header>
-      <div className="auth-container">
-        {showAuth && <Authentication />}
-      </div>
-      
-      <div className="menu-container"><Menu showMenu={showMenu} /></div>
-      
+        <button className="icon-button" onClick={toggleMenu}>
+          <img src={menuIcon} alt="Menu" />
+        </button>
+        <img
+          src={logo}
+          alt="Logo"
+          className="logo"
+          onClick={handleLogoClick}
+          style={{ cursor: "pointer" }}
+        />
 
+        {/* Ako je korisnik prijavljen, prikaži njegovo ime */}
+        {user?.username ? (
+          <span className="username">Prijavljeni ste kao:{user.username}</span>
+        ) : null}
+
+        <button className="icon-button" onClick={toggleAuth}>
+          <img src={userIcon} alt="User" />
+        </button>
+      </header>
+
+      {showAuth && <Authentication />}
+
+      {/* <Menu isOpen={showMenu} /> */}
+      <div className="menu-container">
+        <Menu isOpen={showMenu} />
+      </div>
     </div>
   );
 }
 
-export default Header
+export default Header;

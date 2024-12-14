@@ -1,95 +1,49 @@
 import React from "react";
-import "./Menu.css" ;
-import like from "../pictures/like.png"; 
-import exchange from "../pictures/exchange.png";
-import vinyl from "../pictures/vinyl.png";
-import history from "../pictures/history.png";
-import MyVinyls from "./MyVinyls";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Menu.css";
+import like from "../assets/images/like.png";
+import exchange from "../assets/images/exchange.png";
+import vinyl from "../assets/images/vinyl.png";
+import history from "../assets/images/history.png";
+import { useUser } from "../contexts/UserContext"; // Import the user context
 
 
-URL = "http://localhost:8000";
+const MENU_ITEMS = [
+  { icon: like, label: "Wishlist", path: "/wishlist" },
+  { icon: exchange, label: "Offers", path: "/offers" },
+  { icon: vinyl, label: "My vinyls", path: "/my-vinyls" },
+  { icon: history, label: "History", path: "/history" },
+];
 
-function Menu({ showMenu }) {
-  const [vinyls, setVinyls] = useState([]);  
-  const [showVinyls, setShowVinyls] = useState(false); 
+function Menu({ isOpen }) {
+  const navigate = useNavigate();
+  const { user } = useUser(); // Get user data from context
 
-  const handleMyVinylsClick = async () => {
-    if (showVinyls) {
-      setShowVinyls(false);  
-      return;
-    }
-    try {
-      const response = await fetch(URL + "/fetch_records", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch vinyl records");
-      }
-
-      const data = await response.json();
-      setVinyls(data);
-      setShowVinyls(true);
-    } catch (error) {
-      console.error("Error fetching vinyl records:", error);
-    }
-  };
-
-  //testWithoutFetch sluzi da se testira jeli se ploče ispravno pokazuju na frontendu bez pokretanja backenda
-  //za koristenje s backendom koristiiti handleMyVinylsClick
-  const testWithoutFetch = () => { 
-    if (showVinyls) {
-      setShowVinyls(false);  
-      return;
-    }
-    const data=
-    [{
-        "release_code": "VYN1234",
-        "artist": "The Beatles",
-        "album_name": "Abbey Road",
-        "release_year": 1969,
-        "genre": "Rock",
-        "location": {
-          "city": "London",
-          "country": "UK"
-        },
-        "available_for_exchange": true,
-        "additional_description": "A classic album in good condition."
-    }];
-    setVinyls(data);
-    setShowVinyls(true);
+  // If no user is logged in, return null to hide the menu
+  if (!user) {
+    return null; // This will prevent the Menu from being rendered
   }
+
+  const handleMenuClick = (path) => {
+    navigate(path);
+  };
 
   return (
     <div>
-      {showMenu && (
+      {isOpen && (
         <div className="menu-bar">
-          <div className="menu-item">
-            <img src={like} alt="like" />
-            <span>Wishlist</span>
-          </div>
-          <div className="menu-item">
-            <img src={exchange} alt="exchange" />
-            <span>Offers</span>
-          </div>
-          <div className="menu-item" onClick={testWithoutFetch}>
-
-            <img src={vinyl} alt="vinyl" />
-            <span>My vinyls</span>
-          </div>
-          <div className="menu-item">
-            <img src={history} alt="history" />
-            <span>History</span>
-          </div>
+          {MENU_ITEMS.map((item, index) => (
+            <button
+              key={index}
+              className="menu-item"
+              onClick={() => handleMenuClick(item.path)}
+            >
+              <img src={item.icon} alt={item.label} />
+              <span>{item.label}</span>
+            </button>
+          ))}
         </div>
       )}
-      <div>
-        <MyVinyls vinyls={vinyls} showVinyls={showVinyls}/>
-      </div>
     </div>
   );
 }

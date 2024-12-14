@@ -8,6 +8,7 @@ from django.shortcuts import render
 import json
 from .models import VinylRecord, Photograph, GoldmineCondition
 from .auth_util import validate_access_token
+from .serializers import UserSerializer, RecordSerializer, GoldmineConditionSerializer
 
 User = get_user_model()
 
@@ -32,7 +33,11 @@ def userRegister(request):
         access_token = refresh.access_token
 
         # Set tokens as HttpOnly cookies
-        response = JsonResponse({'message': 'register successful'})
+        response = JsonResponse({
+            'message': 'register successful',
+            'user': UserSerializer(user).data
+        })
+        
         response.set_cookie(
             'access', str(access_token),
             httponly=True,  # Prevent JavaScript access
@@ -62,7 +67,7 @@ def userLogin(request):
             access_token = refresh.access_token
 
             # Set tokens as HttpOnly cookies
-            response = JsonResponse({'message': 'Login successful'})
+            response = JsonResponse({'message': 'Login successful', 'user': UserSerializer(user).data})
             response.set_cookie(
                 'access', str(access_token),
                 httponly=True,  # Prevent JavaScript access

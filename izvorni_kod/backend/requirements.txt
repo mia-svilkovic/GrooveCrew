@@ -5,3 +5,4 @@ psycopg
 django-allauth
 requests
 cryptography
+django-cors-headers

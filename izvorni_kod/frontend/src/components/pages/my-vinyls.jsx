@@ -1,5 +1,5 @@
 import React from "react";
-import "./MyVinyls.css" ;
+//import "./MyVinyls.css" ;
 
 
 function MyVinyls({ vinyls, showVinyls }) {
