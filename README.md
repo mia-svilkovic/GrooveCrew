@@ -48,22 +48,30 @@ pip install -r requirements.txt
 ## 5. Pokreni development server za Django
 
 ```bash
-python manage.py migrate  # Pokreni migracije
-python manage.py runserver  # Pokreni Django development server
+python manage.py migrate  # pokreni migracije
+python manage.py runserver  # pokreni Django development server
 ```
-
-## 6. Instaliraj Node.js dependencies za React front-end
+## 6. Dodaj .env za lokalni frontend development
 
 ```bash
 # pozicioniranje u frontend folder
 cd ../frontend
-npm install  # Instaliraj Node.js dependencies
+
+stvoriti datoteku .env
+u njoj se treba nalazati:
+VITE_API_URL=http://localhost:8000/
 ```
 
-## 7. Pokreni development server za React
+## 7. Instaliraj Node.js dependencies za React front-end
 
 ```bash
-npm run dev  # Pokreni React Vite development server
+npm install
+```
+
+## 8. Pokreni development server za React
+
+```bash
+npm run dev
 ```
 
 
