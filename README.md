@@ -11,54 +11,59 @@ Ovo su upute koje je potrebno pratiti prilikom inicijalnog postavljanja projekta
 ```bash
 git clone https://github.com/mia-svilkovic/GrooveCrew.git
 cd GrooveCrew
-git checkout develop
-cd izvorni_kod
 ```
 
 ## 2. Stvori Python virtual environment
 
 ```bash
-python -m venv env  # Postavi virtual environment na Windowsu
+cd izvorni_kod/backend
+# Postavi virtual environment
+python -m venv env  # Windowsu
 # ili
-python3 -m venv env  # Kreiraj virtual environment na Linux/Mac
+python3 -m venv env  # Linux/Mac
 ```
 
 ## 3. Aktivirajte virutal environment:
 
 ```bash
-env\Scripts\activate  # Aktiviraj virtual environment na Windows
+env\Scripts\activate  # Windows
 # ili
-source env/bin/activate  # Aktiviraj virtual environment na Linux/Mac
+source env/bin/activate  # Linux/Mac
 ```
-Nakon što se aktivira virtual environment, Python uvijek pokrećete preko naredbe `python` bez obzira na OS.
 
 ## 4. Instaliraj Python dependencies
 
 ```bash
-pip install -r backend/requirements.txt
+pip install -r requirements.txt
 ```
 
-## 5. Postavi Node.js dependencies za React front-end
+## 5. Pokreni development server za Django
 
 ```bash
-cd frontend
-npm install  # Instaliraj Node.js dependencies
-cd ..
+python manage.py migrate  # pokreni migracije
+python manage.py runserver  # pokreni Django development server
+```
+## 6. Dodaj .env za lokalni frontend development
+
+```bash
+# pozicioniranje u frontend folder
+cd ../frontend
+
+stvoriti datoteku .env
+u njoj se treba nalazati:
+VITE_API_URL=http://localhost:8000/
 ```
 
-## 6. Pokreni development server za Django
+## 7. Instaliraj Node.js dependencies za React front-end
 
 ```bash
-cd backend
-python manage.py migrate  # Pokreni migracije
-python manage.py runserver  # Pokreni Django development server
+npm install
 ```
 
-## 7. Pokreni development server za React
+## 8. Pokreni development server za React
 
 ```bash
-cd frontend
-npm run dev  # Pokreni React Vite development server
+npm run dev
 ```
 
 # Općenite upute za rad na ovom projektu
