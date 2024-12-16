@@ -9,6 +9,9 @@ import json
 from .models import VinylRecord, Photograph, GoldmineCondition
 from .auth_util import validate_access_token
 from .serializers import UserSerializer, RecordSerializer, GoldmineConditionSerializer
+from rest_framework.response import Response
+from rest_framework import status
+
 
 User = get_user_model()
 
@@ -88,15 +91,24 @@ def frontend_view(request):
     return render(request, 'index.html')
 
 #treba manualno dodati goldmine u bazu
+
 @csrf_exempt
 def add_vinyl_record(request):
 
     if request.method == 'POST':
-
+       
         try:
             user, response = validate_access_token(request)
         except AuthenticationFailed as e:
             return JsonResponse({'error: ': str(e)}, status=401)
+        
+        # serializer = RecordSerializer(data=request.POST, context={'request': request})
+        # if serializer.is_valid():
+        #     serializer.save()
+        #     return JsonResponse(serializer.data, status=201)
+        # print(serializer.errors) 
+        # return JsonResponse(serializer.errors, status=400)
+
 
         # Extract form data
         data = request.POST
@@ -110,13 +122,15 @@ def add_vinyl_record(request):
         release_code = data.get("release_code")
         genre = data.get("genre")
         location = data.get("location")
-        goldmine_standard = data.get("goldmine_standard")  # trebala bi bit kratica
+        record_condition_gs = data.get("record_condition")  # trebala bi bit kratica
+        cover_condition_gs = data.get("cover_condition")
         additional_description = data.get("additional_description")
 
 
         
         # Assuming goldmine_standard is an abbreviation or some unique field
-        record_condition = GoldmineCondition.objects.get(abbreviation=goldmine_standard)
+        record_condition = GoldmineCondition.objects.get(id=record_condition_gs)
+        cover_condition = GoldmineCondition.objects.get(id=cover_condition_gs)
         
         # Assuming `user_id` is passed, you can fetch the CustomUser instance
         user = User.objects.get(id=user_id)
@@ -133,7 +147,7 @@ def add_vinyl_record(request):
             available_for_exchange=True,  # Or you can handle this logic if it's a form field
             additional_description=additional_description,
             record_condition=record_condition,
-            cover_condition=record_condition,  # If it's the same as the record condition, otherwise pass a separate condition
+            cover_condition=cover_condition,  # If it's the same as the record condition, otherwise pass a separate condition
             user=user
         )
 

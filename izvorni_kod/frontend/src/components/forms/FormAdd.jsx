@@ -27,6 +27,21 @@ function FormAdd({ onClose, gStand }) {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage("");
+        onClose();
+      }, 2000); // Poruka nestaje nakon 2 sekundi
+      return () => clearTimeout(timer); // Čisti timer kad se komponenta demontira ili kada se promijeni successMessage
+    }
+    if (errorMessage) {
+      const timer = setTimeout(() => setErrorMessage(""), 5000);
+      return () => clearTimeout(timer); // Čisti timer kad se komponenta demontira ili kada se promijeni errorMessage
+    }
+  }, [successMessage, errorMessage]);
+
+
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -38,6 +53,7 @@ function FormAdd({ onClose, gStand }) {
     event.preventDefault();
 
     const formData = new FormData();
+    formData.append("photo", photo)
     formData.append("artist", artist);
     formData.append("album_name", albumName);
     formData.append("release_year", releaseYear);
@@ -46,9 +62,9 @@ function FormAdd({ onClose, gStand }) {
     formData.append("location", location);
     //formData.append("goldmine_standard", goldmineStandard);
     formData.append("additional_description", additionalDescription);
-    formData.append("release_mark", releaseMark) ;
+    formData.append("release_code", releaseMark) ;
     formData.append("record_condition", recordCondition) ;
-    formData.append("sleeve_condition", sleeveCondition) ;
+    formData.append("cover_condition", sleeveCondition) ;
 
     const handleImageChange = (event) => {
       const file = event.target.files[0];
@@ -60,22 +76,20 @@ function FormAdd({ onClose, gStand }) {
     try {
       const response = await fetch(`${URL}add_record/`, {
         method: "POST",
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access') }`, 
-          'Content-Type': 'application/json',  
-        },
+        // headers: {
+        //   //'Authorization': `Bearer ${localStorage.getItem('access') }`, 
+        //   'Content-Type': 'application/json',
+        // },
         body: formData,
+        credentials: 'include', 
       });
-
-      const textResponse = await response.text(); // Read raw text response
-      console.log("Raw Response:", textResponse);
 
       if (response.ok) {
         const data = await response.json();
         console.log("Record added successfully:", data);
         setSuccessMessage("Vinyl added successfully!");
         setErrorMessage(""); // Clear any previous error messages
-        onClose(); // Call onClose after successful submission
+        //onClose(); // Call onClose after successful submission
       } else {
         const errorData = await response.json();
         console.error("Failed to add record:", errorData);

@@ -54,25 +54,25 @@ class GoldmineConditionSerializer(serializers.ModelSerializer):
 
 class RecordSerializer(serializers.ModelSerializer):
     record_condition_detail = GoldmineConditionSerializer(source='record_condition', read_only=True)
-    sleeve_condition_detail = GoldmineConditionSerializer(source='sleeve_condition', read_only=True)
+    cover_condition_detail = GoldmineConditionSerializer(source='cover_condition', read_only=True)
     user_detail = UserSerializer(source='user', read_only=True)
 
     class Meta:
         model = VinylRecord
         fields = [
             'id', 
-            'release_mark', 
+            'release_code', 
             'artist', 
             'album_name', 
             'release_year', 
             'genre', 
-            'location', 
-            'available_for_trade',
+            #'location', 
+            'available_for_exchange',
             'additional_description', 
             'record_condition',
             'record_condition_detail', 
-            'sleeve_condition',
-            'sleeve_condition_detail',
+            'cover_condition',
+            'cover_condition_detail',
             'user_detail'
         ]
         read_only_fields = ['id', 'user_detail', 'record_condition_detail', 'sleeve_condition_detail']
