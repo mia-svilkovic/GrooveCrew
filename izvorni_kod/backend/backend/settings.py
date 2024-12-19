@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+from corsheaders.defaults import default_headers
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -63,6 +65,7 @@ SOCIALACCOUNT_PROVIDERS={
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -75,9 +78,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'backend.urls'
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # The URL of your frontend
+]
 CORS_ALLOW_CREDENTIALS = True
-
+#CORS_ALLOW_HEADERS = ['*']
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'content-type',
+]
 
 
 TEMPLATES = [

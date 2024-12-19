@@ -11,6 +11,8 @@ from .auth_util import validate_access_token
 from .serializers import UserSerializer, RecordSerializer, GoldmineConditionSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import api_view
+
 
 
 User = get_user_model()
@@ -74,12 +76,14 @@ def userLogin(request):
             response.set_cookie(
                 'access', str(access_token),
                 httponly=True,  # Prevent JavaScript access
-                secure=False    
+                secure=False,
+                samesite='Lax'    
             )
             response.set_cookie(
                 'refresh', str(refresh),
                 httponly=True,
-                secure=False
+                secure=False,
+                samesite='Lax'
             )
             return response
         else:
@@ -93,7 +97,7 @@ def frontend_view(request):
 #treba manualno dodati goldmine u bazu
 
 @csrf_exempt
-def add_vinyl_record(request):
+def add_vinyl_record(request, user_id):
 
     if request.method == 'POST':
        
@@ -112,7 +116,7 @@ def add_vinyl_record(request):
 
         # Extract form data
         data = request.POST
-        user_id = user.id  # Assuming the user is logged in
+        #user_id = user.id  # Assuming the user is logged in
 
         # Get form data
         photo = request.FILES.get('photo')  # assuming this is the binary content
@@ -164,6 +168,20 @@ def add_vinyl_record(request):
 def get_records(request):
     items = list(VinylRecord.objects.values())
     return JsonResponse(items, safe=False)
+
+@api_view(['GET'])
+def get_user_vinyls(request, user_id):
+    try:
+        vinyl_records = VinylRecord.objects.filter(user_id=user_id)
+        
+        serializer = RecordSerializer(vinyl_records, many=True)
+        return Response(serializer.data)
+    
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 def test_token(request):
     try:

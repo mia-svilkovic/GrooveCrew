@@ -1,28 +1,89 @@
-import React from "react";
-//import "./MyVinyls.css" ;
+import React, { useState, useEffect } from "react";
+import "./my-vinyls.css" ;
+import bin from "../../assets/images/bin.png";
+import edit from "../../assets/images/edit.png";
+import { useUser } from "../../contexts/UserContext";
 
 
-function MyVinyls({ vinyls, showVinyls }) {
+const URL = import.meta.env.VITE_API_URL;
+
+
+
+
+function MyVinyls() {
+  const [vinyls, setVinyls] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const { user } = useUser();
+  const userId = user.id ;
+
+  // Fetch all vinyls when the component mounts
+  useEffect(() => {
+    const fetchVinyls = async () => {
+      try {
+        const response = await fetch(`${URL}vinyls/user/${userId}`, {
+          method: "GET",
+          credentials: "include"
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch vinyls");
+        }
+
+        const data = await response.json();
+
+        setVinyls(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching vinyls:", error);
+        setErrorMessage("Failed to load vinyl records. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    fetchVinyls();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (errorMessage) {
+    return <div className="error-message">{errorMessage}</div>;
+  }
   return (
-    <div>
-        {showVinyls && (
-        <div className="My_vinyls">
-            <h2>My Vinyl Records</h2>
-            <ul>
-            {vinyls.map(vinyl => (
-                <li key={vinyl.release_code} className="vinyl_data">
-                    <h3>{vinyl.album_name}</h3>
+        
+      <div className="vinyls-container">
+        <h2>My Vinyl Records</h2>
+        {vinyls.length === 0 ? (
+          <p>You don't have any vinyls published.</p>
+        ) : (
+          <div className="vinyl-list">
+            {vinyls.map((vinyl) => (
+              <div key={vinyl.id} className="vinyl-item">
+
+                  <h3>{vinyl.album_name}</h3>
                     <p>Artist: {vinyl.artist}</p>
                     <p>Genre: {vinyl.genre}</p>
-                    <p>Location: {vinyl.location.city}, {vinyl.location.country}</p>
+                    {/* <p>Location: {vinyl.location.city}, {vinyl.location.country}</p> */}
                     <p>Available for Exchange: {vinyl.available_for_exchange ? "Yes" : "No"}</p>
                     <p>Description: {vinyl.additional_description}</p>
-                </li>
+                    <div>
+                      <button key={vinyl.id + "edit"} className="vinyl-opt">
+                        <img src={edit} alt={edit} />
+                      </button>
+                      <button key={vinyl.id + "delete"} className="vinyl-opt">
+                        <img src={bin} alt={bin} />
+                      </button>
+                    </div>
+              </div>
             ))}
-            </ul>
-        </div>
+          </div>
         )}
     </div>
+        
+    
   );
 }
 export default MyVinyls;

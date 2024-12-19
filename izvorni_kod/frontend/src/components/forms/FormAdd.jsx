@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
 import "./Form.css";
+import { useUser } from "../../contexts/UserContext";
+
 
 // Koristi environment varijablu za API URL
 const URL = import.meta.env.VITE_API_URL;
 //console.log(URL) ;
 
-
 //const token = localStorage.getItem('access') ;
 
 function FormAdd({ onClose, gStand }) {
+
+  const { user } = useUser();
+  const userId = user.id ;
 
   console.log(gStand);
 
@@ -74,7 +78,7 @@ function FormAdd({ onClose, gStand }) {
     };
 
     try {
-      const response = await fetch(`${URL}add_record/`, {
+      const response = await fetch(`${URL}add/user/${userId}/`, {
         method: "POST",
         // headers: {
         //   //'Authorization': `Bearer ${localStorage.getItem('access') }`, 
