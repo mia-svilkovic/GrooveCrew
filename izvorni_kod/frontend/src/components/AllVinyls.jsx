@@ -74,9 +74,6 @@ function AllVinyls({ filterFunction}) {
                     <button key={vinyl.id + "exchange"} className="vinyl-opt">
                       <img src={exchange} alt={exchange} />
                     </button>
-                    <button key={vinyl.id + "like"} className="vinyl-opt">
-                      <img src={like} alt={like} />
-                    </button>
                   </div>
             </div>
           ))}
