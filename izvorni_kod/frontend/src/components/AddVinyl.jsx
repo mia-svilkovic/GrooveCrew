@@ -14,13 +14,18 @@ const gStand = [
 ];
 
 
-export default function AddVinyl(){
+export default function AddVinyl({onVinylAdded}){
     const [activeForm, setActiveForm] = useState(null); // null means no form is open
     //const [gStand, setGStand] = useState([]);
     //const [loading, setLoading] = useState(true);
 
     const openAddForm = () => setActiveForm("add");
-    const closeForm = () => setActiveForm(null);
+    const closeForm = () => {
+      setActiveForm(null)
+      if (onVinylAdded) {
+        onVinylAdded();
+      }
+    };
     /*
     useEffect(() => {
         const fetchGoldmineConditions = async () => {

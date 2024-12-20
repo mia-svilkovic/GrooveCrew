@@ -6,14 +6,17 @@ import exchange from "../assets/images/exchange.png";
 const URL = import.meta.env.VITE_API_URL;
 
 
-function AllVinyls() {
+function AllVinyls({ filterFunction}) {
+  
   const [vinyls, setVinyls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
+
   // Fetch all vinyls when the component mounts
   useEffect(() => {
     const fetchVinyls = async () => {
+
       try {
         const response = await fetch(`${URL}get_records/`, {
           method: "GET",
@@ -36,6 +39,8 @@ function AllVinyls() {
     fetchVinyls();
   }, []);
 
+  const filteredVinyls = filterFunction ? filterFunction(vinyls) : vinyls;
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -44,13 +49,19 @@ function AllVinyls() {
     return <div className="error-message">{errorMessage}</div>;
   }
 
+ 
+
   return (
     <div className="vinyls-container">
-      {vinyls.length === 0 ? (
+      <div className="debug-info" style={{ marginBottom: '20px', color: '#666' }}>
+        <p>Total vinyls: {vinyls.length}</p>
+        <p>Filtered vinyls: {filteredVinyls.length}</p>
+      </div>
+      {filteredVinyls.length === 0 ? (
         <p>No vinyls found.</p>
       ) : (
         <div className="vinyl-list">
-          {vinyls.map((vinyl) => (
+          {filteredVinyls.map((vinyl) => (
             <div key={vinyl.id} className="vinyl-item">
 
                 <h3>{vinyl.album_name}</h3>

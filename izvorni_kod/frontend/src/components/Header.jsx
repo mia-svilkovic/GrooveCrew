@@ -3,14 +3,31 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Authentication from "./Authentication";
 import Menu from "./Menu";
+import SearchBar from "./SearchBar" ;
+import FilterPanel from "./FilterPanel" ;
 import logo from "../assets/images/logo.png";
 import userIcon from "../assets/images/user.png";
 import menuIcon from "../assets/images/menu.png";
 import { useUser } from "../contexts/UserContext"; // Uvozimo useUser hook
 
-function Header() {
+function Header({ filters, searchQuery, onSearchAndFilter }) {
+
   const [showAuth, setShowAuth] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  
+  const handleSearch = (query) => {
+    onSearchAndFilter(query, filters);
+  };
+  const handleFilterChange = (key, value) => {
+    const newFilters = {
+      ...filters,
+      [key]: value
+    };
+    onSearchAndFilter(searchQuery, newFilters);
+  };
+  
+
   const navigate = useNavigate();
 
   // Dohvatimo podatke o korisniku iz UserContexta
@@ -50,6 +67,20 @@ function Header() {
         {user?.username ? (
           <span className="username">Prijavljeni ste kao:{user.username}</span>
         ) : null}
+
+        <div className="search-container">
+          <SearchBar
+            searchQuery={searchQuery}
+            onSearchChange={handleSearch}
+            onToggleFilters={() => setShowFilters(!showFilters)}
+          />
+          {showFilters && (
+            <FilterPanel 
+              filters={filters}
+              onFilterChange={handleFilterChange}
+            />    
+          )}
+        </div>
 
         <button className="icon-button" onClick={toggleAuth}>
           <img src={userIcon} alt="User" />
