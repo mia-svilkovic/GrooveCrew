@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, VinylRecord, GoldmineCondition
+from .models import CustomUser, VinylRecord, GoldmineCondition, Wishlist
 
 class UserSerializer(serializers.ModelSerializer):
     password_confirm = serializers.CharField(write_only=True)
@@ -81,3 +81,15 @@ class RecordSerializer(serializers.ModelSerializer):
        user = self.context['request'].user
        record = VinylRecord.objects.create(user=user, **validated_data)
        return record
+    
+class WishlistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'user_id', 'release_mark']
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Wishlist.objects.all(),
+                fields=['user_id', 'release_mark'],
+                message="This release is already in your wishlist."
+            )
+        ]

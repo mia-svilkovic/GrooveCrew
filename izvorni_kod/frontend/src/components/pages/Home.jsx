@@ -38,8 +38,8 @@ export default function Home({ searchQuery, filters }) {
   ) ;
   return (
     <div>
-      { <AllVinyls filterFunction={filterVinyls}/> }
       <AddVinyl/>
+      { <AllVinyls filterFunction={filterVinyls}/> }
     </div>
   );
 }

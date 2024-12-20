@@ -15,5 +15,11 @@ urlpatterns = [
    # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Endpoint za osvežavanje access tokena
 
    path('test_token/', views.test_token, name="test_token"),
-   path('vinyls/user/<int:user_id>/', views.get_user_vinyls, name="get_user_vinyls")
+   path('vinyls/user/<int:user_id>/', views.get_user_vinyls, name="get_user_vinyls"),
+   path('wishlist/add/<release_mark>/user/<user_id>/', views.add_to_wishlist, name="add_to_wislist"),
+   path('wishlist/remove/<release_mark>/user/<user_id>/', views.remove_from_wishlist, name="remove_from_wislist"),
+   path('wishlist/get/user/<user_id>/', views.get_user_wishlist, name="get_user_wishlist")
+
+
+   
 ]

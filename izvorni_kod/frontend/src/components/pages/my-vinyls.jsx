@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./my-vinyls.css" ;
+//import "./my-vinyls.css" ;
 import bin from "../../assets/images/bin.png";
 import edit from "../../assets/images/edit.png";
 import { useUser } from "../../contexts/UserContext";

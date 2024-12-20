@@ -21,10 +21,7 @@ export default function AddVinyl({onVinylAdded}){
 
     const openAddForm = () => setActiveForm("add");
     const closeForm = () => {
-      setActiveForm(null)
-      if (onVinylAdded) {
-        onVinylAdded();
-      }
+      setActiveForm(null);
     };
     /*
     useEffect(() => {
@@ -55,9 +52,9 @@ export default function AddVinyl({onVinylAdded}){
 
             {activeForm === "add" && (
             <div className="modal-overlay">
-            <FormAdd onClose={closeForm} gStand={gStand}/>{" "}
+              <FormAdd onClose={closeForm} gStand={gStand}/>{" "}
             </div>
             )}
-      </div>
+        </div>
     )
 }

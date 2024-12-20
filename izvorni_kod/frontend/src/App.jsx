@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Home from "./components/pages/Home";
 import MyVinyls from "./components/pages/my-vinyls"
+import Wishlist from "./components/pages/Wishlist"
 import { UserProvider } from "./contexts/UserContext"; // Importiraj UserProvider
 import React, { useState } from "react";
 
@@ -35,6 +36,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home searchQuery={searchQuery} filters={filters}/>} />
               <Route path="/my-vinyls" element={<MyVinyls />} />
+              <Route path="/wishlist" element={<Wishlist />} />
             </Routes>
           </main>
         </div>

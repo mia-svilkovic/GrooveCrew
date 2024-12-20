@@ -6,9 +6,9 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import render
 import json
-from .models import VinylRecord, Photograph, GoldmineCondition
+from .models import VinylRecord, Photograph, GoldmineCondition, Wishlist
 from .auth_util import validate_access_token
-from .serializers import UserSerializer, RecordSerializer, GoldmineConditionSerializer
+from .serializers import UserSerializer, RecordSerializer, GoldmineConditionSerializer, WishlistSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -189,3 +189,65 @@ def test_token(request):
         return response
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=401)
+    
+@api_view(['POST'])
+def add_to_wishlist(request, release_mark, user_id):
+    try:
+        wishlist_data = {
+            'user_id': user_id,
+            'release_mark': release_mark
+        }
+        
+        serializer = WishlistSerializer(data=wishlist_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'message': 'Successfully added to wishlist',
+                'data': serializer.data
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+def remove_from_wishlist(request, release_mark, user_id):
+    try:
+        wishlist_item = Wishlist.objects.filter(
+            user_id=user_id,
+            release_mark=release_mark
+        ).first()
+        
+        if wishlist_item:
+            wishlist_item.delete()
+            return Response({
+                'message': 'Successfully removed from wishlist'
+            }, status=status.HTTP_200_OK)
+        
+        return Response({
+            'error': 'Item not found in wishlist'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['GET'])
+def get_user_wishlist(request, user_id):
+    print("heree")
+    try:
+        wishlist_items = Wishlist.objects.filter(user_id=user_id)
+        
+        release_marks = [item.release_mark for item in wishlist_items]
+        
+        return Response({
+            'release_marks': release_marks
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
