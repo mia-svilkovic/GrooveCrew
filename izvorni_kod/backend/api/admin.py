@@ -1,28 +1,41 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import CustomUser, Record, Genre
+from .models import GoldmineConditionCover, GoldmineConditionRecord
+from .models import Photo, Exchange, ExchangeOfferedRecord
+from .models import Wishlist
 
+@admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
-    # properties to display in the admin list
-    list_display = ('email', 'username', 'first_name', 'last_name', 'is_staff', 'is_active')
-    
-    # Fields to use for editing an individual user's profile
+    """fieldsets and add_fieldsets need to be adjusted so admin knows how to
+    display them."""
+
+    # Display / editing in the admin (for existing users)
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'username')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
+        (None, {'fields': ('email', 'username', 'password')}),
+        ('Personal info', {'fields': ('first_name', 'last_name')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
-    # Fields to display when creating a new user through the admin
+
+    # Fields shown when creating a new user in the admin
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'first_name', 'last_name', 'username', 'password1', 'password2', 'is_staff', 'is_active')}
-        ),
+            'fields': ('email', 'username', 'first_name', 'last_name', 'password1', 'password2'),
+        }),
     )
 
-    # Fields to search by in the admin list view
-    search_fields = ('email', 'first_name', 'last_name', 'username')
+    list_display = ('email', 'username', 'first_name', 'last_name', 'is_staff')
+    search_fields = ('email', 'username', 'first_name', 'last_name')
     ordering = ('email',)
 
-# Register CustomUser with the specified admin configuration
-admin.site.register(CustomUser, CustomUserAdmin)
+
+admin.site.register(Record)
+admin.site.register(Genre)
+admin.site.register(GoldmineConditionCover)
+admin.site.register(GoldmineConditionRecord)
+admin.site.register(Photo)
+admin.site.register(Exchange)
+admin.site.register(ExchangeOfferedRecord)
+admin.site.register(Wishlist)
