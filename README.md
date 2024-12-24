@@ -34,6 +34,8 @@ pip install -r requirements.txt
 
 U direktoriju izvorni_kod/backend mora postojati datoteka naziva ".env.dev", a u njoj mora biti sadržaj prema sljedećem predlošku.
 
+*NAPOMENA: Obje Google OAuth postavke možete pustiti kao prazan string osim ako baš ne testirate tu vrstu autorizacije.*
+
 ```
 DJANGO_ENV=development
 
