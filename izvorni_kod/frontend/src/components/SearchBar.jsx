@@ -1,10 +1,9 @@
-import React from 'react';
-import './SearchBar.css';
-import searchIcon from '../assets/images/search.png';
-import filterIcon from '../assets/images/filter.png';
+import React from "react";
+import "./SearchBar.css";
+import searchIcon from "../assets/images/search.png";
+import filterIcon from "../assets/images/filter.png";
 
 const SearchBar = ({ searchQuery, onSearchChange, onToggleFilters }) => {
-  
   const handleInputChange = (e) => {
     onSearchChange(e.target.value);
   };
@@ -21,7 +20,7 @@ const SearchBar = ({ searchQuery, onSearchChange, onToggleFilters }) => {
           className="search-input"
         />
       </div>
-      <button 
+      <button
         className="filter-button"
         onClick={onToggleFilters}
         aria-label="Toggle filters"

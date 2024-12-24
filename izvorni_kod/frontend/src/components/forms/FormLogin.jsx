@@ -32,29 +32,34 @@ function FormLogin({ onClose }) {
     event.preventDefault();
 
     try {
-      const response = await fetch(`${URL}loginAuth/`, {
+      const response = await fetch(`${URL}/api/users/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: email, // Poslano polje email
-          password: password, // Poslano polje password
+          email: email,
+          password: password,
         }),
+        credentials: "include",
       });
 
       if (response.ok) {
         const data = await response.json();
-        
+
+        if (data.user.is_staff) {
+          window.location.href = `${URL}/admin/`;
+          return;
+        }
+
+        // Pohranjivanje tokena ako postoji u odgovoru
+        localStorage.setItem("access", data.tokens.access);
+        localStorage.setItem("refresh", data.tokens.refresh);
+
         console.log("Login successful:", data);
         setSuccessMessage("Login successful!");
 
-        // Pohranjivanje tokena ako postoji u odgovoru
-        localStorage.setItem("access", data.access);
-        localStorage.setItem("refresh", data.refresh);
-
         // Ažuriranje korisničkog stanja koristeći setUser
-        
         setUser({
           id: data.user.id,
           email: data.user.email,
@@ -62,7 +67,6 @@ function FormLogin({ onClose }) {
           first_name: data.user.first_name,
           last_name: data.user.last_name,
         });
-        
       } else {
         console.log("Login failed");
         setErrorMessage("Invalid credentials. Please try again.");

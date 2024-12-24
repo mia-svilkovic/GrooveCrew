@@ -7,7 +7,6 @@ import vinyl from "../assets/images/vinyl.png";
 import history from "../assets/images/history.png";
 import { useUser } from "../contexts/UserContext"; // Import the user context
 
-
 const MENU_ITEMS = [
   { icon: like, label: "Wishlist", path: "/wishlist" },
   { icon: exchange, label: "Offers", path: "/offers" },

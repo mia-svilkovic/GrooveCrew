@@ -1,24 +1,49 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 
 // Kreiramo kontekst
 const UserContext = createContext();
 
 // Provider komponenta koja omogućava pristup korisničkim podacima
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Ovdje setUser ostaje kao funkcija za ažuriranje stanja
+  const [user, setUser] = useState(null);
 
+  // Restore user data from token on page load
+  useEffect(() => {
+    const accessToken = localStorage.getItem("access");
+
+    if (accessToken) {
+      try {
+        const decoded = jwtDecode(accessToken);
+        setUser({
+          id: decoded.user_id,
+          email: decoded.email,
+          username: decoded.username,
+          first_name: decoded.first_name,
+          last_name: decoded.last_name,
+        });
+        console.log("User restored from token:", decoded);
+      } catch (error) {
+        console.error("Failed to decode token:", error);
+        setUser(null);
+      }
+    }
+  }, []);
+
+  // Logout function
   const logoutUser = () => {
-    setUser(null); // Briše korisničke podatke
+    setUser(null);
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    console.log("User logged out and tokens cleared.");
   };
 
   return (
     <UserContext.Provider value={{ user, setUser, logoutUser }}>
-      {" "}
-      {/* SetUser ostaje kao funkcija */}
       {children}
     </UserContext.Provider>
   );
 };
 
-// Hook za dohvat korisničkih podataka i funkcija za login/logout
+// Custom Hook for User Context
 export const useUser = () => useContext(UserContext);

@@ -1,34 +1,80 @@
-import React from 'react';
-import './FilterPanel.css';
+import React, { useState, useEffect } from "react";
+import "./FilterPanel.css";
+
+const URL = import.meta.env.VITE_API_URL;
 
 const FilterPanel = ({ filters, onFilterChange }) => {
+  const [genres, setGenres] = useState([]);
+  const [coverConditions, setCoverConditions] = useState([]);
+  const [recordConditions, setRecordConditions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const conditions = ['M', 'NM', 'VG', 'G', 'F', 'P'];
-  const genres = ['Rock', 'Jazz', 'Classical', 'Pop', 'Hip Hop', 'Electronic', 'Blues', 'Country', 'Folk', 'Other'];
-  
+  // Fetch genres, cover conditions, and record conditions from backend
+  useEffect(() => {
+    const fetchFilterData = async () => {
+      try {
+        const [
+          genresResponse,
+          coverConditionsResponse,
+          recordConditionsResponse,
+        ] = await Promise.all([
+          fetch(`${URL}/api/genres/`),
+          fetch(`${URL}/api/goldmine-conditions-cover/`),
+          fetch(`${URL}/api/goldmine-conditions-record/`),
+        ]);
+
+        if (
+          !genresResponse.ok ||
+          !coverConditionsResponse.ok ||
+          !recordConditionsResponse.ok
+        ) {
+          throw new Error("Failed to fetch filter data");
+        }
+
+        const [genresData, coverConditionsData, recordConditionsData] =
+          await Promise.all([
+            genresResponse.json(),
+            coverConditionsResponse.json(),
+            recordConditionsResponse.json(),
+          ]);
+
+        setGenres(genresData);
+        setCoverConditions(coverConditionsData);
+        setRecordConditions(recordConditionsData);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching filter data:", error);
+        setErrorMessage("Failed to load filter data. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    fetchFilterData();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    onFilterChange(name, type === 'checkbox' ? checked : value);
+    onFilterChange(name, type === "checkbox" ? checked : value);
   };
 
   const handleReset = (e) => {
-    // Prevent any default button behavior
     e.preventDefault();
-    
-    console.log("Reset button clicked");
-    console.log("Current filters:", filters);
-    
-    // Try resetting one filter at a time with small delay
-    setTimeout(() => onFilterChange('artist', ''), 0);
-    setTimeout(() => onFilterChange('release_year', ''), 50);
-    setTimeout(() => onFilterChange('genre', ''), 100);
-    setTimeout(() => onFilterChange('available_for_exchange', false), 150);
-    setTimeout(() => onFilterChange('cover_condition', ''), 200);
-    setTimeout(() => onFilterChange('record_condition', ''), 250);
-    
-    console.log("Reset attempted");
+    onFilterChange("artist", "");
+    onFilterChange("release_year", "");
+    onFilterChange("genre", "");
+    onFilterChange("available_for_exchange", false);
+    onFilterChange("cover_condition", "");
+    onFilterChange("record_condition", "");
   };
 
+  if (loading) {
+    return <div>Loading filters...</div>;
+  }
+
+  if (errorMessage) {
+    return <div className="error-message">{errorMessage}</div>;
+  }
 
   return (
     <div className="filter-panel">
@@ -60,15 +106,11 @@ const FilterPanel = ({ filters, onFilterChange }) => {
 
       <div className="filter-section">
         <label>Genre</label>
-        <select 
-          name="genre" 
-          value={filters.genre}
-          onChange={handleChange}
-        >
+        <select name="genre" value={filters.genre} onChange={handleChange}>
           <option value="">All Genres</option>
-          {genres.map(genre => (
-            <option key={genre} value={genre.toLowerCase()}>
-              {genre}
+          {genres.map((genre) => (
+            <option key={genre.id} value={genre.id}>
+              {genre.name}
             </option>
           ))}
         </select>
@@ -82,9 +124,9 @@ const FilterPanel = ({ filters, onFilterChange }) => {
           onChange={handleChange}
         >
           <option value="">Any Condition</option>
-          {conditions.map(condition => (
-            <option key={condition} value={condition}>
-              {condition}
+          {coverConditions.map((condition) => (
+            <option key={condition.id} value={condition.id}>
+              {condition.name}
             </option>
           ))}
         </select>
@@ -98,9 +140,9 @@ const FilterPanel = ({ filters, onFilterChange }) => {
           onChange={handleChange}
         >
           <option value="">Any Condition</option>
-          {conditions.map(condition => (
-            <option key={condition} value={condition}>
-              {condition}
+          {recordConditions.map((condition) => (
+            <option key={condition.id} value={condition.id}>
+              {condition.name}
             </option>
           ))}
         </select>
@@ -118,9 +160,9 @@ const FilterPanel = ({ filters, onFilterChange }) => {
         </label>
       </div>
 
-      {/* <button type="button" onClick={handleReset} className="reset-button">
-          Reset All
-      </button> */}
+      <button type="button" onClick={handleReset} className="reset-button">
+        Reset All
+      </button>
     </div>
   );
 };

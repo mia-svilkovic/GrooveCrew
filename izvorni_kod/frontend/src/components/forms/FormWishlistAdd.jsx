@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "../../contexts/UserContext";
-import "./Form.css"
+import "./Form.css";
 
 const URL = import.meta.env.VITE_API_URL;
 
 export default function FormWishlistAdd({ onClose, onAddItem }) {
-  const [releaseMark, setReleaseMark] = useState("");
+  const [catalogNumber, setCatalogNumber] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const { user } = useUser();
   const userId = user.id;
-
 
   useEffect(() => {
     if (successMessage) {
@@ -33,20 +32,28 @@ export default function FormWishlistAdd({ onClose, onAddItem }) {
     setErrorMessage("");
 
     try {
-      const response = await fetch(`${URL}wishlist/add/${releaseMark}/user/${userId}/`, {
+      const token = localStorage.getItem("access");
+
+      const response = await fetch(`${URL}/api/wishlist/add/`, {
         method: "POST",
+        body: JSON.stringify({
+          record_catalog_number: catalogNumber, // Match the backend expectation
+        }),
         headers: {
           "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
         },
         credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error("Failed to add release mark to wishlist");
+        throw new Error("Failed to add record to wishlist");
       }
-      onAddItem(releaseMark); 
-      setSuccessMessage("Release mark successfully added to wishlist!");
-      setReleaseMark(""); // Clear the input field
+      const newItem = await response.json(); // Parse the responsse
+
+      onAddItem(newItem);
+      setSuccessMessage("Record successfully added to wishlist!");
+      setCatalogNumber(""); // Clear the input field
     } catch (error) {
       console.error("Error adding to wishlist:", error);
       setErrorMessage("Failed to add to wishlist. Please try again.");
@@ -57,20 +64,22 @@ export default function FormWishlistAdd({ onClose, onAddItem }) {
     <div className="form-container">
       <form onSubmit={handleSubmit}>
         <h2>Add to Wishlist</h2>
-          <input
-            type="text"
-            value={releaseMark}
-            onChange={(e) => setReleaseMark(e.target.value)}
-            placeholder="Enter release mark"
-            className="release-mark-input"
-            required
-          />
+        <input
+          type="text"
+          value={catalogNumber}
+          onChange={(e) => setCatalogNumber(e.target.value)}
+          placeholder="Enter catalog number"
+          className="release-mark-input"
+          required
+        />
         <button type="submit">Add to Wishlist</button>
         <button className="close-button" onClick={onClose}>
-        Close
-      </button>
+          Close
+        </button>
       </form>
-      {successMessage && <div className="success-message">{successMessage}</div>}
+      {successMessage && (
+        <div className="success-message">{successMessage}</div>
+      )}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
     </div>
   );

@@ -2,32 +2,22 @@ import React, { useState, useEffect } from "react";
 import "./Form.css";
 import { useUser } from "../../contexts/UserContext";
 
-
-// Koristi environment varijablu za API URL
 const URL = import.meta.env.VITE_API_URL;
-//console.log(URL) ;
 
-//const token = localStorage.getItem('access') ;
-
-function FormAdd({ onClose, gStand }) {
-
+function FormAdd({ onClose, recordConditions, coverConditions, genres }) {
   const { user } = useUser();
-  const userId = user.id ;
 
-  console.log(gStand);
-
-  const [photo, setPhoto] = useState(null); // Holds the photo file directly
+  const [photos, setPhotos] = useState([]);
+  const [catalogNumber, setCatalogNumber] = useState("");
   const [artist, setArtist] = useState("");
   const [albumName, setAlbumName] = useState("");
   const [releaseYear, setReleaseYear] = useState("");
-  const [releaseCode, setReleaseCode] = useState("");
   const [genre, setGenre] = useState("");
   const [location, setLocation] = useState("");
-  //const [goldmineStandard, setGoldmineStandard] = useState("");
   const [additionalDescription, setAdditionalDescription] = useState("");
-  const [releaseMark, setReleaseMark] = useState("");
   const [recordCondition, setRecordCondition] = useState("");
-  const [sleeveCondition, setSleeveCondition] = useState("");
+  const [coverCondition, setCoverCondition] = useState("");
+  const [availableForExchange, setAvailableForExchange] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -36,74 +26,63 @@ function FormAdd({ onClose, gStand }) {
       const timer = setTimeout(() => {
         setSuccessMessage("");
         onClose();
-      }, 2000); // Poruka nestaje nakon 2 sekundi
-      return () => clearTimeout(timer); // Čisti timer kad se komponenta demontira ili kada se promijeni successMessage
+      }, 2000);
+      return () => clearTimeout(timer);
     }
     if (errorMessage) {
       const timer = setTimeout(() => setErrorMessage(""), 5000);
-      return () => clearTimeout(timer); // Čisti timer kad se komponenta demontira ili kada se promijeni errorMessage
+      return () => clearTimeout(timer);
     }
   }, [successMessage, errorMessage]);
 
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setPhoto(file); // Store the file directly
-    }
+  const handleImagesChange = (event) => {
+    const files = Array.from(event.target.files);
+    setPhotos(files);
   };
 
   const handleAddRecord = async (event) => {
     event.preventDefault();
 
     const formData = new FormData();
-    formData.append("photo", photo)
+    photos.forEach((photo, index) => {
+      formData.append(`photos[${index}]`, photo);
+    });
+    formData.append("catalog_number", catalogNumber);
     formData.append("artist", artist);
     formData.append("album_name", albumName);
     formData.append("release_year", releaseYear);
-    formData.append("release_code", releaseCode);
-    formData.append("genre", genre);
+    formData.append("genre_id", genre);
     formData.append("location", location);
-    //formData.append("goldmine_standard", goldmineStandard);
+    formData.append("available_for_exchange", availableForExchange);
     formData.append("additional_description", additionalDescription);
-    formData.append("release_code", releaseMark) ;
-    formData.append("record_condition", recordCondition) ;
-    formData.append("cover_condition", sleeveCondition) ;
-
-    const handleImageChange = (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        setPhoto(file); // Store the file directly
-      }
-    };
+    formData.append("record_condition_id", recordCondition);
+    formData.append("cover_condition_id", coverCondition);
 
     try {
-      const response = await fetch(`${URL}add/user/${userId}/`, {
+      const token = localStorage.getItem("access");
+
+      const response = await fetch(`${URL}/api/records/add/`, {
         method: "POST",
-        // headers: {
-        //   //'Authorization': `Bearer ${localStorage.getItem('access') }`, 
-        //   'Content-Type': 'application/json',
-        // },
         body: formData,
-        credentials: 'include', 
+        credentials: "include",
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log("Record added successfully:", data);
         setSuccessMessage("Vinyl added successfully!");
-        setErrorMessage(""); // Clear any previous error messages
-        //onClose(); // Call onClose after successful submission
       } else {
         const errorData = await response.json();
-        console.error("Failed to add record:", errorData);
-        setErrorMessage("Failed to add vinyl. Please try again.");
-        setSuccessMessage(""); // Clear success message if there was an error
+        setErrorMessage(
+          errorData?.error ||
+            errorData?.message ||
+            "Failed to add vinyl. Please try again."
+        );
       }
     } catch (error) {
       console.error("Error adding record:", error);
       setErrorMessage("Error adding vinyl. Please check your connection.");
-      setSuccessMessage(""); // Clear success message if there was an error
     }
   };
 
@@ -111,14 +90,14 @@ function FormAdd({ onClose, gStand }) {
     <div className="form-container">
       <h2>ADD VINYL</h2>
       <form onSubmit={handleAddRecord}>
-        <label htmlFor="chooseImage">Cover image:</label>
         <input
-          type="file"
-          id="chooseImage"
-          accept="image/*"
-          onChange={handleImageChange}
+          type="text"
+          placeholder="Catalog Number"
+          value={catalogNumber}
+          onChange={(e) => setCatalogNumber(e.target.value)}
           required
         />
+
         <input
           type="text"
           placeholder="Artist"
@@ -126,60 +105,37 @@ function FormAdd({ onClose, gStand }) {
           onChange={(e) => setArtist(e.target.value)}
           required
         />
+
         <input
           type="text"
-          placeholder="Record Name"
+          placeholder="Album Name"
           value={albumName}
           onChange={(e) => setAlbumName(e.target.value)}
           required
         />
+
         <input
           type="number"
-          placeholder="Publication Year"
+          placeholder="Release Year"
           value={releaseYear}
           onChange={(e) => setReleaseYear(e.target.value)}
           required
-          min="1900"
-          max={new Date().getFullYear()} // Set to current year as max value
         />
-        <input
-          type="text"
-          placeholder="Publication Identifier"
-          value={releaseCode}
-          onChange={(e) => setReleaseCode(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Genre"
+
+        <select
           value={genre}
           onChange={(e) => setGenre(e.target.value)}
           required
-        />
+        >
+          <option value="">Select Genre</option>
+          {genres.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </select>
 
-         <select
-          id="Goldmine record"
-          value={recordCondition}
-          onChange={(e) => setRecordCondition(e.target.value)}
-          required
-        >
-          <option value="" disabled>
-            Record Goldmine Standard
-          </option>
-          {gStand.map(i => <option key={i.id} value={i.id}>{i.abbreviation}</option>)}
-        </select> 
-        <select
-          id="Goldmine sleeve"
-          value={sleeveCondition}
-          onChange={(e) => setSleeveCondition(e.target.value)}
-          required
-        >
-          <option value="" disabled>
-            Sleeve Goldmine Standard
-          </option>
-          {gStand.map(i => <option key={i.id} value={i.id}>{i.abbreviation}</option>)}
-        </select> 
-        
+        <label>Location</label>
         <input
           type="text"
           placeholder="Location"
@@ -187,27 +143,62 @@ function FormAdd({ onClose, gStand }) {
           onChange={(e) => setLocation(e.target.value)}
           required
         />
-        <input
-          type="text"
-          placeholder="Caption"
+
+        <label>
+          <input
+            type="checkbox"
+            checked={availableForExchange}
+            onChange={(e) => setAvailableForExchange(e.target.checked)}
+          />
+          Available for Exchange
+        </label>
+
+        <select
+          value={recordCondition}
+          onChange={(e) => setRecordCondition(e.target.value)}
+          required
+        >
+          <option value="">Record Condition</option>
+          {recordConditions.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={coverCondition}
+          onChange={(e) => setCoverCondition(e.target.value)}
+          required
+        >
+          <option value="">Cover Condition</option>
+          {coverConditions.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </select>
+
+        <textarea
+          placeholder="Additional Description"
           value={additionalDescription}
           onChange={(e) => setAdditionalDescription(e.target.value)}
-        />
+        ></textarea>
+
         <input
-          type="text"
-          placeholder="release mark"
-          value={releaseMark}
-          onChange={(e) => setReleaseMark(e.target.value)}
-          required
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleImagesChange}
         />
 
-        <button type="submit">Add vinyl</button>
+        <button type="submit">Add Vinyl</button>
+        <button className="close-button" onClick={onClose}>
+          Close
+        </button>
       </form>
       {successMessage && <p className="success-message">{successMessage}</p>}
       {errorMessage && <p className="error-message">{errorMessage}</p>}
-      <button className="cancel-button" onClick={onClose}>
-        Cancel
-      </button>
     </div>
   );
 }
