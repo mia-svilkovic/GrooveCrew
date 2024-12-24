@@ -35,6 +35,8 @@ pip install -r requirements.txt
 U direktoriju izvorni_kod/backend mora postojati datoteka naziva ".env.dev", a u njoj mora biti sadržaj prema sljedećem predlošku.
 
 ```
+DJANGO_ENV=development
+
 # Security
 DJANGO_SECRET_KEY="django-insecure-1knbe=omqi2a0@w@u0h+yl2s8t*z_2tpl=r1g6xkh0c!yqc%y7"
 DJANGO_DEBUG=True
