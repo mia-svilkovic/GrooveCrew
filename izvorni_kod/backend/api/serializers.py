@@ -1,95 +1,197 @@
+from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.db import transaction
 from rest_framework import serializers
-from .models import CustomUser, VinylRecord, GoldmineCondition, Wishlist
+from .models import Genre, GoldmineConditionCover, GoldmineConditionRecord
+from .models import Photo, Record, Wishlist
 
-class UserSerializer(serializers.ModelSerializer):
-    password_confirm = serializers.CharField(write_only=True)
+User = get_user_model()
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password1 = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={'input_type': 'password'},
+        validators=[validate_password],
+    )
+    password2 = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={'input_type': 'password'},
+    )
+
     class Meta:
-        model = CustomUser
-        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'password', 'password_confirm', 'is_active', 'is_staff', 'is_superuser')
-        extra_kwargs = {
-            'password': {'write_only': True},
-            'is_superuser': {'read_only': True},
-            'is_staff': {'read_only': True},
-            'is_active': {'read_only': True}
-        }
-
+        model = User
+        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'password1', 'password2', 'is_staff')
+        read_only_fields = ('id', 'is_staff')
+ 
     def validate(self, data):
-        if data.get('password') != data.get('password_confirm'):
-            raise serializers.ValidationError("Passwords don't match")
-        
-        if CustomUser.objects.filter(email=data.get('email')).exists():
-            raise serializers.ValidationError("Email already exists")
-            
-        if CustomUser.objects.filter(username=data.get('username')).exists():
-            raise serializers.ValidationError("Username already exists")
-            
+        """
+        Check that the two password fields match.
+        """
+        if data['password1'] != data['password2']:
+            raise serializers.ValidationError({'password': 'Passwords do not match.'})
         return data
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
-        validated_data.pop('password_confirm', None)
-        user = CustomUser(**validated_data)
-        user.set_password(password)
-        user.save()
+        """
+        Create a new user with the validated data.
+        """
+        password = validated_data.pop('password1')
+        validated_data.pop('password2')
+        user = User.objects.create_user(**validated_data, password = password)
         return user
 
-    def update(self, instance, validated_data):
-        password = validated_data.pop('password', None)
-        validated_data.pop('password_confirm', None)
-        
-        if password:
-            instance.set_password(password)
-            
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-            
-        instance.save()
-        return instance
-    
-class GoldmineConditionSerializer(serializers.ModelSerializer):
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={'input_type': 'password'}
+    )
+
+    def validate(self, data):
+        """
+        Check email and password against the authentication backend.
+        """
+        user = authenticate(email=data['email'], password=data['password'])
+        if not user:
+            raise serializers.ValidationError('Invalid credentials. Please try again.')
+        if not user.is_active:
+            raise serializers.ValidationError('This user account is inactive.')
+        data['user'] = user
+        return data
+
+
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GoldmineCondition
+        model = User
+        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'is_staff')
+        read_only_fields = ('id', 'is_staff')
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ('id', 'name')
+        read_only_fields = ('id',)
+
+
+class GoldmineConditionRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GoldmineConditionRecord
         fields = ('id', 'name', 'abbreviation', 'description')
+        read_only_fields = ('id',)
+
+
+class GoldmineConditionCoverSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GoldmineConditionCover
+        fields = ('id', 'name', 'abbreviation', 'description')
+        read_only_fields = ('id',)
+
+
+class PhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Photo
+        fields = ('id', 'image', 'record')
+        read_only_fields = ('id',)
 
 
 class RecordSerializer(serializers.ModelSerializer):
-    record_condition_detail = GoldmineConditionSerializer(source='record_condition', read_only=True)
-    cover_condition_detail = GoldmineConditionSerializer(source='cover_condition', read_only=True)
-    user_detail = UserSerializer(source='user', read_only=True)
+    genre_id = serializers.PrimaryKeyRelatedField(
+        queryset=Genre.objects.all(),
+        source='genre',
+        write_only=True
+    )
+    record_condition_id = serializers.PrimaryKeyRelatedField(
+        queryset=GoldmineConditionRecord.objects.all(),
+        source='record_condition',
+        write_only=True
+    )
+    cover_condition_id = serializers.PrimaryKeyRelatedField(
+        queryset=GoldmineConditionCover.objects.all(),
+        source='cover_condition',
+        write_only=True
+    )
+
+    genre = GenreSerializer(read_only=True)
+    record_condition = GoldmineConditionRecordSerializer(read_only=True)
+    cover_condition = GoldmineConditionCoverSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
+
+    # Support multiple photos
+    photos = serializers.ListField(
+        child=serializers.ImageField(),
+        required=False,
+        write_only=True
+    )
+    photos_list = PhotoSerializer(many=True, read_only=True, source='photos')
 
     class Meta:
-        model = VinylRecord
-        fields = [
+        model = Record
+        fields = (
             'id', 
-            'release_code', 
+            'catalog_number', 
             'artist', 
             'album_name', 
             'release_year', 
-            'genre', 
-            #'location', 
+            'genre',
+            'genre_id', # For creating via ID 
+            'location', 
             'available_for_exchange',
             'additional_description', 
             'record_condition',
-            'record_condition_detail', 
+            'record_condition_id',  # For creating via ID
             'cover_condition',
-            'cover_condition_detail',
-            'user_detail'
-        ]
-        read_only_fields = ['id', 'user_detail', 'record_condition_detail', 'sleeve_condition_detail']
+            'cover_condition_id',   # For creating via ID
+            'user',
+            'photos',
+            'photos_list'
+        )
+        read_only_fields = ('id', 'user', 'genre', 'record_condition', 'cover_condition', 'photos_list')
 
     def create(self, validated_data):
-       user = self.context['request'].user
-       record = VinylRecord.objects.create(user=user, **validated_data)
-       return record
+        """
+        Create a record and handle associated photos.
+        """
+        # Extract photos from validated data
+        photos = validated_data.pop('photos', [])
+
+        try:
+            with transaction.atomic():
+                # Create the record
+                record = Record.objects.create(**validated_data)
+
+                # Validate and create associated photos
+                Photo.objects.bulk_create([
+                    Photo(record=record, image=photo)
+                    for photo in photos
+                ])
+        except Exception as e:
+            raise serializers.ValidationError({
+                'error': f'Failed to create record and associated photos: {str(e)}'
+            })
+       
+        return record
     
+
 class WishlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wishlist
-        fields = ['id', 'user_id', 'release_mark']
-        validators = [
+        fields = ('id', 'record_catalog_number')
+        read_only_fields = ('id',)
+        constraints = [
             serializers.UniqueTogetherValidator(
                 queryset=Wishlist.objects.all(),
-                fields=['user_id', 'release_mark'],
-                message="This release is already in your wishlist."
+                fields=('user', 'record_catalog_number'),
+                message='This record is already in your wishlist.'
             )
         ]
+    
+    def create(self, validated_data):
+        """
+        Create a new wishlist item for the authenticated user.
+        """
+        return Wishlist.objects.create(**validated_data)
