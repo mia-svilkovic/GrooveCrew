@@ -55,7 +55,7 @@ GOOGLE_CLIENT_SECRET="<VAŠ GOOGLE CLIENT SECRET>"
 ```
 
 
-## Stvori i primjeni migracije
+## Stvori i primijeni migracije
 
 ```bash
 python manage.py makemigrations
