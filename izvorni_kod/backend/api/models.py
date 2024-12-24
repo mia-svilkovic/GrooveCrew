@@ -1,87 +1,194 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.utils import timezone
 
-class CustomUserManager(BaseUserManager):
-    def create_user(self, email, password, **extra_fields):
-        
-        if not email:
-            raise ValueError("The Email field must be set")
-        
-        if not password:
-            raise ValueError("The Password field must be set")
-        
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
+class CustomUser(AbstractUser):
+    email = models.EmailField(
+        unique=True,
+        null=False,
+        blank=False)
 
-    def create_superuser(self, email, password, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        null=False,
+        blank=False)
 
-        return self.create_user(email, password, **extra_fields)
+    first_name = models.CharField(
+        max_length=150,
+        null=False,
+        blank=False)
 
-class CustomUser(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=64, null=False, blank=False, default="name")
-    last_name = models.CharField(max_length=64, null=False, blank=False, default="lastname")
-    username = models.CharField(max_length=32, null=False, blank=False, default="username")
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    last_name = models.CharField(
+        max_length=150,
+        null=False,
+        blank=False)
 
-    objects = CustomUserManager()
-
+    # Use email as the primary login field
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'username']
+
+    # Fields that *must* be provided when creating a superuser via
+    # `createsuperuser` USERNAME_FIELD + password must be provided by default
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     def __str__(self):
-        return self.username
-    
-    class Meta:
-      ordering = ['email']
-      verbose_name = 'user'
-      verbose_name_plural = 'users'
+        return self.email
 
-class GoldmineCondition(models.Model):
-    name = models.CharField(max_length=32)
-    abbreviation = models.CharField(max_length=8)
-    description = models.CharField(max_length=256)
+
+class Record(models.Model):    
+    catalog_number = models.CharField(max_length=255)
+
+    artist = models.CharField(max_length=255)
+
+    album_name = models.CharField(max_length=255)
+
+    release_year = models.IntegerField()
+
+    genre = models.ForeignKey(
+        'Genre',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='records')
+
+    location = models.CharField(max_length=255)
+
+    available_for_exchange = models.BooleanField(default=True)
+
+    additional_description = models.TextField(blank=True, null=True)
+
+    record_condition = models.ForeignKey(
+        'GoldmineConditionRecord',
+        on_delete=models.SET_NULL,
+        related_name='records',
+        null=True)
+
+    cover_condition = models.ForeignKey(
+        'GoldmineConditionCover',
+        on_delete=models.SET_NULL,
+        related_name='records',
+        null=True)
+
+    user = models.ForeignKey(
+        'CustomUser',
+        on_delete=models.CASCADE,
+        related_name='records')
+
+    def __str__(self):
+        return f'{self.artist} - {self.album_name}'
+
+
+class Genre(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+    
+
+class GoldmineConditionRecord(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    abbreviation = models.CharField(max_length=10, unique=True)
+
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.name
 
-class VinylRecord(models.Model):
-    release_code = models.CharField(max_length=128)       
-    artist = models.CharField(max_length=128)               
-    album_name = models.CharField(max_length=128)          
-    release_year = models.IntegerField()                    
-    genre = models.CharField(max_length=64)                    
-    location = models.JSONField()                            
-    available_for_exchange = models.BooleanField()             
-    additional_description = models.CharField(max_length=256)          
-    
-    # Foreign Keys
-    record_condition = models.ForeignKey(GoldmineCondition, on_delete=models.CASCADE, related_name="record_condition")  
-    cover_condition = models.ForeignKey(GoldmineCondition, on_delete=models.CASCADE, related_name="cover_condition")    
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)                                          
+
+class GoldmineConditionCover(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    abbreviation = models.CharField(max_length=10, unique=True)
+
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.release_code} - {self.album_name}"
-    
+        return self.name
 
-class Photograph(models.Model):
-    binary_content = models.BinaryField()                   
-    vinyl_record = models.ForeignKey(VinylRecord, on_delete=models.CASCADE)   #Id of record
+
+class Photo(models.Model):
+    image = models.ImageField(upload_to='record_photos/')
+
+    record = models.ForeignKey(
+        'Record',
+        on_delete=models.CASCADE,
+        related_name='photos')
 
     def __str__(self):
-        return f"Photo for record with id: {self.vinyl_record.id}"
+        return f'Photo for {self.record.album_name}'
+
+
+class Exchange(models.Model):
+    class ExchangeStatus(models.TextChoices):
+        PENDING = 'pending', 'Pending'
+        ACCEPTED = 'accepted', 'Accepted'
+        REJECTED = 'rejected', 'Rejected'
+
+    creation_datetime = models.DateTimeField(auto_now_add=True)
+
+    last_modification_datetime = models.DateTimeField(auto_now=True)
+
+    exchange_status = models.CharField(
+        max_length=10,
+        choices=ExchangeStatus.choices,
+        default=ExchangeStatus.PENDING)
     
+    initiator_user = models.ForeignKey(
+        'CustomUser', 
+        on_delete=models.CASCADE,
+        related_name='initiated_exchanges'
+    )
+
+    receiver_user = models.ForeignKey(
+        'CustomUser',
+        on_delete=models.CASCADE,
+        related_name='received_exchanges')
+
+    user_to_review = models.ForeignKey(
+        'CustomUser',
+        on_delete=models.CASCADE,
+        related_name='exchanges_to_review')
+
+    requested_record = models.ForeignKey(
+        'Record',
+        on_delete=models.CASCADE,
+        related_name='requesting_exchanges')
+
+    def __str__(self):
+        return f'Exchange between {self.initiator_user} and {self.receiver_user}'
+
+
+class ExchangeOfferedRecord(models.Model):
+    class RecordStatus(models.TextChoices):
+        PENDING = 'pending', 'Pending'
+        ACCEPTED = 'accepted', 'Accepted'
+        REJECTED = 'rejected', 'Rejected'
+
+    exchange = models.ForeignKey(
+        'Exchange',
+        on_delete=models.CASCADE,
+        related_name='offered_records')
+
+    offered_record = models.ForeignKey(
+        'Record',
+        on_delete=models.CASCADE,
+        related_name='exchanges_where_offered')
+
+    record_status = models.CharField(
+        max_length=50,
+        choices=RecordStatus.choices,
+        default=RecordStatus.PENDING)
+
+    def __str__(self):
+        return f'Offered {self.offered_record} in exchange {self.exchange.id}'
+
+
 class Wishlist(models.Model):
-    user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    release_mark = models.CharField(max_length=128)
+    record_catalog_number = models.CharField(max_length=255)
 
-    class Meta:
-        unique_together = [['user_id', 'release_mark']]
+    user = models.ForeignKey(
+        'CustomUser',
+        on_delete=models.CASCADE,
+        related_name='wishlist')
 
+    def __str__(self):
+        return f'{self.user} wishes for {self.record_catalog_number}'
