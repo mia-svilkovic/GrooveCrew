@@ -5,45 +5,7 @@ import exchange from "../assets/images/exchange.png";
 
 const URL = import.meta.env.VITE_API_URL;
 
-function AllVinyls({ filterFunction }) {
-  const [vinyls, setVinyls] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  // Fetch all vinyls when the component mounts
-  useEffect(() => {
-    const fetchVinyls = async () => {
-      try {
-        const response = await fetch(`${URL}/api/records/`, {
-          method: "GET",
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch vinyls");
-        }
-
-        const data = await response.json();
-        setVinyls(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching vinyls:", error);
-        setErrorMessage("Failed to load vinyl records. Please try again.");
-        setLoading(false);
-      }
-    };
-
-    fetchVinyls();
-  }, []);
-
-  const filteredVinyls = filterFunction ? filterFunction(vinyls) : vinyls;
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (errorMessage) {
-    return <div className="error-message">{errorMessage}</div>;
-  }
+function AllVinyls({filteredVinyls}) {
 
   return (
     <div className="vinyls-container">
@@ -51,8 +13,7 @@ function AllVinyls({ filterFunction }) {
         className="debug-info"
         style={{ marginBottom: "20px", color: "#666" }}
       >
-        <p>Total vinyls: {vinyls.length}</p>
-        <p>Filtered vinyls: {filteredVinyls.length}</p>
+        <p>results: {filteredVinyls.length}</p>
       </div>
       {filteredVinyls.length === 0 ? (
         <p>No vinyls found.</p>

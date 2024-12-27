@@ -1,12 +1,18 @@
 import AddVinyl from "../AddVinyl";
 import AllVinyls from "../AllVinyls";
 import { useUser } from "../../contexts/UserContext"; // Import the user context
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
+const URL = import.meta.env.VITE_API_URL;
+
 
 export default function Home({ searchQuery, filters }) {
   const { user } = useUser();
+  const [vinyls, setVinyls] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const filterVinyls = (vinyls) => {
+  const filterFunction = (vinyls) => {
     return vinyls.filter((vinyl) => {
       console.log(vinyl);
       const albumName = (vinyl.album_name || "").toLowerCase();
@@ -47,12 +53,52 @@ export default function Home({ searchQuery, filters }) {
       );
     });
   };
+  // Fetch all vinyls when the component mounts
+  useEffect(() => {
+    const fetchVinyls = async () => {
+      try {
+        const response = await fetch(`${URL}/api/records/`, {
+          method: "GET",
+        });
 
-  if (!user) return <div>{<AllVinyls filterFunction={filterVinyls} />}</div>;
+        if (!response.ok) {
+          throw new Error("Failed to fetch vinyls");
+        }
+
+        const data = await response.json();
+        setVinyls(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching vinyls:", error);
+        setErrorMessage("Failed to load vinyl records. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    fetchVinyls();
+  }, []);
+
+  const filteredVinyls = filterFunction ? filterFunction(vinyls) : vinyls;
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (errorMessage) {
+    return <div className="error-message">{errorMessage}</div>;
+  }
   return (
     <div>
-      <AddVinyl />
-      {<AllVinyls filterFunction={filterVinyls} />}
+      {!user?.username ? (
+        <AllVinyls filteredVinyls={filteredVinyls} />
+      ) : (
+        <>
+          <AddVinyl 
+            onAddItem={(newItem) => setVinyls((prevVinyls) => [...prevVinyls, newItem])}
+          />
+          <AllVinyls filteredVinyls={filteredVinyls} />
+        </>
+      )}
     </div>
-  );
+  );  
 }

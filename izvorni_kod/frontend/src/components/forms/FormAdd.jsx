@@ -4,7 +4,7 @@ import { useUser } from "../../contexts/UserContext";
 
 const URL = import.meta.env.VITE_API_URL;
 
-function FormAdd({ onClose, recordConditions, coverConditions, genres }) {
+function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres }) {
   const { user } = useUser();
 
   const [photos, setPhotos] = useState([]);
@@ -72,6 +72,8 @@ function FormAdd({ onClose, recordConditions, coverConditions, genres }) {
 
       if (response.ok) {
         setSuccessMessage("Vinyl added successfully!");
+        const newItem = await response.json();
+        onAddItem(newItem);
       } else {
         const errorData = await response.json();
         setErrorMessage(
@@ -84,6 +86,7 @@ function FormAdd({ onClose, recordConditions, coverConditions, genres }) {
       console.error("Error adding record:", error);
       setErrorMessage("Error adding vinyl. Please check your connection.");
     }
+
   };
 
   return (

@@ -89,7 +89,7 @@ function Header({ filters, searchQuery, onSearchAndFilter }) {
 
       {/* <Menu isOpen={showMenu} /> */}
       <div className="menu-container">
-        <Menu isOpen={showMenu} />
+        <Menu isOpen={showMenu && user.username} />
       </div>
     </div>
   );

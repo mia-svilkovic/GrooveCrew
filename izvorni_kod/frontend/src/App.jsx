@@ -7,6 +7,7 @@ import { UserProvider } from "./contexts/UserContext"; // Importiraj UserProvide
 import React, { useState } from "react";
 
 function App() {
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     artist: "",
@@ -36,7 +37,7 @@ function App() {
                 path="/"
                 element={<Home searchQuery={searchQuery} filters={filters} />}
               />
-              <Route path="/my-vinyls" element={<MyVinyls />} />
+              <Route path="/my-vinyls" element={<MyVinyls searchQuery={searchQuery} filters={filters}/>} />
               <Route path="/wishlist" element={<Wishlist />} />
             </Routes>
           </main>

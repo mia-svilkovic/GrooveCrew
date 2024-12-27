@@ -4,7 +4,7 @@ import AddButton from "../assets/images/add.png";
 
 const URL = import.meta.env.VITE_API_URL;
 
-export default function AddVinyl({ onVinylAdded }) {
+export default function AddVinyl({ onAddItem }) {
   const [activeForm, setActiveForm] = useState(null); // Tracks active modal state
   const [recordConditions, setRecordConditions] = useState([]);
   const [coverConditions, setCoverConditions] = useState([]);
@@ -79,6 +79,7 @@ export default function AddVinyl({ onVinylAdded }) {
         <div className="modal-overlay">
           <FormAdd
             onClose={closeForm}
+            onAddItem={onAddItem}
             recordConditions={recordConditions}
             coverConditions={coverConditions}
             genres={genres}
