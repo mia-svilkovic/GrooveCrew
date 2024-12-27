@@ -5,6 +5,9 @@ import FormLogin from "./forms/FormLogin";
 import FormRegister from "./forms/FormRegister";
 import { useUser } from "../contexts/UserContext"; // Import useUser hook
 
+const URL = import.meta.env.VITE_API_URL;
+
+
 function Authentication() {
   const [activeForm, setActiveForm] = useState(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -18,16 +21,34 @@ function Authentication() {
     setShowLogoutConfirm(true);
   };
 
-  const handleLogout = () => {
-    logoutUser();
-    closeForm();
-    setShowLogoutConfirm(false);
+  const handleLogout = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refresh');
+      const accessToken = localStorage.getItem('access');
+
+      const response = await fetch(`${URL}/api/users/logout/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh: refreshToken })
+      });
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+      logoutUser();
+      closeForm();
+      setShowLogoutConfirm(false);
+      
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const isLoggedIn = localStorage.getItem("access") !== null;
 
   console.log(user) ;
-  // If user is logged in, show logout button
    return (
     <div className="auth-container">
       {user?.username ? (

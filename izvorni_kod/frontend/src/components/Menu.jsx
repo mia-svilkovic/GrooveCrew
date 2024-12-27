@@ -22,6 +22,12 @@ function Menu({ isOpen }) {
   if (!user) {
     return null; // This will prevent the Menu from being rendered
   }
+  else{
+    if(!user.username){
+      return null;
+    }
+  }
+
 
   const handleMenuClick = (path) => {
     navigate(path);
