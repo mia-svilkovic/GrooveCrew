@@ -7,6 +7,7 @@ import './VinylDetail.css';
 const URL = import.meta.env.VITE_API_URL;
 
 function VinylDetail() {
+
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useUser();
@@ -53,6 +54,11 @@ function VinylDetail() {
   if (!vinyl) {
     return <div className="not-found">Vinyl not found</div>;
   }
+
+  const handleUserClick = (userId) => {
+    navigate(`/user/${userId}`);
+  };
+
 
   return (
     <div className="vinyl-detail-container">
@@ -140,6 +146,9 @@ function VinylDetail() {
                     <p>Username: {vinyl.user.username}</p>
                     <p>Contact: {vinyl.user.email}</p>
                 </div>
+                <button onClick={() => handleUserClick(vinyl.user.id)} className="vinyl-opt">
+                    <p>See owner profile</p>
+                </button>
             </div>  
 
             {vinyl.available_for_exchange && (

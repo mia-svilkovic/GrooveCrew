@@ -12,6 +12,9 @@ function AllVinyls({filteredVinyls}) {
   const handleVinylClick = (vinylId) => {
     navigate(`/vinyl/${vinylId}`);
   };
+  const handleUserClick = (userId) => {
+    navigate(`/user/${userId}`);
+  };
 
   return (
     <div className="vinyls-container">
@@ -36,9 +39,16 @@ function AllVinyls({filteredVinyls}) {
                 Available for Exchange:{" "}
                 {vinyl.available_for_exchange ? "Yes" : "No"}
               </p>
-              <p>Owner: {vinyl.user.username}</p>
-              <div onClick={(e) => e.stopPropagation()}>
-                <button key={vinyl.id + "exchange"} className="vinyl-opt">
+              <div className="owner">
+                <p onClick={(e) => {
+                  e.stopPropagation();
+                  handleUserClick(vinyl.user.id);
+                }}>
+                  Owner: {vinyl.user.username}
+                </p>  
+            </div>
+              <div>
+                <button onClick={(e) => e.stopPropagation()} key={vinyl.id + "exchange"} className="vinyl-opt">
                   <img src={exchange} alt={exchange} />
                 </button>
               </div>
