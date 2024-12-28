@@ -1,0 +1,226 @@
+.vinyl-detail-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Updated button styles to match form.css */
+.back-button {
+    padding: 10px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    background-color: #fff500;
+    color: black;
+    margin-bottom: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #e5dd04;
+}
+
+.vinyl-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.vinyl-header h1 {
+    font-size: 2.5rem;
+    margin: 0;
+    color: #333;
+}
+
+.vinyl-header h2 {
+    font-size: 1.5rem;
+    color: #666;
+    margin: 10px 0 0 0;
+    font-weight: normal;
+}
+
+.vinyl-main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.info-card {
+  background: white;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.info-card h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.value {
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.condition-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.condition-item h4 {
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.condition-item p {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.description {
+  margin: 0;
+  color: #666;
+  line-height: 1.6;
+}
+
+.owner-info {
+  color: #666;
+}
+
+.owner-info p {
+  margin: 5px 0;
+}
+
+.photos-section {
+  margin-top: 20px;
+}
+
+.main-photo {
+  width: 100%;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.main-photo img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.photo-thumbnails {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.photo-thumbnails img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.photo-thumbnails img:hover {
+  opacity: 0.8;
+}
+
+.photo-thumbnails img.selected {
+  border: 2px solid #007bff;
+}
+
+.exchange-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.exchange-badge {
+  background: #28a745;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.vinyl-opt {
+  padding: 10px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: #fff500;
+  color: black;
+  transition: background-color 0.3s ease;
+}
+
+.vinyl-opt:hover {
+  background-color: #e5dd04;
+}
+
+.vinyl-opt img {
+  width: 24px;
+  height: 24px;
+}
+
+.loading,
+.error-message,
+.not-found {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.error-message {
+    color: #dc3545;
+}
+
+@media (max-width: 768px) {
+  .info-grid {
+        grid-template-columns: 1fr;
+  }
+
+  .vinyl-header h1 {
+        font-size: 2rem;
+  }
+
+  .vinyl-header h2 {
+        font-size: 1.2rem;
+  }
+}

@@ -3,6 +3,8 @@ import Header from "./components/Header";
 import Home from "./components/pages/Home";
 import MyVinyls from "./components/pages/my-vinyls";
 import Wishlist from "./components/pages/Wishlist";
+import VinylDetail from "./components/pages/VinylDetail";
+
 import { UserProvider } from "./contexts/UserContext"; // Importiraj UserProvider
 import React, { useState } from "react";
 
@@ -50,6 +52,7 @@ function App() {
               />
               <Route path="/my-vinyls" element={<MyVinyls searchQuery={searchQuery} filters={filters}/>} />
               <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/vinyl/:id" element={<VinylDetail />} />
             </Routes>
           </main>
         </div>
