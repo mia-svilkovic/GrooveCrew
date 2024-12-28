@@ -17,7 +17,7 @@ export default function Home({ searchQuery, filters }) {
       console.log(vinyl);
       const albumName = (vinyl.album_name || "").toLowerCase();
       const artist = (vinyl.artist || "").toLowerCase();
-      const genre = (vinyl.genre.name || "").toLowerCase();
+      const genre = (vinyl.genre.id || "") ;
       const searchTerm = searchQuery.toLowerCase();
       // Search
       const searchMatch =
@@ -31,16 +31,16 @@ export default function Home({ searchQuery, filters }) {
         !filters.release_year ||
         vinyl.release_year === parseInt(filters.release_year);
       const genreMatch =
-        !filters.genre || genre === filters.genre.toLowerCase();
+        !filters.genre || genre === parseInt(filters.genre);
       const exchangeMatch =
         !filters.available_for_exchange ||
         vinyl.available_for_exchange === true;
       const coverMatch =
         !filters.cover_condition ||
-        vinyl.cover_condition === filters.cover_condition;
+        vinyl.cover_condition.id === parseInt(filters.cover_condition);
       const recordMatch =
         !filters.record_condition ||
-        vinyl.record_condition === filters.record_condition;
+        vinyl.record_condition.id === parseInt(filters.record_condition);
 
       return (
         searchMatch &&

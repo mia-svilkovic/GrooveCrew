@@ -3,7 +3,7 @@ import "./FilterPanel.css";
 
 const URL = import.meta.env.VITE_API_URL;
 
-const FilterPanel = ({ filters, onFilterChange }) => {
+const FilterPanel = ({ filters, onFilterChange, handleFilterReset }) => {
   const [genres, setGenres] = useState([]);
   const [coverConditions, setCoverConditions] = useState([]);
   const [recordConditions, setRecordConditions] = useState([]);
@@ -56,16 +56,6 @@ const FilterPanel = ({ filters, onFilterChange }) => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     onFilterChange(name, type === "checkbox" ? checked : value);
-  };
-
-  const handleReset = (e) => {
-    e.preventDefault();
-    onFilterChange("artist", "");
-    onFilterChange("release_year", "");
-    onFilterChange("genre", "");
-    onFilterChange("available_for_exchange", false);
-    onFilterChange("cover_condition", "");
-    onFilterChange("record_condition", "");
   };
 
   if (loading) {
@@ -160,7 +150,7 @@ const FilterPanel = ({ filters, onFilterChange }) => {
         </label>
       </div>
 
-      <button type="button" onClick={handleReset} className="reset-button">
+      <button type="button" onClick={handleFilterReset} className="reset-button">
         Reset All
       </button>
     </div>

@@ -21,6 +21,16 @@ function App() {
     setSearchQuery(query);
     setFilters(filters);
   };
+  const handleFilterReset = () => {
+    setFilters({
+      artist: "",
+      release_year: "",
+      genre: "",
+      available_for_exchange: false,
+      cover_condition: "",
+      record_condition: "",
+    });
+  };
 
   return (
     <UserProvider>
@@ -30,6 +40,7 @@ function App() {
             filters={filters}
             searchQuery={searchQuery}
             onSearchAndFilter={handleSearchAndFilter}
+            handleFilterReset={handleFilterReset}
           />
           <main className="main-content">
             <Routes>

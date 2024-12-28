@@ -122,6 +122,7 @@ function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres
           placeholder="Release Year"
           value={releaseYear}
           onChange={(e) => setReleaseYear(e.target.value)}
+          min="1900" 
           required
         />
 

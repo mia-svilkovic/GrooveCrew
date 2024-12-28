@@ -10,7 +10,7 @@ import userIcon from "../assets/images/user.png";
 import menuIcon from "../assets/images/menu.png";
 import { useUser } from "../contexts/UserContext"; // Uvozimo useUser hook
 
-function Header({ filters, searchQuery, onSearchAndFilter }) {
+function Header({ filters, searchQuery, onSearchAndFilter, handleFilterReset }) {
   const [showAuth, setShowAuth] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -76,6 +76,7 @@ function Header({ filters, searchQuery, onSearchAndFilter }) {
             <FilterPanel
               filters={filters}
               onFilterChange={handleFilterChange}
+              handleFilterReset={handleFilterReset}
             />
           )}
         </div>
