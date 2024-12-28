@@ -68,93 +68,78 @@ const FilterPanel = ({ filters, onFilterChange, handleFilterReset }) => {
 
   return (
     <div className="filter-panel">
-      <h3>Filters</h3>
-
-      <div className="filter-section">
-        <label>Artist</label>
-        <input
-          type="text"
-          name="artist"
-          value={filters.artist}
-          onChange={handleChange}
-          placeholder="Filter by artist"
-        />
-      </div>
-
-      <div className="filter-section">
-        <label>Release Year</label>
-        <input
-          type="number"
-          name="release_year"
-          value={filters.release_year}
-          onChange={handleChange}
-          placeholder="Filter by year"
-          min="1900"
-          max={new Date().getFullYear()}
-        />
-      </div>
-
-      <div className="filter-section">
-        <label>Genre</label>
-        <select name="genre" value={filters.genre} onChange={handleChange}>
-          <option value="">All Genres</option>
-          {genres.map((genre) => (
-            <option key={genre.id} value={genre.id}>
-              {genre.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="filter-section">
-        <label>Cover Condition</label>
-        <select
-          name="cover_condition"
-          value={filters.cover_condition}
-          onChange={handleChange}
-        >
-          <option value="">Any Condition</option>
-          {coverConditions.map((condition) => (
-            <option key={condition.id} value={condition.id}>
-              {condition.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="filter-section">
-        <label>Record Condition</label>
-        <select
-          name="record_condition"
-          value={filters.record_condition}
-          onChange={handleChange}
-        >
-          <option value="">Any Condition</option>
-          {recordConditions.map((condition) => (
-            <option key={condition.id} value={condition.id}>
-              {condition.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="filter-section checkbox">
-        <label>
+      <div className="form-container">
+        <h2>Filters</h2>
+        <form>
           <input
-            type="checkbox"
-            name="available_for_exchange"
-            checked={filters.available_for_exchange}
+            type="text"
+            name="artist"
+            value={filters.artist}
             onChange={handleChange}
+            placeholder="Filter by artist"
           />
-          Available for Exchange Only
-        </label>
-      </div>
 
-      <button type="button" onClick={handleFilterReset} className="reset-button">
-        Reset All
-      </button>
+          <input
+            type="number"
+            name="release_year"
+            value={filters.release_year}
+            onChange={handleChange}
+            placeholder="Filter by year"
+            min="1900"
+            max={new Date().getFullYear()}
+          />
+
+          <select name="genre" value={filters.genre} onChange={handleChange}>
+            <option value="">All Genres</option>
+            {genres.map((genre) => (
+              <option key={genre.id} value={genre.id}>
+                {genre.name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            name="cover_condition"
+            value={filters.cover_condition}
+            onChange={handleChange}
+          >
+            <option value="">Any Cover Condition</option>
+            {coverConditions.map((condition) => (
+              <option key={condition.id} value={condition.id}>
+                {condition.name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            name="record_condition"
+            value={filters.record_condition}
+            onChange={handleChange}
+          >
+            <option value="">Any Record Condition</option>
+            {recordConditions.map((condition) => (
+              <option key={condition.id} value={condition.id}>
+                {condition.name}
+              </option>
+            ))}
+          </select>
+
+          <label>
+            <input
+              type="checkbox"
+              name="available_for_exchange"
+              checked={filters.available_for_exchange}
+              onChange={handleChange}
+            />
+            Available for Exchange Only
+          </label>
+
+          <button type="button" onClick={handleFilterReset}>
+            Reset All
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
-
 export default FilterPanel;
