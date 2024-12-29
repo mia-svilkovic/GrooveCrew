@@ -67,6 +67,10 @@ python manage.py makemigrations api
 python manage.py migrate
 ```
 
+## Punjenje baze s dummy podatcima
+```bash
+python manage.py populate_db
+```
 
 ## Pokreni development server za Django
 
