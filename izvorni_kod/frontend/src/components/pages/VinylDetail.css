@@ -1,5 +1,5 @@
 .vinyl-detail-container {
-    max-width: 800px;
+    max-width: 80%;
     margin: 0 auto;
     padding: 20px;
 }
@@ -133,7 +133,7 @@
 }
 
 .main-photo img {
-  width: 100%;
+  width: 20%;
   border-radius: 20px;
   height: auto;
   display: block;

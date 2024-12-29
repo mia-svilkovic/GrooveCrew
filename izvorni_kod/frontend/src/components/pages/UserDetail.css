@@ -3,12 +3,13 @@
     padding: 20px;
     position: relative;
     margin: 0 auto;
-    max-width: 800px;
+    max-width: 80%;
   }
 
 .user-header {
     text-align: center;
     /* border-bottom: 1px solid #dee2e6; */
+    color: #333;
   }
   
   .user-header h1 {
@@ -19,17 +20,16 @@
   }
   
   .user-details {
-    max-width: 600px;
-    margin: 0 auto 3rem auto;
+    /* max-width: 600px; */
+    /* margin: 0 auto 3rem auto; */
     padding: 1.5rem 2rem;
     border-radius: 8px;
-    border:2px solid lightgrey;
+    /* border:2px solid lightgrey; */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   .user-details p {
-    margin: 0.75rem 0;
-    font-size: 1.1rem;
+    
     color: #495057;
     display: flex;
     justify-content: space-between;
