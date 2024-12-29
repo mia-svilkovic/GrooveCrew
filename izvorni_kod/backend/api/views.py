@@ -1,21 +1,25 @@
 from django.conf import settings
-from django.contrib.auth import get_user_model, login
-from django.http import Http404, JsonResponse
+from django.contrib.auth import login, logout
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.middleware.csrf import get_token
+
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
-from .models import GoldmineConditionRecord, GoldmineConditionCover
-from .models import Genre, Record, Wishlist
-from .serializers import GoldmineConditionRecordSerializer, GoldmineConditionCoverSerializer
-from .serializers import LoginSerializer, RecordSerializer, RegisterSerializer
-from .serializers import GenreSerializer, UserSerializer, WishlistSerializer
 
-from django.contrib.auth import logout
-from django.http import HttpResponseRedirect
+from .models import (
+    Genre, GoldmineConditionCover, GoldmineConditionRecord,
+    Record, User, Wishlist
+)
 
-User = get_user_model()
+from .serializers import (
+    GenreSerializer, GoldmineConditionCoverSerializer,
+    GoldmineConditionRecordSerializer, LoginSerializer,
+    RecordSerializer, RegisterSerializer,
+    UserSerializer, WishlistSerializer
+)
+
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -124,6 +128,15 @@ class LogoutView(APIView):
         
         except Exception as e:
             return Response({'error': 'Failed to log out.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def custom_admin_logout(request):
+    """
+    Custom Logout View for Superusers.
+    Ensures session is destroyed and redirects appropriately.
+    """
+    logout(request)
+    return HttpResponseRedirect('/admin/login/')  # Redirect to admin login page
 
 
 def oauth_login_success(request):

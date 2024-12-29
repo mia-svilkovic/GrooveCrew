@@ -1,11 +1,14 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import GoldmineConditionCoverListView, GoldmineConditionRecordListView
-from .views import LoginView, LogoutView, RegisterView
-from .views import oauth_login_success, oauth_logout_success
-from .views import RecordCreateView, RecordDetailView, RecordListView
-from .views import UserRecordListView, GenreListView
-from .views import WishlistCreateView, WishlistDeleteView, WishlistListView
+
+from .views import (
+   GoldmineConditionCoverListView, GoldmineConditionRecordListView,
+   LoginView, LogoutView, RegisterView,
+   oauth_login_success, oauth_logout_success,
+   RecordCreateView, RecordDetailView, RecordListView,
+   UserRecordListView, GenreListView,
+   WishlistCreateView, WishlistDeleteView, WishlistListView
+)
 
 app_name = 'api'
 

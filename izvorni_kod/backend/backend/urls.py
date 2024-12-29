@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import custom_admin_logout
+
+from api.views import custom_admin_logout
 
 urlpatterns = [
     # Override the default admin logout path

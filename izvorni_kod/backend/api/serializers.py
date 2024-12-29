@@ -1,11 +1,14 @@
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.db import transaction
-from rest_framework import serializers
-from .models import Genre, GoldmineConditionCover, GoldmineConditionRecord
-from .models import Photo, Record, Wishlist
 
-User = get_user_model()
+from rest_framework import serializers
+
+from api.models import (
+    Genre, GoldmineConditionCover, GoldmineConditionRecord,
+    Photo, Record, User, Wishlist
+)
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(

@@ -1,12 +1,14 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Record, Genre
-from .models import GoldmineConditionCover, GoldmineConditionRecord
-from .models import Photo, Exchange, ExchangeOfferedRecord
-from .models import Wishlist
 
-@admin.register(CustomUser)
-class CustomUserAdmin(UserAdmin):
+from .models import (
+    Exchange, ExchangeOfferedRecord, Genre,
+    GoldmineConditionCover, GoldmineConditionRecord,
+    Photo, Record, User, Wishlist
+)
+
+@admin.register(User)
+class UserAdmin(UserAdmin):
     """fieldsets and add_fieldsets need to be adjusted so admin knows how to
     display them."""
 

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-class CustomUser(AbstractUser):
+class User(AbstractUser):
     email = models.EmailField(
         unique=True,
         null=False,
@@ -28,7 +28,7 @@ class CustomUser(AbstractUser):
 
     # Fields that *must* be provided when creating a superuser via
     # `createsuperuser` USERNAME_FIELD + password must be provided by default
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
         return self.email
@@ -68,7 +68,7 @@ class Record(models.Model):
         null=True)
 
     user = models.ForeignKey(
-        'CustomUser',
+        'User',
         on_delete=models.CASCADE,
         related_name='records')
 
@@ -133,18 +133,18 @@ class Exchange(models.Model):
         default=ExchangeStatus.PENDING)
     
     initiator_user = models.ForeignKey(
-        'CustomUser', 
+        'User', 
         on_delete=models.CASCADE,
         related_name='initiated_exchanges'
     )
 
     receiver_user = models.ForeignKey(
-        'CustomUser',
+        'User',
         on_delete=models.CASCADE,
         related_name='received_exchanges')
 
     user_to_review = models.ForeignKey(
-        'CustomUser',
+        'User',
         on_delete=models.CASCADE,
         related_name='exchanges_to_review')
 
@@ -186,7 +186,7 @@ class Wishlist(models.Model):
     record_catalog_number = models.CharField(max_length=255)
 
     user = models.ForeignKey(
-        'CustomUser',
+        'User',
         on_delete=models.CASCADE,
         related_name='wishlist')
 
