@@ -75,7 +75,7 @@ python manage.py populate_db
 ## Pokreni development server za Django
 
 ```bash
-python manage.py runserver  # pokreni Django development server
+python manage.py runserver
 ```
 
 
