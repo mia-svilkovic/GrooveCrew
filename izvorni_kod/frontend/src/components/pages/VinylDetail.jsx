@@ -29,9 +29,9 @@ function VinylDetail() {
 
         const data = await response.json();
         setVinyl(data);
-        // if (data.photos_list && data.photos_list.length > 0) {
-        //   setSelectedPhoto(data.photos_list[0].image);
-        // }
+        if (data.photos_list && data.photos_list.length > 0) {
+           setSelectedPhoto(data.photos_list[0].image);
+        }
         setLoading(false);
       } catch (error) {
         console.error('Error fetching vinyl details:', error);
@@ -77,7 +77,7 @@ function VinylDetail() {
         </div>
 
         <div className="vinyl-main-content">
-          {/* <div className="photos-section">
+          <div className="photos-section">
             <div className="main-photo">
               <img src={selectedPhoto} alt={vinyl.album_name} />
             </div>
@@ -94,7 +94,7 @@ function VinylDetail() {
                 ))}
               </div>
             )}
-          </div> */}
+          </div>
 
             <div className="details-section">
                 <div className="info-card">

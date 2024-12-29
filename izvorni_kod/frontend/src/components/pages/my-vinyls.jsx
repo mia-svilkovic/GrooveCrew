@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import bin from "../../assets/images/bin.png";
 import edit from "../../assets/images/edit.png";
 import { useUser } from "../../contexts/UserContext";
+import { useNavigate } from "react-router-dom";
+
 
 const URL = import.meta.env.VITE_API_URL;
 
@@ -13,6 +15,14 @@ function MyVinyls() {
 
   const { user } = useUser();
   const userId = user.id;
+
+  const navigate = useNavigate();
+  const handleVinylClick = (vinylId) => {
+    navigate(`/vinyl/${vinylId}`);
+  };
+  const handleUserClick = (userId) => {
+    navigate(`/user/${userId}`);
+  };
 
   // Fetch all vinyls when the component mounts
   useEffect(() => {
@@ -56,7 +66,10 @@ function MyVinyls() {
       ) : (
         <div className="vinyl-list">
           {vinyls.map((vinyl) => (
-            <div key={vinyl.id} className="vinyl-item">
+            <div key={vinyl.id} className="vinyl-item"
+            onClick={() => handleVinylClick(vinyl.id)}
+            style={{ cursor: 'pointer' }}
+            >
               <h3>{vinyl.album_name}</h3>
               <p>Artist: {vinyl.artist}</p>
               <p>Genre: {vinyl.genre.name}</p>
