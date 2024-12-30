@@ -9,11 +9,14 @@ import logo from "../assets/images/logo.png";
 import userIcon from "../assets/images/user.png";
 import menuIcon from "../assets/images/menu.png";
 import { useUser } from "../contexts/UserContext"; // Uvozimo useUser hook
+import FormLogin from './forms/FormLogin';
 
 function Header({ filters, searchQuery, onSearchAndFilter, handleFilterReset }) {
   const [showAuth, setShowAuth] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+
+  const [showLoginForm, setShowLoginForm] = useState(false);
 
   const handleSearch = (query) => {
     onSearchAndFilter(query, filters);
@@ -37,6 +40,10 @@ function Header({ filters, searchQuery, onSearchAndFilter, handleFilterReset }) 
   };
 
   const toggleMenu = () => {
+    if (!user?.username) {
+      setShowLoginForm(true);
+      return;
+    }
     setShowMenu(!showMenu);
     if (showAuth) setShowAuth(false);
   };
@@ -87,6 +94,11 @@ function Header({ filters, searchQuery, onSearchAndFilter, handleFilterReset }) 
       </header>
 
       {showAuth && <Authentication />}
+      {showLoginForm && (
+        <div className="modal-overlay">
+            <FormLogin onClose={() => setShowLoginForm(false)} showMessage={true}/>
+        </div>
+      )}
 
       {/* <Menu isOpen={showMenu} /> */}
       <div className="menu-container">

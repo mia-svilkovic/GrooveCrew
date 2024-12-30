@@ -78,7 +78,6 @@ function MyVinyls() {
                 Available for Exchange:{" "}
                 {vinyl.available_for_exchange ? "Yes" : "No"}
               </p>
-              <p>Description: {vinyl.additional_description}</p>
               <div>
                 <button key={vinyl.id + "edit"} className="vinyl-opt">
                   <img src={edit} alt={edit} />

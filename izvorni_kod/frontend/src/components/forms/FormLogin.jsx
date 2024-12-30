@@ -5,7 +5,8 @@ import "./Form.css";
 // Koristi environment varijablu za API URL
 const URL = import.meta.env.VITE_API_URL;
 
-function FormLogin({ onClose }) {
+
+function FormLogin({ onClose, showMessage = false }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -79,6 +80,9 @@ function FormLogin({ onClose }) {
 
   return (
     <div className="form-container">
+      {showMessage && (
+        <p className="login-message">Please log in to access this feature</p>
+      )}
       <h2>LOG IN</h2>
       <form onSubmit={handleLogin}>
         <input

@@ -3,6 +3,8 @@ import './Form.css';
 import './exchange.css';
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
+import FormLogin from './FormLogin';
+
 
 
 const URL = import.meta.env.VITE_API_URL;
@@ -15,9 +17,17 @@ function ExchangeForm({ selectedVinylId, onClose }) {
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [showLoginForm, setShowLoginForm] = useState(false);
 
     const { user } = useUser();
     const userId = user.id;
+
+    if (!user?.username) {
+        return <FormLogin onClose={() => {
+            setShowLoginForm(false);
+            onClose();
+        }} showMessage={true}/>;
+    }
 
     useEffect(() => {
         if (successMessage) {
@@ -103,6 +113,20 @@ function ExchangeForm({ selectedVinylId, onClose }) {
 
     if (loading) return <div className="form-container">Loading...</div>;
     if (error) return <div className="form-container">{error}</div>;
+
+    if (userVinyls.length === 0) {
+        return (
+            <div className="form-container">
+                
+                    <h3>No Vinyls Available :( </h3>
+                    <p className='login-message'>You have no published vinyls.Publish a vinyl to offer exchange.</p>
+                    <button className='close-button' type="button" onClick={onClose}>
+                        OK
+                    </button>
+                
+            </div>
+        );
+    }
 
     return (
         <div className="form-container" id='exchange-container'>

@@ -78,6 +78,25 @@ function VinylDetail() {
 
         <div className="vinyl-main-content">
 
+          <div className="photos-section">
+              <div className="main-photo">
+                <img src={selectedPhoto} alt={vinyl.album_name} />
+              </div>
+              {vinyl.photos_list.length > 1 && (
+                <div className="photo-thumbnails">
+                  {vinyl.photos_list.map((photo) => (
+                    <img
+                      key={photo.id}
+                      src={photo.image}
+                      alt={`${vinyl.album_name} thumbnail`}
+                      onClick={() => setSelectedPhoto(photo.image)}
+                      className={selectedPhoto === photo.image ? 'selected' : ''}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="details-section">
                 <div className="info-card">
                     <h3>Album Details</h3>
@@ -133,24 +152,7 @@ function VinylDetail() {
                 </button>
             </div>  
 
-            <div className="photos-section">
-            <div className="main-photo">
-              <img src={selectedPhoto} alt={vinyl.album_name} />
-            </div>
-            {vinyl.photos_list.length > 1 && (
-              <div className="photo-thumbnails">
-                {vinyl.photos_list.map((photo) => (
-                  <img
-                    key={photo.id}
-                    src={photo.image}
-                    alt={`${vinyl.album_name} thumbnail`}
-                    onClick={() => setSelectedPhoto(photo.image)}
-                    className={selectedPhoto === photo.image ? 'selected' : ''}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+            
 
             {vinyl.available_for_exchange && (
                 <div className="exchange-section">

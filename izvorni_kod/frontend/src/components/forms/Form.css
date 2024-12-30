@@ -100,3 +100,9 @@
   width: 500px;
 }
 
+.login-message {
+  color: #666;
+  margin: 10px 0;
+  text-align: center;
+}
+
