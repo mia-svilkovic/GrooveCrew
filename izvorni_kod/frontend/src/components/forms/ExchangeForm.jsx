@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Form.css';
-import './exchange.css';
+// import './exchange.css';
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
 import FormLogin from './FormLogin';
@@ -20,14 +20,15 @@ function ExchangeForm({ selectedVinylId, onClose }) {
     const [showLoginForm, setShowLoginForm] = useState(false);
 
     const { user } = useUser();
-    const userId = user.id;
-
+    
     if (!user?.username) {
         return <FormLogin onClose={() => {
             setShowLoginForm(false);
             onClose();
         }} showMessage={true}/>;
     }
+
+    const userId = user.id;
 
     useEffect(() => {
         if (successMessage) {
