@@ -203,6 +203,25 @@ class RecordUpdateView(generics.UpdateAPIView):
         serializer.save()
 
 
+class RecordDeleteView(generics.DestroyAPIView):
+    """
+    API endpoint for deleting a record.
+    Only the owner of the record can delete it.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = RecordSerializer
+    queryset = Record.objects.all()
+    lookup_field = 'id'
+
+    def perform_destroy(self, instance):
+        """
+        Ensure that only the record owner can delete the record.
+        """
+        if instance.user != self.request.user:
+            raise ValidationError("You do not have permission to delete this record.")
+        instance.delete()
+
+
 class UserRecordListView(generics.ListAPIView):
     """
     API endpoint for listing all records of a specific user.
@@ -278,9 +297,13 @@ class WishlistDeleteView(generics.DestroyAPIView):
     """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = WishlistSerializer
+    queryset = Wishlist.objects.all()
+    lookup_field = 'id'
 
-    def get_queryset(self):
+    def perform_destroy(self, instance):
         """
         Ensure the user can only delete their own wishlist items.
         """
-        return Wishlist.objects.filter(user=self.request.user)
+        if instance.user != self.request.user:
+            raise ValidationError("You do not have permission to delete this wishlist entry.")
+        instance.delete()

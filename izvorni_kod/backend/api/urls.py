@@ -6,8 +6,9 @@ from .views import (
    LoginView, LogoutView, RegisterView,
    oauth_login_success, oauth_logout_success,
    RecordCreateView, RecordDetailView, RecordListView,
-   RecordUpdateView, UserRecordListView, GenreListView,
-   WishlistCreateView, WishlistDeleteView, WishlistListView
+   RecordUpdateView, RecordDeleteView, UserRecordListView, 
+   GenreListView, WishlistCreateView, WishlistDeleteView, 
+   WishlistListView
 )
 
 app_name = 'api'
@@ -28,6 +29,7 @@ urlpatterns = [
    path('records/user/<int:user_id>/', UserRecordListView.as_view(), name='records-user'),
    path('records/add/', RecordCreateView.as_view(), name='record-add'),
    path('records/update/<int:id>/', RecordUpdateView.as_view(), name='record-update'),
+   path('records/delete/<int:id>/', RecordDeleteView.as_view(), name='record-delete'),
 
    path('genres/', GenreListView.as_view(), name='genres'),
 
