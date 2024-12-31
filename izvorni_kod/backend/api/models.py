@@ -143,10 +143,7 @@ class Exchange(models.Model):
         on_delete=models.CASCADE,
         related_name='received_exchanges')
 
-    user_to_review = models.ForeignKey(
-        'User',
-        on_delete=models.CASCADE,
-        related_name='exchanges_to_review')
+    initiator_needs_to_review = models.BooleanField(default=False)
 
     requested_record = models.ForeignKey(
         'Record',
@@ -177,6 +174,8 @@ class ExchangeOfferedRecord(models.Model):
         max_length=50,
         choices=RecordStatus.choices,
         default=RecordStatus.PENDING)
+    
+    requested_by_receiver = models.BooleanField(default=False)
 
     def __str__(self):
         return f'Offered {self.offered_record} in exchange {self.exchange.id}'
