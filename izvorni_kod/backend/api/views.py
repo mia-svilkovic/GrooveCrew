@@ -183,6 +183,26 @@ class RecordDetailView(generics.RetrieveAPIView):
     lookup_field = 'id'
 
 
+class RecordUpdateView(generics.UpdateAPIView):
+    """
+    API endpoint for updating record details.
+    Only the owner of the record can perform updates.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = RecordSerializer
+    queryset = Record.objects.all()
+    lookup_field = 'id'
+
+    def perform_update(self, serializer):
+        """
+        Ensure that only the record owner can update the record.
+        """
+        record = self.get_object()
+        if record.user != self.request.user:
+            raise ValidationError("You do not have permission to update this record.")
+        serializer.save()
+
+
 class UserRecordListView(generics.ListAPIView):
     """
     API endpoint for listing all records of a specific user.

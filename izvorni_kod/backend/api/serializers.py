@@ -123,14 +123,13 @@ class RecordSerializer(serializers.ModelSerializer):
     record_condition = GoldmineConditionRecordSerializer(read_only=True)
     cover_condition = GoldmineConditionCoverSerializer(read_only=True)
     user = UserSerializer(read_only=True)
+    photos = PhotoSerializer(many=True, read_only=True)
 
-    # Support multiple photos
     add_photos = serializers.ListField(
         child=serializers.ImageField(),
         required=False,
         write_only=True
     )
-    photos = PhotoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Record

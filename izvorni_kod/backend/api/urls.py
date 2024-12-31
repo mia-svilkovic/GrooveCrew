@@ -6,7 +6,7 @@ from .views import (
    LoginView, LogoutView, RegisterView,
    oauth_login_success, oauth_logout_success,
    RecordCreateView, RecordDetailView, RecordListView,
-   UserRecordListView, GenreListView,
+   RecordUpdateView, UserRecordListView, GenreListView,
    WishlistCreateView, WishlistDeleteView, WishlistListView
 )
 
@@ -25,8 +25,9 @@ urlpatterns = [
 
    path('records/', RecordListView.as_view(), name='record-list'),
    path('records/<int:id>/', RecordDetailView.as_view(), name='record-detail'),
-   path('records/user/<int:user_id>/', UserRecordListView.as_view(), name='user-records'),
+   path('records/user/<int:user_id>/', UserRecordListView.as_view(), name='records-user'),
    path('records/add/', RecordCreateView.as_view(), name='record-add'),
+   path('records/update/<int:id>/', RecordUpdateView.as_view(), name='record-update'),
 
    path('genres/', GenreListView.as_view(), name='genres'),
 
