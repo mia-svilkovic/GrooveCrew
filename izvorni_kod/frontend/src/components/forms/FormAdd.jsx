@@ -4,10 +4,16 @@ import { useUser } from "../../contexts/UserContext";
 
 const URL = import.meta.env.VITE_API_URL;
 
-function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres }) {
+function FormAdd({
+  onClose,
+  onAddItem,
+  recordConditions,
+  coverConditions,
+  genres,
+}) {
   const { user } = useUser();
 
-  const [photos, setPhotos] = useState([]);
+  const [addPhotos, setAddPhotos] = useState([]);
   const [catalogNumber, setCatalogNumber] = useState("");
   const [artist, setArtist] = useState("");
   const [albumName, setAlbumName] = useState("");
@@ -37,15 +43,15 @@ function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres
 
   const handleImagesChange = (event) => {
     const files = Array.from(event.target.files);
-    setPhotos(files);
+    setAddPhotos(files);
   };
 
   const handleAddRecord = async (event) => {
     event.preventDefault();
 
     const formData = new FormData();
-    photos.forEach((photo, index) => {
-      formData.append(`photos[${index}]`, photo);
+    addPhotos.forEach((photo, index) => {
+      formData.append(`add_photos[${index}]`, photo);
     });
     formData.append("catalog_number", catalogNumber);
     formData.append("artist", artist);
@@ -86,7 +92,6 @@ function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres
       console.error("Error adding record:", error);
       setErrorMessage("Error adding vinyl. Please check your connection.");
     }
-
   };
 
   return (
@@ -122,7 +127,7 @@ function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres
           placeholder="Release Year"
           value={releaseYear}
           onChange={(e) => setReleaseYear(e.target.value)}
-          min="1900" 
+          min="1900"
           required
         />
 

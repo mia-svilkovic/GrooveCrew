@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import "./Form.css" ;
-import "./editPhotos.css" ;
+import React, { useState, useEffect } from "react";
+import "./Form.css";
+import "./editPhotos.css";
 
 const URL = import.meta.env.VITE_API_URL;
 
@@ -15,11 +15,11 @@ function EditForm({ vinyl, onClose, onUpdate }) {
     available_for_exchange: vinyl.available_for_exchange,
     additional_description: vinyl.additional_description,
     record_condition_id: vinyl.record_condition.id,
-    cover_condition_id: vinyl.cover_condition.id
+    cover_condition_id: vinyl.cover_condition.id,
   });
 
   const [newPhotos, setNewPhotos] = useState([]);
-  const [existingPhotos, setExistingPhotos] = useState(vinyl.photos_list || []);
+  const [existingPhotos, setExistingPhotos] = useState(vinyl.photos || []);
   const [recordConditions, setRecordConditions] = useState([]);
   const [coverConditions, setCoverConditions] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -29,16 +29,21 @@ function EditForm({ vinyl, onClose, onUpdate }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [recordResponse, coverResponse, genresResponse] = await Promise.all([
-          fetch(`${URL}/api/goldmine-conditions-record/`, { credentials: "include" }),
-          fetch(`${URL}/api/goldmine-conditions-cover/`, { credentials: "include" }),
-          fetch(`${URL}/api/genres/`, { credentials: "include" })
-        ]);
+        const [recordResponse, coverResponse, genresResponse] =
+          await Promise.all([
+            fetch(`${URL}/api/goldmine-conditions-record/`, {
+              credentials: "include",
+            }),
+            fetch(`${URL}/api/goldmine-conditions-cover/`, {
+              credentials: "include",
+            }),
+            fetch(`${URL}/api/genres/`, { credentials: "include" }),
+          ]);
 
         const [recordData, coverData, genresData] = await Promise.all([
           recordResponse.json(),
           coverResponse.json(),
-          genresResponse.json()
+          genresResponse.json(),
         ]);
 
         setRecordConditions(recordData);
@@ -55,9 +60,9 @@ function EditForm({ vinyl, onClose, onUpdate }) {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -66,28 +71,31 @@ function EditForm({ vinyl, onClose, onUpdate }) {
   };
 
   const handleRemoveExistingPhoto = (photoId) => {
-    setExistingPhotos(prev => prev.filter(photo => photo.id !== photoId));
+    setExistingPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const submitData = new FormData();
-    Object.keys(formData).forEach(key => {
+    Object.keys(formData).forEach((key) => {
       submitData.append(key, formData[key]);
     });
-    
+
     newPhotos.forEach((photo, index) => {
       submitData.append(`new_photos[${index}]`, photo);
     });
 
-    submitData.append('existing_photo_ids', JSON.stringify(existingPhotos.map(photo => photo.id)));
+    submitData.append(
+      "existing_photo_ids",
+      JSON.stringify(existingPhotos.map((photo) => photo.id))
+    );
 
     try {
       const response = await fetch(`${URL}/api/records/edit/${vinyl.id}`, {
-        method: 'PUT',
+        method: "PUT",
         body: submitData,
-        credentials: 'include'
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -98,11 +106,11 @@ function EditForm({ vinyl, onClose, onUpdate }) {
         }, 2000);
       } else {
         const errorData = await response.json();
-        setErrorMessage(errorData?.message || 'Failed to update vinyl');
+        setErrorMessage(errorData?.message || "Failed to update vinyl");
       }
     } catch (error) {
-      console.error('Error updating vinyl:', error);
-      setErrorMessage('Error updating vinyl. Please try again.');
+      console.error("Error updating vinyl:", error);
+      setErrorMessage("Error updating vinyl. Please try again.");
     }
   };
 
@@ -154,8 +162,10 @@ function EditForm({ vinyl, onClose, onUpdate }) {
           required
         >
           <option value="">Select Genre</option>
-          {genres.map(genre => (
-            <option key={genre.id} value={genre.id}>{genre.name}</option>
+          {genres.map((genre) => (
+            <option key={genre.id} value={genre.id}>
+              {genre.name}
+            </option>
           ))}
         </select>
 
@@ -185,8 +195,10 @@ function EditForm({ vinyl, onClose, onUpdate }) {
           required
         >
           <option value="">Record Condition</option>
-          {recordConditions.map(condition => (
-            <option key={condition.id} value={condition.id}>{condition.name}</option>
+          {recordConditions.map((condition) => (
+            <option key={condition.id} value={condition.id}>
+              {condition.name}
+            </option>
           ))}
         </select>
 
@@ -197,8 +209,10 @@ function EditForm({ vinyl, onClose, onUpdate }) {
           required
         >
           <option value="">Cover Condition</option>
-          {coverConditions.map(condition => (
-            <option key={condition.id} value={condition.id}>{condition.name}</option>
+          {coverConditions.map((condition) => (
+            <option key={condition.id} value={condition.id}>
+              {condition.name}
+            </option>
           ))}
         </select>
 
@@ -212,11 +226,11 @@ function EditForm({ vinyl, onClose, onUpdate }) {
         <div className="existing-photos">
           <h4>Current Photos:</h4>
           <div className="photo-grid">
-            {existingPhotos.map(photo => (
+            {existingPhotos.map((photo) => (
               <div key={photo.id} className="photo-item">
                 <img src={photo.image} alt="Vinyl" className="thumbnail" />
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => handleRemoveExistingPhoto(photo.id)}
                   className="remove-photo"
                 >
@@ -244,8 +258,9 @@ function EditForm({ vinyl, onClose, onUpdate }) {
         {successMessage && <p className="success-message">{successMessage}</p>}
 
         <button type="submit">Update Vinyl</button>
-        <button type="button" onClick={onClose}>Cancel</button>
-        
+        <button type="button" onClick={onClose}>
+          Cancel
+        </button>
       </form>
     </div>
   );
