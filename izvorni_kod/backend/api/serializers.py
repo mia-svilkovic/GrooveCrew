@@ -70,8 +70,8 @@ class LoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'is_staff')
-        read_only_fields = ('id', 'is_staff')
+        fields = ('id', 'email', 'username', 'first_name', 'last_name')
+        read_only_fields = ('id', 'email', 'username', 'first_name', 'last_name')
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -125,12 +125,12 @@ class RecordSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
     # Support multiple photos
-    photos = serializers.ListField(
+    add_photos = serializers.ListField(
         child=serializers.ImageField(),
         required=False,
         write_only=True
     )
-    photos_list = PhotoSerializer(many=True, read_only=True, source='photos')
+    photos = PhotoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Record
@@ -151,16 +151,16 @@ class RecordSerializer(serializers.ModelSerializer):
             'cover_condition_id',   # For creating via ID
             'user',
             'photos',
-            'photos_list'
+            'add_photos'   # Photos uploaded when adding new record
         )
-        read_only_fields = ('id', 'user', 'genre', 'record_condition', 'cover_condition', 'photos_list')
+        read_only_fields = ('id', 'user', 'genre', 'record_condition', 'cover_condition', 'photos')
 
     def create(self, validated_data):
         """
         Create a record and handle associated photos.
         """
         # Extract photos from validated data
-        photos = validated_data.pop('photos', [])
+        photos = validated_data.pop('add_photos', [])
 
         try:
             with transaction.atomic():
@@ -192,9 +192,3 @@ class WishlistSerializer(serializers.ModelSerializer):
                 message='This record is already in your wishlist.'
             )
         ]
-    
-    def create(self, validated_data):
-        """
-        Create a new wishlist item for the authenticated user.
-        """
-        return Wishlist.objects.create(**validated_data)
