@@ -70,8 +70,8 @@ class LoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'username', 'first_name', 'last_name')
-        read_only_fields = ('id', 'email', 'username', 'first_name', 'last_name')
+        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'is_staff')
+        read_only_fields = ('id', 'email', 'username', 'first_name', 'last_name', 'is_staff')
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -184,10 +184,12 @@ class WishlistSerializer(serializers.ModelSerializer):
         model = Wishlist
         fields = ('id', 'record_catalog_number')
         read_only_fields = ('id',)
-        constraints = [
-            serializers.UniqueTogetherValidator(
-                queryset=Wishlist.objects.all(),
-                fields=('user', 'record_catalog_number'),
-                message='This record is already in your wishlist.'
-            )
-        ]
+
+    def validate(self, data):
+        user = data.get('user')
+        record_catalog_number = data.get('record_catalog_number')
+
+        if Wishlist.objects.filter(user=user, record_catalog_number=record_catalog_number):
+            raise serializers.ValidationError("This record is already in your wishlist.")
+
+        return data

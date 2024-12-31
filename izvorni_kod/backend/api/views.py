@@ -99,14 +99,23 @@ class LoginView(APIView):
                 domain=None,    # Important for local development
                 path='/',
                 secure=settings.SESSION_COOKIE_SECURE,
-                httponly=True,
-                samesite='None',
+                httponly=settings.SESSION_COOKIE_HTTPONLY,
+                samesite=settings.SESSION_COOKIE_SAMESITE,
                 max_age=settings.SESSION_COOKIE_AGE,
             )
+
+            # # Set CSRF token
+            # response.set_cookie(
+            #     key='csrftoken',
+            #     value=csrf_token,
+            #     httponly=settings.CSRF_COOKIE_HTTPONLY,
+            #     samesite=settings.CSRF_COOKIE_SAMESITE,
+            # )
 
             return response
 
         return Response(response_data, status=status.HTTP_200_OK)
+
 
 class LogoutView(APIView):
     """

@@ -38,5 +38,5 @@ urlpatterns = [
 
    path('wishlist/', WishlistListView.as_view(), name='wishlist-list'),
    path('wishlist/add/', WishlistCreateView.as_view(), name='wishlist-add'),
-   path('wishlist/delete/<int:pk>/', WishlistDeleteView.as_view(), name='wishlist-delete'),
+   path('wishlist/delete/<int:id>/', WishlistDeleteView.as_view(), name='wishlist-delete'),
 ]
