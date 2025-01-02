@@ -83,7 +83,7 @@ function EditForm({ vinyl, onClose, onUpdate }) {
     });
 
     newPhotos.forEach((photo, index) => {
-      submitData.append(`new_photos[${index}]`, photo);
+      submitData.append(`add_photos[${index}]`, photo);
     });
 
     submitData.append(
@@ -92,10 +92,14 @@ function EditForm({ vinyl, onClose, onUpdate }) {
     );
 
     try {
-      const response = await fetch(`${URL}/api/records/edit/${vinyl.id}`, {
+      const token = localStorage.getItem("access");
+      const response = await fetch(`${URL}/api/records/update/${vinyl.id}/`, {
         method: "PUT",
         body: submitData,
         credentials: "include",
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        }
       });
 
       if (response.ok) {

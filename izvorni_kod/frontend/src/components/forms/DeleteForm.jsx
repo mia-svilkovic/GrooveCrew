@@ -5,12 +5,17 @@ const URL = import.meta.env.VITE_API_URL;
 
 function DeleteForm({ vinyl, onClose, onDelete }) {
   const [errorMessage, setErrorMessage] = useState("");
+  
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`${URL}/api/records/delete/${vinyl.id}`, {
+      const token = localStorage.getItem("access");
+      const response = await fetch(`${URL}/api/records/delete/${vinyl.id}/`, {
         method: 'DELETE',
         credentials: 'include',
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        }
       });
 
       if (response.ok) {
