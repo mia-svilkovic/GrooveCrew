@@ -81,7 +81,7 @@ function FormLogin({ onClose, showMessage = false }) {
   return (
     <div className="form-container">
       {showMessage && (
-        <p className="login-message">Please log in to access this feature</p>
+        <p className="note">Please log in to access this feature</p>
       )}
       <h2>LOG IN</h2>
       <form onSubmit={handleLogin}>

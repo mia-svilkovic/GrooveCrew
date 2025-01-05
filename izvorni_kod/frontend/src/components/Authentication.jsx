@@ -4,6 +4,7 @@ import "./forms/Form.css" ;
 import FormLogin from "./forms/FormLogin";
 import FormRegister from "./forms/FormRegister";
 import { useUser } from "../contexts/UserContext"; // Import useUser hook
+import { useAuthRefresh } from '../contexts/AuthRefresh';
 
 const URL = import.meta.env.VITE_API_URL;
 
@@ -12,6 +13,7 @@ function Authentication() {
   const [activeForm, setActiveForm] = useState(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const { user, logoutUser } = useUser(); // Get user and logoutUser from context
+  const { authFetch } = useAuthRefresh();
 
   const openLoginForm = () => setActiveForm("login");
   const openRegisterForm = () => setActiveForm("register");
@@ -26,7 +28,7 @@ function Authentication() {
       const refreshToken = localStorage.getItem('refresh');
       const accessToken = localStorage.getItem('access');
 
-      const response = await fetch(`${URL}/api/users/logout/`, {
+      const response = await authFetch(`${URL}/api/users/logout/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,

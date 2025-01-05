@@ -3,7 +3,10 @@ import { useUser } from "../../contexts/UserContext";
 import AddButton from "../../assets/images/add.png";
 import bin from "../../assets/images/bin.png";
 import FormWishlistAdd from "../forms/FormWishlistAdd";
+import { useAuthRefresh } from '../../contexts/AuthRefresh';
 import "./Wishlist.css";
+import { useNavigate } from "react-router-dom";
+
 
 const URL = import.meta.env.VITE_API_URL;
 
@@ -12,24 +15,24 @@ export default function Wishlist() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [activeForm, setActiveForm] = useState(null);
+  const navigate = useNavigate();
+
+  const { authFetch } = useAuthRefresh();
 
   const openAddForm = () => setActiveForm("add");
   const closeForm = () => setActiveForm(null);
 
   const { user } = useUser();
 
+
   const handleRemove = async (wishlistEntry) => {
     const entryId = wishlistEntry["id"];
 
     try {
-      const token = localStorage.getItem("access");
+      //const token = localStorage.getItem("access");
 
-      const response = await fetch(`${URL}/api/wishlist/${entryId}/delete/`, {
+      const response = await authFetch(`${URL}/api/wishlist/${entryId}/delete/`, {
         method: "DELETE",
-        credentials: "include",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
       });
       if (!response.ok) {
         throw new Error("Failed to remove item from wishlist");
@@ -47,14 +50,14 @@ export default function Wishlist() {
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
+        if(!user) {
+          navigate('/');
+          return;
+        }
         const token = localStorage.getItem("access");
 
-        const response = await fetch(`${URL}/api/wishlist/`, {
+        const response = await authFetch(`${URL}/api/wishlist/`, {
           method: "GET",
-          credentials: "include",
-          headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-          },
         });
 
         if (!response.ok) {
@@ -81,6 +84,9 @@ export default function Wishlist() {
   if (errorMessage) {
     return <div className="error-message">{errorMessage}</div>;
   }
+
+  console.log(user) ;
+
 
   return (
     <div className="wishlist-container">

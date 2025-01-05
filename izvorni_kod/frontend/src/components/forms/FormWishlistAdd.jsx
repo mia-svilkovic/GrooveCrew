@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "../../contexts/UserContext";
+import { useAuthRefresh } from '../../contexts/AuthRefresh';
 import "./Form.css";
 
 const URL = import.meta.env.VITE_API_URL;
@@ -10,6 +11,7 @@ export default function FormWishlistAdd({ onClose, onAddItem }) {
   const [errorMessage, setErrorMessage] = useState("");
 
   const { user } = useUser();
+  const { authFetch } = useAuthRefresh();
   const userId = user.id;
 
   useEffect(() => {
@@ -34,16 +36,14 @@ export default function FormWishlistAdd({ onClose, onAddItem }) {
     try {
       const token = localStorage.getItem("access");
 
-      const response = await fetch(`${URL}/api/wishlist/create/`, {
+      const response = await authFetch(`${URL}/api/wishlist/create/`, {
         method: "POST",
         body: JSON.stringify({
           record_catalog_number: catalogNumber, // Match the backend expectation
         }),
         headers: {
           "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
         },
-        credentials: "include",
       });
 
       if (!response.ok) {

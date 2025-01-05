@@ -8,6 +8,7 @@
   
   .photo-item {
     position: relative;
+    width: 40%;
     aspect-ratio: 1;
   }
   
@@ -31,7 +32,6 @@
   }
   
   .existing-photos, .new-photos {
-    width: 30%;
     margin: 15px 0;
   }
   

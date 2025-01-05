@@ -5,6 +5,7 @@ import { useUser } from "../../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import DeleteForm from "../forms/DeleteForm";
 import EditForm from "../forms/EditForm";
+import { useAuthRefresh } from '../../contexts/AuthRefresh';
 
 const URL = import.meta.env.VITE_API_URL;
 
@@ -16,7 +17,7 @@ function MyVinyls() {
   const [selectedVinyl, setSelectedVinyl] = useState(null);
 
   const { user } = useUser();
-  const userId = user.id;
+  const { authFetch } = useAuthRefresh();
   const navigate = useNavigate();
 
   const handleVinylClick = (vinylId) => {
@@ -27,6 +28,7 @@ function MyVinyls() {
     e.stopPropagation();
     setSelectedVinyl(vinyl);
     setActiveForm('edit');
+    console.log(vinyl) ;
   };
 
   const handleDelete = (e, vinyl) => {
@@ -43,6 +45,7 @@ function MyVinyls() {
   const handleVinylUpdate = (updatedVinyl) => {
     setVinyls(vinyls.map(v => v.id === updatedVinyl.id ? updatedVinyl : v));
     closeForm();
+    console.log(updatedVinyl) ;
   };
 
   const handleVinylDelete = (deletedVinylId) => {
@@ -53,7 +56,11 @@ function MyVinyls() {
   useEffect(() => {
     const fetchVinyls = async () => {
       try {
-        const response = await fetch(`${URL}/api/records/user/${userId}`, {
+        if(!user) {
+          navigate('/');
+          return;
+        }
+        const response = await authFetch(`${URL}/api/records/user/${user.id}`, {
           method: "GET",
           credentials: "include",
         });

@@ -1,40 +1,49 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import { refreshTokenRequest, getUserFromToken } from "../utils/authUtils";
 
-// Kreiramo kontekst
 const UserContext = createContext();
 
-// Provider komponenta koja omogućava pristup korisničkim podacima
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-  // Restore user data from token on page load
   useEffect(() => {
-    const initializeUser = () => {
+    const initializeAuth = async () => {
       const accessToken = localStorage.getItem("access");
+      const refreshToken = localStorage.getItem("refresh");
 
-      if (accessToken) {
-        try {
+      if (!accessToken && !refreshToken) {
+        setUser(null);
+        return;
+      }
+
+      try {
+        if (accessToken) {
           const decoded = jwtDecode(accessToken);
-          setUser({
-            id: decoded.id,
-            email: decoded.email,
-            username: decoded.username,
-            first_name: decoded.first_name,
-            last_name: decoded.last_name,
-          });
-          console.log("User restored from token:", decoded);
-        } catch (error) {
-          console.error("Failed to decode token:", error);
-          setUser(null);
+          // Check if token is expired
+          if (decoded.exp * 1000 > Date.now()) {
+            const userData = await getUserFromToken(accessToken);
+            setUser(userData);
+            return;
+          }
         }
+        // If access token is expired or missing but we have refresh token
+        if (refreshToken) {
+          const newAccessToken = await refreshTokenRequest();
+          const userData = await getUserFromToken(accessToken);
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error("Auth initialization failed:", error);
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+        setUser(null);
       }
     };
 
-    initializeUser();
+    initializeAuth();
   }, []);
 
-  // Logout function
   const logoutUser = () => {
     setUser(null);
     localStorage.removeItem("access");
@@ -49,5 +58,4 @@ export const UserProvider = ({ children }) => {
   );
 };
 
-// Custom Hook for User Context
 export const useUser = () => useContext(UserContext);

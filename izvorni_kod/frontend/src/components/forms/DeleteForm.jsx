@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
 import "./Form.css"
+import { useAuthRefresh } from '../../contexts/AuthRefresh';
 
 const URL = import.meta.env.VITE_API_URL;
 
 function DeleteForm({ vinyl, onClose, onDelete }) {
   const [errorMessage, setErrorMessage] = useState("");
+  const { authFetch } = useAuthRefresh();
   
 
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem("access");
-      const response = await fetch(`${URL}/api/records/${vinyl.id}/delete/`, {
+      const response = await authFetch(`${URL}/api/records/${vinyl.id}/delete/`, {
         method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        }
       });
 
       if (response.ok) {
@@ -34,7 +32,7 @@ function DeleteForm({ vinyl, onClose, onDelete }) {
     <div className="form-container">
       <h2>Delete Vinyl</h2>
       <p>Are you sure you want to delete "{vinyl.album_name}" by {vinyl.artist}?</p>
-      <p className='login-message'>Note: this action can not be undone</p>
+      <p className="note">Note: this action can not be undone</p>
       
       {errorMessage && <p className="error-message">{errorMessage}</p>}
       

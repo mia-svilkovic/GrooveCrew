@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Form.css";
 import "./editPhotos.css";
+import { useAuthRefresh } from '../../contexts/AuthRefresh';
 
 const URL = import.meta.env.VITE_API_URL;
 
@@ -25,6 +26,9 @@ function EditForm({ vinyl, onClose, onUpdate }) {
   const [genres, setGenres] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [photoPreviews, setPhotoPreviews] = useState([]);
+
+  const { authFetch } = useAuthRefresh();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,7 +71,11 @@ function EditForm({ vinyl, onClose, onUpdate }) {
   };
 
   const handleImagesChange = (event) => {
-    setNewPhotos(Array.from(event.target.files));
+    const files = Array.from(event.target.files);
+    setNewPhotos(files);
+    const previews = files.map(file => window.URL.createObjectURL(file));
+    setPhotoPreviews(prev => [...prev, ...previews]);
+    event.target.value = '';
   };
 
   const handleRemoveExistingPhoto = (photoId) => {
@@ -87,19 +95,15 @@ function EditForm({ vinyl, onClose, onUpdate }) {
     });
 
     submitData.append(
-      "existing_photo_ids",
-      JSON.stringify(existingPhotos.map((photo) => photo.id))
+       "existing_photo_ids",
+     JSON.stringify(existingPhotos.map((photo) => photo.id))
     );
 
     try {
       const token = localStorage.getItem("access");
-      const response = await fetch(`${URL}/api/records/${vinyl.id}/update/`, {
+      const response = await authFetch(`${URL}/api/records/${vinyl.id}/update/`, {
         method: "PUT",
         body: submitData,
-        credentials: "include",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        }
       });
 
       if (response.ok) {
@@ -116,6 +120,18 @@ function EditForm({ vinyl, onClose, onUpdate }) {
       console.error("Error updating vinyl:", error);
       setErrorMessage("Error updating vinyl. Please try again.");
     }
+  };
+
+  useEffect(() => {
+    return () => {
+      photoPreviews.forEach(preview => window.URL.revokeObjectURL(preview));
+    };
+  }, [photoPreviews]);
+
+  const handleRemoveNewPhoto = (index) => {
+    setNewPhotos(prev => prev.filter((_, i) => i !== index));
+    window.URL.revokeObjectURL(photoPreviews[index]);
+    setPhotoPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -252,10 +268,25 @@ function EditForm({ vinyl, onClose, onUpdate }) {
             accept="image/*"
             multiple
             onChange={handleImagesChange}
+            style={{ color: 'transparent' }}
           />
-          {newPhotos.length > 0 && (
-            <p>{newPhotos.length} new photo(s) selected</p>
-          )}
+          {photoPreviews.length > 0 && (
+          <div className="photo-grid">
+            {photoPreviews.map((preview, index) => (
+              <div key={index} className="photo-item">
+                <img src={preview} alt="Preview" className="thumbnail" />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveNewPhoto(index)}
+                  className="remove-photo"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         </div>
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}

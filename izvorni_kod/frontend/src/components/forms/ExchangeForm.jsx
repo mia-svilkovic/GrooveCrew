@@ -4,6 +4,7 @@ import './Form.css';
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
 import FormLogin from './FormLogin';
+import { useAuthRefresh } from '../../contexts/AuthRefresh';
 
 
 
@@ -20,6 +21,7 @@ function ExchangeForm({ selectedVinylId, onClose }) {
     const [showLoginForm, setShowLoginForm] = useState(false);
 
     const { user } = useUser();
+    const { authFetch } = useAuthRefresh();
     
     if (!user?.username) {
         return <FormLogin onClose={() => {
@@ -48,9 +50,8 @@ function ExchangeForm({ selectedVinylId, onClose }) {
     useEffect(() => {
         const fetchVinyls = async () => {
           try {
-            const response = await fetch(`${URL}/api/records/user/${userId}`, {
+            const response = await authFetch(`${URL}/api/records/user/${userId}`, {
               method: "GET",
-              credentials: "include",
             });    
             if (!response.ok) {
               throw new Error("Failed to fetch vinyls");
@@ -120,7 +121,7 @@ function ExchangeForm({ selectedVinylId, onClose }) {
             <div className="form-container">
                 
                     <h3>No Vinyls Available :( </h3>
-                    <p className='login-message'>You have no published vinyls.Publish a vinyl to offer exchange.</p>
+                    <p className='note'>You have no published vinyls.Publish a vinyl to offer exchange.</p>
                     <button className='close-button' type="button" onClick={onClose}>
                         OK
                     </button>
@@ -130,7 +131,7 @@ function ExchangeForm({ selectedVinylId, onClose }) {
     }
 
     return (
-        <div className="form-container" id='exchange-container'>
+        <div className="form-container" id='plus-container'>
             <div className="exchange-form">
                 <h3>Select Vinyls for Exchange</h3>
                 <form onSubmit={handleSubmit}>

@@ -75,15 +75,7 @@
 .close-button:hover {
   background-color: #777;
 }
-/*exchange form*/
-.exchange-form {
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 1000px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-}
+
 
 .check-options {
   display: flex;
@@ -98,13 +90,13 @@
   align-items: center;
 }
 
-#exchange-container{
+#plus-container{
   width: 500px;
 }
 
-.login-message {
+.note {
   color: #666;
-  margin: 10px 0;
+  /* margin: 10px 0; */
   text-align: center;
 }
 

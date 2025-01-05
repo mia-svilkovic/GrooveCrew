@@ -33,6 +33,7 @@ function Header({ filters, searchQuery, onSearchAndFilter, handleFilterReset }) 
 
   // Dohvatimo podatke o korisniku iz UserContexta
   const { user } = useUser();
+  console.log(user) ;
 
   const toggleAuth = () => {
     setShowAuth(!showAuth);
