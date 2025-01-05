@@ -34,7 +34,7 @@ export default function FormWishlistAdd({ onClose, onAddItem }) {
     try {
       const token = localStorage.getItem("access");
 
-      const response = await fetch(`${URL}/api/wishlist/add/`, {
+      const response = await fetch(`${URL}/api/wishlist/create/`, {
         method: "POST",
         body: JSON.stringify({
           record_catalog_number: catalogNumber, // Match the backend expectation

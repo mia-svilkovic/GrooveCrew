@@ -24,7 +24,7 @@ export default function Wishlist() {
     try {
       const token = localStorage.getItem("access");
 
-      const response = await fetch(`${URL}/api/wishlist/delete/${entryId}/`, {
+      const response = await fetch(`${URL}/api/wishlist/${entryId}/delete/`, {
         method: "DELETE",
         credentials: "include",
         headers: {

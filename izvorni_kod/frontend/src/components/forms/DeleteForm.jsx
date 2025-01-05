@@ -10,7 +10,7 @@ function DeleteForm({ vinyl, onClose, onDelete }) {
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem("access");
-      const response = await fetch(`${URL}/api/records/delete/${vinyl.id}/`, {
+      const response = await fetch(`${URL}/api/records/${vinyl.id}/delete/`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {

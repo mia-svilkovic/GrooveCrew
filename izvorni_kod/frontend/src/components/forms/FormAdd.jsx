@@ -67,7 +67,7 @@ function FormAdd({
     try {
       const token = localStorage.getItem("access");
 
-      const response = await fetch(`${URL}/api/records/add/`, {
+      const response = await fetch(`${URL}/api/records/create/`, {
         method: "POST",
         body: formData,
         credentials: "include",

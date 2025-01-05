@@ -16,11 +16,11 @@ urlpatterns = [
    path('oauth/logout-success/', oauth_logout_success, name='oauth-logout-success'),
 
    path('records/', RecordListView.as_view(), name='record-list'),
+   path('records/create/', RecordCreateView.as_view(), name='record-add'),
    path('records/<int:id>/', RecordDetailView.as_view(), name='record-detail'),
+   path('records/<int:id>/update/', RecordUpdateView.as_view(), name='record-update'),
+   path('records/<int:id>/delete/', RecordDeleteView.as_view(), name='record-delete'),
    path('records/user/<int:user_id>/', UserRecordListView.as_view(), name='records-user'),
-   path('records/add/', RecordCreateView.as_view(), name='record-add'),
-   path('records/update/<int:id>/', RecordUpdateView.as_view(), name='record-update'),
-   path('records/delete/<int:id>/', RecordDeleteView.as_view(), name='record-delete'),
 
    path('genres/', GenreListView.as_view(), name='genres'),
 
@@ -29,13 +29,13 @@ urlpatterns = [
 
    path('wishlist/', WishlistListView.as_view(), name='wishlist-list'),
    path('wishlist/add/', WishlistCreateView.as_view(), name='wishlist-add'),
-   path('wishlist/delete/<int:id>/', WishlistDeleteView.as_view(), name='wishlist-delete'),
+   path('wishlist/<int:id>/delete/', WishlistDeleteView.as_view(), name='wishlist-delete'),
 
    path('exchanges/', ExchangeListView.as_view(), name='exchange-list'),
    path('exchanges/create/', ExchangeCreateView.as_view(), name='exchange-create'),
    path('exchanges/<int:id>/', ExchangeRetrieveView.as_view(), name='exchange-detail'),
-   path('exchanges/<int:id>/delete/', ExchangeDeleteView.as_view(), name='exchange-delete'), 
    path('exchanges/<int:id>/update/', ExchangeUpdateView.as_view(), name='exchange-update'),
+   path('exchanges/<int:id>/delete/', ExchangeDeleteView.as_view(), name='exchange-delete'), 
    path('exchanges/<int:id>/switch-reviewer/', ExchangeSwitchReviewerView.as_view(), name='exchange-switch-reviewer'),
    path('exchanges/<int:id>/finalize/', ExchangeFinalizeView.as_view(), name='exchange-finalize'),
 ]

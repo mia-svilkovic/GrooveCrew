@@ -93,7 +93,7 @@ function EditForm({ vinyl, onClose, onUpdate }) {
 
     try {
       const token = localStorage.getItem("access");
-      const response = await fetch(`${URL}/api/records/update/${vinyl.id}/`, {
+      const response = await fetch(`${URL}/api/records/${vinyl.id}/update/`, {
         method: "PUT",
         body: submitData,
         credentials: "include",
