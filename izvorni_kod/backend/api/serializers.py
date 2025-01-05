@@ -39,7 +39,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         Check that the two password fields match.
         """
         if data['password1'] != data['password2']:
-            raise serializers.ValidationError({'password': 'Passwords do not match.'})
+            raise serializers.ValidationError({'error': 'Passwords do not match.'})
         return data
 
     def create(self, validated_data):
@@ -66,9 +66,13 @@ class LoginSerializer(serializers.Serializer):
         """
         user = authenticate(email=data['email'], password=data['password'])
         if not user:
-            raise serializers.ValidationError('Invalid credentials. Please try again.')
+            raise serializers.ValidationError({
+                "message": 'Invalid credentials. Please try again.'
+            })
         if not user.is_active:
-            raise serializers.ValidationError('This user account is inactive.')
+            raise serializers.ValidationError({
+                "message": 'This user account is inactive.'
+            })
         data['user'] = user
         return data
 
@@ -187,7 +191,7 @@ class RecordSerializer(serializers.ModelSerializer):
         user = self.context.get('user')
         if not user:
             raise serializers.ValidationError({
-                'user': "User must be provided when initializing the serializer."
+                'error': "User must be provided when initializing the serializer."
             })
         return data
 
@@ -230,7 +234,7 @@ class WishlistSerializer(serializers.ModelSerializer):
         user = self.context.get('user')
         if not user:
             raise serializers.ValidationError({
-                'user': "User must be provided when initializing the serializer."
+                'error': "User must be provided when initializing the serializer."
             })
         
         if Wishlist.objects.filter(
@@ -238,7 +242,7 @@ class WishlistSerializer(serializers.ModelSerializer):
             user=user
         ).exists():
             raise serializers.ValidationError(
-                {"record_catalog_number": "This record catalog number is already added to the user's wishlist."}
+                {"message": "This record catalog number is already added to the user's wishlist."}
             )
 
         return data
@@ -319,64 +323,70 @@ class ExchangeSerializer(serializers.ModelSerializer):
         """
         General validation of all exchange rules.
         """
-        user = self.context.get('user')
         instance = getattr(self, 'instance', None)
 
         # If this is an update (an instance exists)
         if instance:
-            # User authorization
-            if user not in [instance.initiator_user, instance.receiver_user]:
-                raise serializers.ValidationError("You are not authorized to modify this exchange.")
-
-            if user != instance.next_user_to_review:
-                raise serializers.ValidationError("It's not your turn to review and modify this exchange.")
-
             # The next user to review
             next_user = data.get('next_user_to_review', instance.next_user_to_review)
             if next_user not in [instance.initiator_user, instance.receiver_user]:
-                raise serializers.ValidationError("The next user to review must be either the initiator or receiver.")
+                raise serializers.ValidationError({
+                    "message": "The next user to review must be either the initiator or receiver."
+                })
 
             # Validation of the requested record
             requested_record = data.get('requested_record', instance.requested_record)
             if requested_record.user != instance.receiver_user:
-                raise serializers.ValidationError("The requested record must belong to the receiver user.")
+                raise serializers.ValidationError({
+                    "message": "The requested record must belong to the receiver user."
+                })
             if not requested_record.available_for_exchange:
-                raise serializers.ValidationError("The requested record is not available for exchange.")
+                raise serializers.ValidationError({
+                    "message": "The requested record is not available for exchange."
+                })
 
             # At least one record must be offered
             offered_records = data.get('offered_records', instance.offered_records.all())
             if not offered_records:
-                raise serializers.ValidationError("At least one record must be offered in the exchange.")
+                raise serializers.ValidationError({
+                    "message": "At least one record must be offered in the exchange."
+                })
 
             # Ensure every record in records_requested_by_receiver belongs to the initiator user
             records_requested_by_receiver = data.get('records_requested_by_receiver', [])
             for record_data in records_requested_by_receiver:
                 record = record_data['record']
                 if record.user != instance.initiator_user:
-                    raise serializers.ValidationError(
-                        f"Record '{record}' does not belong to the initiator user and cannot be requested."
-                    )
+                    raise serializers.ValidationError({
+                        "message": f"Record '{record}' does not belong to the initiator user and cannot be requested."
+                    })
 
         # If this is creating a new instance
         else:
             requested_record = data.get('requested_record')
             if not requested_record:
-                raise serializers.ValidationError("A requested record must be specified.")
+                raise serializers.ValidationError({
+                    "message": "A requested record must be specified."
+                })
 
             # Verify the availability of the requested record
             if not requested_record.available_for_exchange:
-                raise serializers.ValidationError("The requested record is not available for exchange.")
+                raise serializers.ValidationError({
+                    "message": "The requested record is not available for exchange." 
+                })
 
             # Ensure at least one record is offered
             offered_records = data.get('offered_records', [])
             if not offered_records:
-                raise serializers.ValidationError("At least one record must be offered in the exchange.")
+                raise serializers.ValidationError({
+                    "message": "At least one record must be offered in the exchange."
+                })
 
             # Prevent specifying records_requested_by_receiver during creation
             if 'records_requested_by_receiver' in data and data['records_requested_by_receiver']:
-                raise serializers.ValidationError(
-                    "You cannot specify 'records_requested_by_receiver' when creating a new exchange."
-                )
+                raise serializers.ValidationError({
+                    "message": "You cannot specify 'records_requested_by_receiver' when creating a new exchange."
+                })
 
         return data
     
@@ -429,9 +439,9 @@ class ExchangeSerializer(serializers.ModelSerializer):
 
         # Ensure the receiver is not adding new records to the offer
         if not new_offered_record_ids.issubset(existing_offered_record_ids):
-            raise serializers.ValidationError(
-                "Receiver cannot add new records to the offer, only remove existing ones."
-        )
+            raise serializers.ValidationError({
+                "message": "Receiver cannot add new records to the offer, only remove existing ones."
+            })
 
         # Update the offer records (remove any excluded records)
         ExchangeOfferedRecord.objects.filter(exchange=instance).exclude(
@@ -457,9 +467,9 @@ class ExchangeSerializer(serializers.ModelSerializer):
 
         invalid_requested_records = received_requested_record_ids - valid_requested_record_ids
         if invalid_requested_records:
-            raise serializers.ValidationError(
-                "Some of the requested records are not part of the receiver's original requests."
-            )
+            raise serializers.ValidationError({
+                "message": "Some of the requested records are not part of the receiver's original requests."
+            })
 
         # Initiator can update offered records
         ExchangeOfferedRecord.objects.filter(exchange=instance).delete()
@@ -474,60 +484,3 @@ class ExchangeSerializer(serializers.ModelSerializer):
             ExchangeRecordRequestedByReceiver(exchange=instance, **record_data)
             for record_data in records_requested_by_receiver
         ])
-
-    @transaction.atomic
-    def finalize_exchange(self):
-        """
-        Finalizira razmjenu prijenosom vlasništva nad pločama i čišćenjem povezanih podataka.
-        """
-        exchange = self.instance
-
-        if exchange.completed:
-            raise serializers.ValidationError({
-                "code": "exchange_already_completed",
-                "message": "Only exchanges still in progress can be finalized."
-            })
-
-        # Delete conflicting exchanges
-        Exchange.objects.filter(
-            requested_record=exchange.requested_record,
-            completed=False
-        ).exclude(id=exchange.id).delete()
-
-        ExchangeRecordRequestedByReceiver.objects.filter(
-            record=exchange.requested_record
-        ).delete()
-
-        ExchangeOfferedRecord.objects.filter(
-            record=exchange.requested_record
-        ).delete()
-
-        orphaned_exchanges = Exchange.objects.filter(
-            offered_records__isnull=True,
-            completed=False
-        )
-        orphaned_exchanges.delete()
-
-        # Delete records associated with the offered records
-        offered_record_ids = exchange.offered_records.values_list('record_id', flat=True)
-        Exchange.objects.filter(
-            requested_record_id__in=offered_record_ids,
-            completed=False
-        ).exclude(id=exchange.id).delete()
-
-        ExchangeRecordRequestedByReceiver.objects.filter(
-            record_id__in=offered_record_ids
-        ).delete()
-
-        # Transfer ownership of the offered records to the receiver
-        for offered_record in exchange.offered_records.all():
-            offered_record.record.user = exchange.receiver_user
-            offered_record.record.save(update_fields=['user'])
-
-        # Transfer ownership of the requested record to the initiator
-        exchange.requested_record.user = exchange.initiator_user
-        exchange.requested_record.save(update_fields=['user'])
-
-        exchange.completed = True
-        exchange.completed_datetime = timezone.now()
-        exchange.save()

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
+from django.db import models, transaction
 from django.db.models.functions import Lower
+from django.utils import timezone
 
 class User(AbstractUser):
     email = models.EmailField(
@@ -249,6 +250,69 @@ class Exchange(models.Model):
 
     def __str__(self):
         return f'Exchange ({self.status}) between {self.initiator_user} and {self.receiver_user}'
+
+    @transaction.atomic
+    def switch_reviewer(self):
+        if self.next_user_to_review == self.initiator_user:
+            self.next_user_to_review = self.receiver_user
+        else:
+            self.next_user_to_review = self.initiator_user
+        self.save()
+
+    @transaction.atomic
+    def finalize(self):
+        """
+        Finalizes the exchange by transferring ownership of the records and clearing associated data.
+        """
+        if self.completed:
+            raise ValueError("This exchange is already finalized.")
+
+        if self.records_requested_by_receiver.exists():
+            raise ValueError(
+                "Cannot finalize exchange while there are pending requested records by the receiver."
+            )
+
+        Exchange.objects.filter(
+            requested_record=self.requested_record,
+            completed=False
+            ).exclude(id=self.id).delete()
+
+        ExchangeRecordRequestedByReceiver.objects.filter(
+            record=self.requested_record
+        ).delete()
+
+        ExchangeOfferedRecord.objects.filter(
+            record=self.requested_record
+        ).delete()
+
+        orphaned_exchanges = Exchange.objects.filter(
+            offered_records__isnull=True,
+            completed=False
+        )
+        orphaned_exchanges.delete()
+
+        offered_record_ids = self.offered_records.values_list('record_id', flat=True)
+        Exchange.objects.filter(
+            requested_record_id__in=offered_record_ids,
+            completed=False
+            ).exclude(id=self.id).delete()
+
+        ExchangeRecordRequestedByReceiver.objects.filter(
+            record_id__in=offered_record_ids
+        ).delete()
+
+        # Transfer ownership of the offered records to the receiver
+        for offered_record in self.offered_records.all():
+            offered_record.record.user = self.receiver_user
+            offered_record.record.save(update_fields=['user'])
+
+        # Transfer ownership of the requested record to the initiator
+        self.requested_record.user = self.initiator_user
+        self.requested_record.save(update_fields=['user'])
+
+        self.completed = True
+        self.completed_datetime = timezone.now()
+        self.save()
 
 
 class ExchangeOfferedRecord(models.Model):

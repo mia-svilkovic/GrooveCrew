@@ -2,9 +2,10 @@ from django.conf import settings
 from django.contrib.auth import login, logout
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.middleware.csrf import get_token
+from django.shortcuts import get_object_or_404
 
 from rest_framework import generics, permissions, status
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
@@ -151,13 +152,13 @@ def custom_admin_logout(request):
 def oauth_login_success(request):
     if request.user.socialaccount_set.exists():
         return JsonResponse({"message": "OAuth login successful"}, status=200)
-    return JsonResponse({"error": "This endpoint is for OAuth logins only."}, status=400)
+    return JsonResponse({"message": "This endpoint is for OAuth logins only."}, status=400)
 
 
 def oauth_logout_success(request):
     if request.user.socialaccount_set.exists():
         return JsonResponse({"message": "OAuth logout successful"}, status=200)
-    return JsonResponse({"error": "This endpoint is for OAuth logouts only."}, status=400)
+    return JsonResponse({"message": "This endpoint is for OAuth logouts only."}, status=400)
 
 
 class RecordCreateView(generics.CreateAPIView):
@@ -220,7 +221,9 @@ class RecordUpdateView(generics.UpdateAPIView):
         """
         record = self.get_object()
         if record.user != self.request.user:
-            raise ValidationError("You do not have permission to update this record.")
+            raise PermissionDenied({
+                "message": "You do not have permission to update this record." 
+            })
         serializer.save()
 
 
@@ -239,7 +242,9 @@ class RecordDeleteView(generics.DestroyAPIView):
         Ensure that only the record owner can delete the record.
         """
         if instance.user != self.request.user:
-            raise ValidationError("You do not have permission to delete this record.")
+            raise PermissionDenied({
+                "message": "You do not have permission to delete this record."
+            })
         instance.delete()
 
 
@@ -328,22 +333,10 @@ class WishlistDeleteView(generics.DestroyAPIView):
         Ensure the user can only delete their own wishlist items.
         """
         if instance.user != self.request.user:
-            raise ValidationError("You do not have permission to delete this wishlist entry.")
+            raise PermissionDenied({
+                "message": "You do not have permission to delete this wishlist entry." 
+            })
         instance.delete()
-
-
-class ExchangeCreateView(generics.CreateAPIView):
-    """
-    API endpoint for creating a new exchange.
-    """
-    queryset = Exchange.objects.all()
-    serializer_class = ExchangeSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['user'] = self.request.user
-        return context
     
 
 class ExchangeListView(generics.ListAPIView):
@@ -380,9 +373,25 @@ class ExchangeRetrieveView(generics.RetrieveAPIView):
         user = self.request.user
 
         if user not in [exchange.initiator_user, exchange.receiver_user]:
-            raise ValidationError("You do not have permission to view this exchange.")
+            raise PermissionDenied({
+                "message": "You do not have permission to view this exchange."
+            })
 
         return exchange
+
+
+class ExchangeCreateView(generics.CreateAPIView):
+    """
+    API endpoint for creating a new exchange.
+    """
+    queryset = Exchange.objects.all()
+    serializer_class = ExchangeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
 
 
 class ExchangeUpdateView(generics.UpdateAPIView):
@@ -398,6 +407,22 @@ class ExchangeUpdateView(generics.UpdateAPIView):
         context = super().get_serializer_context()
         context['user'] = self.request.user
         return context
+    
+    def perform_update(self, serializer):
+        exchange = self.get_object()
+        user = self.request.user
+
+        if user not in [exchange.initiator_user, exchange.receiver_user]:
+            raise PermissionDenied({
+                "message": "You are not authorized to modify this exchange." 
+            })
+
+        if user != exchange.next_user_to_review:
+            raise PermissionDenied({
+                "message": "It's not your turn to review and modify this exchange."
+            })
+            
+        serializer.save()
     
 
 class ExchangeDeleteView(generics.DestroyAPIView):
@@ -420,11 +445,15 @@ class ExchangeDeleteView(generics.DestroyAPIView):
 
         # Check if the user has the right permissions
         if user not in [instance.initiator_user, instance.receiver_user]:
-            raise ValidationError("You do not have permission to delete this exchange.")
+            raise PermissionDenied({
+                "message": "You do not have permission to delete this exchange."
+            })
 
         # Check if the exchange has already been completed
         if instance.completed:
-            raise ValidationError("You cannot delete a completed exchange.")
+            raise ValidationError({
+                "message": "You cannot delete a completed exchange."
+            })
             
         instance.delete()
 
@@ -437,14 +466,7 @@ class ExchangeSwitchReviewerView(APIView):
 
     @transaction.atomic
     def post(self, request, id):
-        try:
-            exchange = Exchange.objects.get(id=id)
-        except Exchange.DoesNotExist:
-            return Response(
-                {"message": "Exchange not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
+        exchange = get_object_or_404(Exchange, id=id)
         user = request.user
 
         # Verify user permessions
@@ -471,11 +493,7 @@ class ExchangeSwitchReviewerView(APIView):
                 )
             
         # All checks passed – switch the reviewer
-        if exchange.next_user_to_review == exchange.initiator_user:
-            exchange.next_user_to_review = exchange.receiver_user
-        else:
-            exchange.next_user_to_review = exchange.initiator_user
-        exchange.save()
+        exchange.switch_reviewer()
 
         return Response(
             {"message": "The reviewer has been successfully switched to the next user."},
@@ -490,14 +508,31 @@ class ExchangeFinalizeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, id):
-        try:
-            exchange = Exchange.objects.get(id=id)
-        except Exchange.DoesNotExist:
-            return Response({"error": "Exchange not found."}, status=status.HTTP_404_NOT_FOUND)
+        exchange = get_object_or_404(Exchange, id=id)
+        user = self.request.user
 
-        serializer = ExchangeSerializer(exchange, context={'user': request.user})
-        serializer.finalize_exchange()
+        if user not in [exchange.initiator_user, exchange.receiver_user]:
+            return Response(
+                {"message": "You are not authorized to modify this exchange."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Check if the current user is the receiver_user
+        if request.user != exchange.receiver_user:
+            return Response(
+                {"message": "Only the receiver can finalize the exchange."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        try:
+            exchange.finalize()
+        except Exception as e:
+            return Response(
+                {"message": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         return Response(
-            {"detail": "Exchange finalized successfully."},
+            {"message": "Exchange finalized successfully."},
             status=status.HTTP_200_OK
         )
