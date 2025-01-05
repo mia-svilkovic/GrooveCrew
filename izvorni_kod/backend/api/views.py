@@ -9,18 +9,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 
-from .models import (
-    Genre, GoldmineConditionCover, GoldmineConditionRecord,
-    Record, User, Wishlist
-)
-
-from .serializers import (
-    GenreSerializer, GoldmineConditionCoverSerializer,
-    GoldmineConditionRecordSerializer, LoginSerializer,
-    RecordSerializer, RegisterSerializer,
-    UserSerializer, WishlistSerializer
-)
-
+from .models import *
+from .serializers import *
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -168,8 +158,13 @@ class RecordCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = RecordSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def get_serializer_context(self):
+        """
+        Pass the current user to the serializer.
+        """
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
 
 
 class RecordListView(generics.ListAPIView):
@@ -201,6 +196,14 @@ class RecordUpdateView(generics.UpdateAPIView):
     serializer_class = RecordSerializer
     queryset = Record.objects.all()
     lookup_field = 'id'
+
+    def get_serializer_context(self):
+        """
+        Pass the current user to the serializer.
+        """
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
 
     def perform_update(self, serializer):
         """
@@ -293,11 +296,13 @@ class WishlistCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = WishlistSerializer
 
-    def perform_create(self, serializer):
+    def get_serializer_context(self):
         """
-        Ensure that the user is set to the currently authenticated user.
+        Pass the current user to the serializer.
         """
-        serializer.save(user=self.request.user)
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
 
 
 class WishlistDeleteView(generics.DestroyAPIView):
@@ -316,3 +321,174 @@ class WishlistDeleteView(generics.DestroyAPIView):
         if instance.user != self.request.user:
             raise ValidationError("You do not have permission to delete this wishlist entry.")
         instance.delete()
+
+
+class ExchangeCreateView(generics.CreateAPIView):
+    """
+    API endpoint for creating a new exchange.
+    """
+    queryset = Exchange.objects.all()
+    serializer_class = ExchangeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
+    
+
+class ExchangeListView(generics.ListAPIView):
+    """
+    API endpoint for listing all exchanges.
+    """
+    serializer_class = ExchangeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Return only exchanges where the user is the initiator or receiver.
+        """
+        user = self.request.user
+        return Exchange.objects.filter(
+            models.Q(initiator_user=user) | models.Q(receiver_user=user)
+        )
+
+
+class ExchangeRetrieveView(generics.RetrieveAPIView):
+    """
+    API endpoint for retrieving a single exchange.
+    """
+    queryset = Exchange.objects.all()
+    serializer_class = ExchangeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
+
+    def get_object(self):
+        """
+        Ensure only the initiator or receiver can access the exchange details.
+        """
+        exchange = super().get_object()
+        user = self.request.user
+
+        if user not in [exchange.initiator_user, exchange.receiver_user]:
+            raise ValidationError("You do not have permission to view this exchange.")
+
+        return exchange
+
+
+class ExchangeUpdateView(generics.UpdateAPIView):
+    """
+    API endpoint for updating an exchange.
+    """
+    queryset = Exchange.objects.all()
+    serializer_class = ExchangeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
+    
+
+class ExchangeDeleteView(generics.DestroyAPIView):
+    """
+    API endpoint for deleting or canceling an exchange.
+    - If the exchange is completed, it cannot be deleted.
+    - If the exchange is still ongoing, treat deletion as cancellation.
+    """
+    queryset = Exchange.objects.all()
+    serializer_class = ExchangeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
+
+    def perform_destroy(self, instance):
+        """
+        Ensure only the initiator or receiver can cancel/delete the exchange.
+        Completed exchanges cannot be deleted.
+        """
+        user = self.request.user
+
+        # Check if the user has the right permissions
+        if user not in [instance.initiator_user, instance.receiver_user]:
+            raise ValidationError("You do not have permission to delete this exchange.")
+
+        # Check if the exchange has already been completed
+        if instance.completed:
+            raise ValidationError("You cannot delete a completed exchange.")
+            
+        instance.delete()
+
+
+class ExchangeSwitchReviewerView(APIView):
+    """
+    API endpoint for explicitly switching the reviewer of an exchange.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    @transaction.atomic
+    def post(self, request, id):
+        try:
+            exchange = Exchange.objects.get(id=id)
+        except Exchange.DoesNotExist:
+            return Response(
+                {"message": "Exchange not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        user = request.user
+
+        # Verify user permessions
+        if user != exchange.next_user_to_review:
+            return Response(
+                {"message": "You are not the next user to review this exchange."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # If the user is the initiator
+        if user == exchange.initiator_user:
+            if exchange.records_requested_by_receiver.exists():
+                return Response(
+                    {"message": "You cannot switch reviewers until all requested records by the receiver are resolved."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        # If the user is the receiver
+        if user == exchange.receiver_user:
+            if not exchange.records_requested_by_receiver.exists():
+                return Response(
+                    {"message": "You cannot switch reviewers because you have not requested any additional records."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+        # All checks passed – switch the reviewer
+        if exchange.next_user_to_review == exchange.initiator_user:
+            exchange.next_user_to_review = exchange.receiver_user
+        else:
+            exchange.next_user_to_review = exchange.initiator_user
+        exchange.save()
+
+        return Response(
+            {"message": "The reviewer has been successfully switched to the next user."},
+            status=status.HTTP_200_OK
+        )
+
+
+class ExchangeFinalizeView(APIView):
+    """
+    API endpoint for finalizing an exchange.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, id):
+        try:
+            exchange = Exchange.objects.get(id=id)
+        except Exchange.DoesNotExist:
+            return Response({"error": "Exchange not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ExchangeSerializer(exchange, context={'user': request.user})
+        serializer.finalize_exchange()
+        return Response(
+            {"detail": "Exchange finalized successfully."},
+            status=status.HTTP_200_OK
+        )

@@ -1,15 +1,6 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
-
-from .views import (
-   GoldmineConditionCoverListView, GoldmineConditionRecordListView,
-   LoginView, LogoutView, RegisterView,
-   oauth_login_success, oauth_logout_success,
-   RecordCreateView, RecordDetailView, RecordListView,
-   RecordUpdateView, RecordDeleteView, UserRecordListView, 
-   GenreListView, WishlistCreateView, WishlistDeleteView, 
-   WishlistListView
-)
+from .views import *
 
 app_name = 'api'
 
@@ -39,4 +30,12 @@ urlpatterns = [
    path('wishlist/', WishlistListView.as_view(), name='wishlist-list'),
    path('wishlist/add/', WishlistCreateView.as_view(), name='wishlist-add'),
    path('wishlist/delete/<int:id>/', WishlistDeleteView.as_view(), name='wishlist-delete'),
+
+   path('exchanges/', ExchangeListView.as_view(), name='exchange-list'),
+   path('exchanges/create/', ExchangeCreateView.as_view(), name='exchange-create'),
+   path('exchanges/<int:id>/', ExchangeRetrieveView.as_view(), name='exchange-detail'),
+   path('exchanges/<int:id>/delete/', ExchangeDeleteView.as_view(), name='exchange-delete'), 
+   path('exchanges/<int:id>/update/', ExchangeUpdateView.as_view(), name='exchange-update'),
+   path('exchanges/<int:id>/switch-reviewer/', ExchangeSwitchReviewerView.as_view(), name='exchange-switch-reviewer'),
+   path('exchanges/<int:id>/finalize/', ExchangeFinalizeView.as_view(), name='exchange-finalize'),
 ]
