@@ -1,11 +1,13 @@
+import time
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.db import transaction
-from django.utils import timezone
-
 from rest_framework import serializers
-
 from .models import *
+# TODO: UNCOMMENT THIS WHEN FRONTEND IS READY FOR OSM
+# from geopy.geocoders import Nominatim
+# from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(
@@ -126,6 +128,7 @@ class PhotoSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
+# TODO: DELETE THIS CLASS WHEN FRONTEND IS READY FOR OSM
 class RecordSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(read_only=True)
     genre_id = serializers.PrimaryKeyRelatedField(
@@ -223,6 +226,177 @@ class RecordSerializer(serializers.ModelSerializer):
        
         return record
     
+
+# TODO: UNCOMMENTED THIS WHEN FRONTEND IS READY FOR OSM
+# class LocationSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Location
+#         fields = ('id', 'address', 'city', 'country', 'coordinates')
+#         read_only_fields = ('id', 'address', 'city', 'country')
+
+#     def create(self, validated_data):
+#         """
+#         Create a location with reverse geocoding.
+#         """
+#         coordinates = validated_data.get('coordinates')
+#         if not coordinates:
+#             raise serializers.ValidationError({"message": "Coordinates are required to create a location."})
+
+#         try:
+#             # Rate limiting (1 request per second)
+#             time.sleep(1)   # Pause for 1 second between requests to comply with OpenStreetMap API limits
+
+#             geolocator = Nominatim(user_agent="location_serializer")
+#             location = geolocator.reverse((coordinates.y, coordinates.x), exactly_one=True)
+#             address_data = location.raw['address'] if location else {}
+
+#             validated_data['address'] = location.address if location else 'Unknown Address'
+#             validated_data['city'] = address_data.get('city', 'Unknown City')
+#             validated_data['country'] = address_data.get('country', 'Unknown Country')
+
+#         except (GeocoderTimedOut, GeocoderServiceError) as e:
+#             raise serializers.ValidationError({
+#                 'message': f"Failed to fetch location details: {str(e)}"
+#             })
+
+#         return super().create(validated_data)
+
+
+# class RecordSerializer(serializers.ModelSerializer):
+#     genre = GenreSerializer(read_only=True)
+#     genre_id = serializers.PrimaryKeyRelatedField(
+#         queryset=Genre.objects.all(),
+#         source='genre',
+#         write_only=True
+#     )
+
+#     record_condition = GoldmineConditionRecordSerializer(read_only=True)
+#     record_condition_id = serializers.PrimaryKeyRelatedField(
+#         queryset=GoldmineConditionRecord.objects.all(),
+#         source='record_condition',
+#         write_only=True
+#     )
+
+#     cover_condition = GoldmineConditionCoverSerializer(read_only=True)
+#     cover_condition_id = serializers.PrimaryKeyRelatedField(
+#         queryset=GoldmineConditionCover.objects.all(),
+#         source='cover_condition',
+#         write_only=True
+#     )
+
+#     user = UserSerializer(read_only=True)
+
+#     photos = PhotoSerializer(many=True, read_only=True)
+#     add_photos = serializers.ListField(
+#         child=serializers.ImageField(),
+#         required=False,
+#         write_only=True
+#     )
+
+#     location = LocationSerializer()
+
+#     class Meta:
+#         model = Record
+#         fields = (
+#             'id', 
+#             'catalog_number', 
+#             'artist', 
+#             'album_name', 
+#             'release_year', 
+#             'genre',
+#             'genre_id', # For creating via ID 
+#             'location', 
+#             'available_for_exchange',
+#             'additional_description', 
+#             'record_condition',
+#             'record_condition_id',  # For creating via ID
+#             'cover_condition',
+#             'cover_condition_id',   # For creating via ID
+#             'user',
+#             'photos',
+#             'add_photos'   # Photos uploaded when adding new record
+#         )
+#         read_only_fields = (
+#             'id',
+#             'user',
+#             'genre',
+#             'record_condition',
+#             'cover_condition',
+#             'photos'
+#         )
+
+#     def validate(self, data):
+#         user = self.context.get('user')
+#         if not user:
+#             raise serializers.ValidationError({
+#                 'error': "User must be provided when initializing the serializer."
+#             })
+#         return data
+
+#     @transaction.atomic
+#     def create(self, validated_data):
+#         """
+#         Create a record and handle associated photos.
+#         """
+
+#         # Ensure the user is set before creating the object.
+#         validated_data['user'] = self.context.get('user')
+
+#         # Extract photos from validated data
+#         photos = validated_data.pop('add_photos', [])
+#         location_data = validated_data.pop('location', None)
+
+#         try:
+#             # Create or fetch the location
+#             if location_data and location_data.get('coordinates'):
+#                 location_serializer = LocationSerializer(data=location_data)
+#                 location_serializer.is_valid(raise_exception=True)
+#                 location = location_serializer.save()
+#                 validated_data['location'] = location
+
+#             # Create the record
+#             record = Record.objects.create(**validated_data)
+
+#             # Validate and create associated photos
+#             Photo.objects.bulk_create([
+#                 Photo(record=record, image=photo)
+#                 for photo in photos
+#             ])
+#         except Exception as e:
+#             raise serializers.ValidationError({
+#                 'error': f'Failed to create record and associated photos: {str(e)}'
+#             })
+        
+#         return record
+    
+#     @transaction.atomic
+#     def update(self, instance, validated_data):
+#         """
+#         Update a record, including location and photos.
+#         """
+#         location_data = validated_data.pop('location', None)
+#         photos = validated_data.pop('add_photos', [])
+
+#         for attr, value in validated_data.items():
+#             setattr(instance, attr, value)
+
+#         if location_data:
+#             location_serializer = LocationSerializer(data=location_data)
+#             location_serializer.is_valid(raise_exception=True)
+#             location = location_serializer.save()
+#             instance.location = location
+
+#         if photos:
+#             Photo.objects.filter(record=instance).delete()
+#             Photo.objects.bulk_create([
+#                 Photo(record=instance, image=photo)
+#                 for photo in photos
+#             ])
+
+#         instance.save()
+
+#         return instance
+
 
 class WishlistSerializer(serializers.ModelSerializer):
     class Meta:
