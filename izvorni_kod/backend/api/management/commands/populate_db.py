@@ -1,5 +1,6 @@
 import os
 import random
+import uuid
 
 from django.core.management.base import BaseCommand
 from django.utils import lorem_ipsum
@@ -13,7 +14,7 @@ from api.models import (
 from faker import Faker
 
 
-def create_genres():
+def get_or_create_genres():
     # Genres
     genres = ['Rock',
                 'Pop',
@@ -32,12 +33,17 @@ def create_genres():
                 'Miscellaneous / Other'
             ]
     
+    genres_list = []
+    
     # Create Genre entries if they do not exist:
     for genre in genres:
-        Genre.objects.get_or_create(name=genre)
+        obj, created = Genre.objects.get_or_create(name=genre)
+        genres_list.append(obj)
+
+    return genres_list
 
 
-def create_goldmine_conditions():
+def get_or_create_record_conditions():
     # Standard Goldmine conditions for records:
     conditions_records = [
         {
@@ -82,16 +88,23 @@ def create_goldmine_conditions():
         },
     ]
 
+    conditions_list = []
+
     # Create GoldmineConditionRecord entries if they do not exist:
     for record_condition in conditions_records:
-        GoldmineConditionRecord.objects.get_or_create(
+        obj, created = GoldmineConditionRecord.objects.get_or_create(
             name=record_condition['name'],
             defaults={
                 'abbreviation': record_condition['abbreviation'],
                 'description': record_condition['description']
             }
         )
+        conditions_list.append(obj)
 
+    return conditions_list
+
+
+def get_or_create_cover_conditions():
     # Standard Goldmine conditions for covers (jackets/sleeves):
     conditions_covers = [
         {
@@ -136,18 +149,23 @@ def create_goldmine_conditions():
         },
     ]
 
+    conditions_list = []
+
     # Create GoldmineConditionCover entries if they do not exist:
     for cover_condition in conditions_covers:
-        GoldmineConditionCover.objects.get_or_create(
+        obj, created = GoldmineConditionCover.objects.get_or_create(
             name=cover_condition['name'],
             defaults={
                 'abbreviation': cover_condition['abbreviation'],
                 'description': cover_condition['description']
             }
         )
+        conditions_list.append(obj)
+
+    return conditions_list
 
 
-def create_users():
+def create_users(num_of_users):
     # Create superuser if it doesn't exist in the database
     superuser = User.objects.filter(is_staff=True, is_superuser=True).first()
     if not superuser:
@@ -157,56 +175,70 @@ def create_users():
                 password='Super123!',
             ) 
 
-    fake = Faker()
+    fake = Faker('en_US')
 
-    for _ in range(10):
-        user, created = User.objects.get_or_create(
-            email = fake.unique.email(),
-            defaults={
-                'username': fake.user_name,
-                'first_name': fake.first_name(),
-                'last_name': fake.last_name(),
-            }
+    users_list = []
+
+    for _ in range(num_of_users):
+        while True:
+            email = fake.unique.email()
+            username = fake.unique.user_name()
+
+            duplicate_email_user = User.objects.filter(email=email).first()
+            duplicate_username_user = User.objects.filter(username=username).first()
+            if not duplicate_email_user and not duplicate_username_user:
+                break
+
+        user = User.objects.create(
+            email=email,
+            username=username,
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
         )
-        if created:
-            user.set_password('Default123!')
-            user.save()
+        user.set_password('Default123!')
+        user.save()
+        users_list.append(user)
+
+    return users_list
 
 
-def create_records():
-    fake = Faker()
+def create_records(num_of_records,
+                   users,
+                   genres,
+                   conditions_record,
+                   conditions_cover):
+    fake = Faker('en_US')
 
-    # Fetch models used in Record's foreign key fields
-    users = User.objects.exclude(username='admin')
-    genres = Genre.objects.all()
-    goldmine_record = GoldmineConditionRecord.objects.all()
-    goldmine_cover = GoldmineConditionCover.objects.all()
+    records_list = []
 
-    # Records
-    for _ in range(50):
-        Record.objects.get_or_create(
+    i = 0
+    while i < num_of_records:
+        record, created = Record.objects.get_or_create(
             catalog_number=fake.unique.bothify('?????-#####'),
             defaults={
                 'artist': fake.name(),
-                'album_name': " ".join(fake.words(nb=random.randint(1, 5))),
+                'album_name': fake.sentence(nb_words=3).rstrip('.'),
                 'release_year': random.randint(1950, 2024),
                 'genre': random.choice(genres),
                 'location': fake.city(),
                 'available_for_exchange': fake.boolean(chance_of_getting_true=75),
                 'additional_description': lorem_ipsum.paragraph(),
-                'record_condition': random.choice(goldmine_record),
-                'cover_condition': random.choice(goldmine_cover),
+                'record_condition': random.choice(conditions_record),
+                'cover_condition': random.choice(conditions_cover),
                 'user': random.choice(users)
             }
         )
+        if created:
+            i += 1
+            records_list.append(record)
+
+    return records_list
 
 
-def create_photos(command: "Command"):
+def create_photos(records):
     # Path to the folder where your seed images live
     image_folder = os.path.join(os.path.dirname(__file__), 'dummy_images')
     image_files = os.listdir(image_folder)
-
-    records = Record.objects.all()
 
     for record in records:
         # Choose a random image from the folder
@@ -221,33 +253,50 @@ def create_photos(command: "Command"):
             photo = Photo(record=record)
             # Save the image to your Photo model’s ImageField
             photo.image.save(
-                f"{record.catalog_number}_{random_image_name}", 
+                f"{uuid.uuid4()}", 
                 django_file,
                 save=True
             )
 
-        # command.stdout.write(command.style.SUCCESS(f"Image {random_image_name} saved for record {record.catalog_number}."))
 
+def create_wishlists(users):
+    fake = Faker('en_US')
 
-def create_wishlists():
-    fake = Faker()
+    min_wishes_num = 3
+    max_wishes_num = 7
 
-    users = User.objects.exclude(username='admin')
     for user in users:
-        for _ in range(5):
-            Wishlist.objects.get_or_create(
-                record_catalog_number=fake.unique.bothify('?????-#####'),
-                user=user,
+        num_of_wishes = random.randint(min_wishes_num, max_wishes_num)
+        i = 0
+        while i < num_of_wishes:
+            obj, created = Wishlist.objects.get_or_create(
+                record_catalog_number=fake.unique.bothify('????????-########'),
+                defaults={
+                    'user': user
+                }
             )
+            if created:
+                i += 1
 
 
 class Command(BaseCommand):
     help = 'Populate database with dummy data'
 
     def handle(self, *args, **options):
-        create_users()
-        create_genres()
-        create_goldmine_conditions()
-        create_records()
-        create_photos(self)
-        create_wishlists()
+        genres = get_or_create_genres()
+        conditions_record = get_or_create_record_conditions()
+        conditions_cover = get_or_create_cover_conditions()
+
+        num_of_users = 10
+        users = create_users(num_of_users)
+
+        num_of_records = 50
+        records = create_records(
+            num_of_records=num_of_records,
+            users=users,
+            genres=genres,
+            conditions_record=conditions_record,
+            conditions_cover=conditions_cover)
+
+        create_photos(records)
+        create_wishlists(users)
