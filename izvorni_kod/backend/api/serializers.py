@@ -128,7 +128,7 @@ class PhotoSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
-# TODO: DELETE THIS CLASS WHEN FRONTEND IS READY FOR OSM
+# TODO: DELETE THIS WHEN FRONTEND IS READY FOR OSM
 class RecordSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(read_only=True)
     genre_id = serializers.PrimaryKeyRelatedField(
@@ -225,6 +225,26 @@ class RecordSerializer(serializers.ModelSerializer):
             })
        
         return record
+    
+    def update(self, instance, validated_data):
+        """
+        Update a record, including location and photos.
+        """
+        photos = validated_data.pop('add_photos', [])
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if photos:
+            Photo.objects.filter(record=instance).delete()
+            Photo.objects.bulk_create([
+                Photo(record=instance, image=photo)
+                for photo in photos
+            ])
+
+        instance.save()
+
+        return instance
     
 
 # TODO: UNCOMMENTED THIS WHEN FRONTEND IS READY FOR OSM
