@@ -19,16 +19,38 @@ function EditForm({ vinyl, onClose, onUpdate }) {
     cover_condition_id: vinyl.cover_condition.id,
   });
 
-  const [newPhotos, setNewPhotos] = useState([]);
-  const [existingPhotos, setExistingPhotos] = useState(vinyl.photos || []);
+  const [addPhotos, setAddPhotos] = useState([]);
+  const [photoPreviews, setPhotoPreviews] = useState([]);
   const [recordConditions, setRecordConditions] = useState([]);
   const [coverConditions, setCoverConditions] = useState([]);
   const [genres, setGenres] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [photoPreviews, setPhotoPreviews] = useState([]);
 
   const { authFetch } = useAuthRefresh();
+
+  // Initialize photos from existing vinyl
+  useEffect(() => {
+    const fetchExistingPhotos = async () => {
+      try {
+        const existingPhotosPromises = vinyl.photos.map(async (photo) => {
+          const response = await fetch(photo.image);
+          const blob = await response.blob();
+          const file = new File([blob], `photo-${photo.id}.jpg`, { type: 'image/jpeg' });
+          return file;
+        });
+
+        const existingPhotoFiles = await Promise.all(existingPhotosPromises);
+        setAddPhotos(existingPhotoFiles);
+        setPhotoPreviews(vinyl.photos.map(photo => photo.image));
+      } catch (error) {
+        console.error("Error fetching existing photos:", error);
+        setErrorMessage("Failed to load existing photos");
+      }
+    };
+
+    fetchExistingPhotos();
+  }, [vinyl.photos]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,14 +94,16 @@ function EditForm({ vinyl, onClose, onUpdate }) {
 
   const handleImagesChange = (event) => {
     const files = Array.from(event.target.files);
-    setNewPhotos(files);
+    setAddPhotos(prev => [...prev, ...files]);
     const previews = files.map(file => window.URL.createObjectURL(file));
     setPhotoPreviews(prev => [...prev, ...previews]);
     event.target.value = '';
   };
 
-  const handleRemoveExistingPhoto = (photoId) => {
-    setExistingPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
+  const handleRemovePhoto = (index) => {
+    setAddPhotos(prev => prev.filter((_, i) => i !== index));
+    window.URL.revokeObjectURL(photoPreviews[index]);
+    setPhotoPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -90,17 +114,11 @@ function EditForm({ vinyl, onClose, onUpdate }) {
       submitData.append(key, formData[key]);
     });
 
-    newPhotos.forEach((photo, index) => {
+    addPhotos.forEach((photo, index) => {
       submitData.append(`add_photos[${index}]`, photo);
     });
 
-    submitData.append(
-       "existing_photo_ids",
-     JSON.stringify(existingPhotos.map((photo) => photo.id))
-    );
-
     try {
-      const token = localStorage.getItem("access");
       const response = await authFetch(`${URL}/api/records/${vinyl.id}/update/`, {
         method: "PUT",
         body: submitData,
@@ -124,15 +142,13 @@ function EditForm({ vinyl, onClose, onUpdate }) {
 
   useEffect(() => {
     return () => {
-      photoPreviews.forEach(preview => window.URL.revokeObjectURL(preview));
+      photoPreviews.forEach(preview => {
+        if (preview.startsWith('blob:')) {
+          window.URL.revokeObjectURL(preview);
+        }
+      });
     };
   }, [photoPreviews]);
-
-  const handleRemoveNewPhoto = (index) => {
-    setNewPhotos(prev => prev.filter((_, i) => i !== index));
-    window.URL.revokeObjectURL(photoPreviews[index]);
-    setPhotoPreviews(prev => prev.filter((_, i) => i !== index));
-  };
 
   return (
     <div className="form-container">
@@ -243,51 +259,33 @@ function EditForm({ vinyl, onClose, onUpdate }) {
           placeholder="Additional Description"
         />
 
-        <div className="existing-photos">
-          <h4>Current Photos:</h4>
-          <div className="photo-grid">
-            {existingPhotos.map((photo) => (
-              <div key={photo.id} className="photo-item">
-                <img src={photo.image} alt="Vinyl" className="thumbnail" />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveExistingPhoto(photo.id)}
-                  className="remove-photo"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="new-photos">
-          <h4>Add New Photos:</h4>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImagesChange}
-            style={{ color: 'transparent' }}
-          />
-          {photoPreviews.length > 0 && (
-          <div className="photo-grid">
-            {photoPreviews.map((preview, index) => (
-              <div key={index} className="photo-item">
-                <img src={preview} alt="Preview" className="thumbnail" />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveNewPhoto(index)}
-                  className="remove-photo"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
+        {photoPreviews.length > 0 && (
+          <div className="existing-photos">
+            <h4>Photos:</h4>
+            <div className="photo-grid">
+              {photoPreviews.map((preview, index) => (
+                <div key={index} className="photo-item">
+                  <img src={preview} alt="Preview" className="thumbnail" />
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePhoto(index)}
+                    className="remove-photo"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
-        </div>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleImagesChange}
+          style={{ color: 'transparent' }}
+        />
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
         {successMessage && <p className="success-message">{successMessage}</p>}
