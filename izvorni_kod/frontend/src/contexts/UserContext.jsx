@@ -10,24 +10,28 @@ export const UserProvider = ({ children }) => {
 
   // Restore user data from token on page load
   useEffect(() => {
-    const accessToken = localStorage.getItem("access");
+    const initializeUser = () => {
+      const accessToken = localStorage.getItem("access");
 
-    if (accessToken) {
-      try {
-        const decoded = jwtDecode(accessToken);
-        setUser({
-          id: decoded.user_id,
-          email: decoded.email,
-          username: decoded.username,
-          first_name: decoded.first_name,
-          last_name: decoded.last_name,
-        });
-        console.log("User restored from token:", decoded);
-      } catch (error) {
-        console.error("Failed to decode token:", error);
-        setUser(null);
+      if (accessToken) {
+        try {
+          const decoded = jwtDecode(accessToken);
+          setUser({
+            id: decoded.id,
+            email: decoded.email,
+            username: decoded.username,
+            first_name: decoded.first_name,
+            last_name: decoded.last_name,
+          });
+          console.log("User restored from token:", decoded);
+        } catch (error) {
+          console.error("Failed to decode token:", error);
+          setUser(null);
+        }
       }
-    }
+    };
+
+    initializeUser();
   }, []);
 
   // Logout function

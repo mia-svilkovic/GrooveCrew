@@ -15,8 +15,8 @@ from .serializers import *
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
 
-    refresh.access_token.payload.update({
-        'user_id': user.id,
+    refresh.payload.update({
+        'id': user.id,
         'email': user.email,
         'username': user.username,
         'first_name': user.first_name,

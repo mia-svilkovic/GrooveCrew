@@ -5,7 +5,6 @@ import React, { useState, useEffect } from "react";
 
 const URL = import.meta.env.VITE_API_URL;
 
-
 export default function Home({ searchQuery, filters }) {
   const { user } = useUser();
   const [vinyls, setVinyls] = useState([]);
@@ -14,10 +13,10 @@ export default function Home({ searchQuery, filters }) {
 
   const filterFunction = (vinyls) => {
     return vinyls.filter((vinyl) => {
-      console.log(vinyl);
+      // console.log(vinyl);
       const albumName = (vinyl.album_name || "").toLowerCase();
       const artist = (vinyl.artist || "").toLowerCase();
-      const genre = (vinyl.genre.id || "") ;
+      const genre = vinyl.genre.id || "";
       const searchTerm = searchQuery.toLowerCase();
       // Search
       const searchMatch =
@@ -30,8 +29,7 @@ export default function Home({ searchQuery, filters }) {
       const yearMatch =
         !filters.release_year ||
         vinyl.release_year === parseInt(filters.release_year);
-      const genreMatch =
-        !filters.genre || genre === parseInt(filters.genre);
+      const genreMatch = !filters.genre || genre === parseInt(filters.genre);
       const exchangeMatch =
         !filters.available_for_exchange ||
         vinyl.available_for_exchange === true;
@@ -93,12 +91,14 @@ export default function Home({ searchQuery, filters }) {
         <AllVinyls filteredVinyls={filteredVinyls} />
       ) : (
         <>
-          <AddVinyl 
-            onAddItem={(newItem) => setVinyls((prevVinyls) => [...prevVinyls, newItem])}
+          <AddVinyl
+            onAddItem={(newItem) =>
+              setVinyls((prevVinyls) => [...prevVinyls, newItem])
+            }
           />
           <AllVinyls filteredVinyls={filteredVinyls} />
         </>
       )}
     </div>
-  );  
+  );
 }
