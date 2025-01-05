@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'django.contrib.gis',
     'api',
     'corsheaders',
     'rest_framework',
@@ -98,9 +99,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# TODO: DELETE THIS WHEN FRONTEND IS READY FOR OSM
 DATABASES = {
-    'default': env.db('DATABASE_URL', default='postgresql://postgres:postgres@localhost:5432/progi')
+    'default': env.db('DATABASE_URL', default='postgis://postgres:postgres@localhost:5432/progi')
 }
+# TODO: UNCOMMENT THIS WHEN FRONTEND IS READY FOR OSM
+# DATABASES = {
+#     'default': env.db('DATABASE_URL', default='postgis://postgres:postgres@localhost:5432/progi')
+# }
 
 
 # Password validation
