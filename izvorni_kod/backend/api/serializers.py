@@ -419,10 +419,19 @@ class RecordSerializer(serializers.ModelSerializer):
 
 
 class WishlistSerializer(serializers.ModelSerializer):
+    matching_records = serializers.SerializerMethodField()
+
     class Meta:
         model = Wishlist
-        fields = ('id', 'record_catalog_number')
-        read_only_fields = ('id',)
+        fields = ('id', 'record_catalog_number', 'matching_records')
+        read_only_fields = ('id', 'matching_records')
+
+    def get_matching_records(self, obj):
+        """
+        Fetch records with the same catalog_number as the wishlist entry.
+        """
+        records = Record.objects.filter(catalog_number=obj.record_catalog_number)
+        return RecordSerializer(records, many=True).data
 
     def validate(self, data):
         user = self.context.get('user')

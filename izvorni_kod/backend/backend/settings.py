@@ -209,3 +209,21 @@ SOCIALACCOUNT_PROVIDERS={
         }
    }
 }
+
+
+# LOCAL DEVELOPMENT EMAIL SETTINGS
+# Emails will be printed in the console instead of being sent
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'Record Exchange <noreply@example.com>'
+SITE_URL = 'http://localhost:8000'
+
+# PRODUCTION EMAIL SETTINGS (uncomment when deploying to production)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.example.com'  # Replace with your SMTP host
+# EMAIL_PORT = 587  # Use 465 for SSL
+# EMAIL_USE_TLS = True  # Enable TLS for secure connections
+# EMAIL_USE_SSL = False  # Use SSL if required
+# EMAIL_HOST_USER = 'your_email@example.com'  # Replace with your SMTP user
+# EMAIL_HOST_PASSWORD = 'your_password'  # Replace with your SMTP password
+# DEFAULT_FROM_EMAIL = 'Record Exchange <noreply@example.com>'
+# SITE_URL = 'https://your-production-url.com'
