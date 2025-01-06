@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'django.contrib.gis',
+    # TODO: UNCOMMENT THIS WHEN FRONTEND IS READY FOR OSM
+    # 'django.contrib.gis',
     'api',
     'corsheaders',
     'rest_framework',
@@ -101,7 +102,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # TODO: DELETE THIS WHEN FRONTEND IS READY FOR OSM
 DATABASES = {
-    'default': env.db('DATABASE_URL', default='postgis://postgres:postgres@localhost:5432/progi')
+    'default': env.db('DATABASE_URL', default='postgres://postgres:postgres@localhost:5432/progi')
 }
 # TODO: UNCOMMENT THIS WHEN FRONTEND IS READY FOR OSM
 # DATABASES = {
