@@ -30,14 +30,19 @@ export const UserProvider = ({ children }) => {
         // If access token is expired or missing but we have refresh token
         if (refreshToken) {
           const newAccessToken = await refreshTokenRequest();
-          const userData = await getUserFromToken(accessToken);
+          const userData = await getUserFromToken(newAccessToken);
           setUser(userData);
+        }
+        else{
+          localStorage.removeItem("access");
+          localStorage.removeItem("refresh");
+          setUser(null);
         }
       } catch (error) {
         console.error("Auth initialization failed:", error);
         localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
-        setUser(null);
+          localStorage.removeItem("refresh");
+          setUser(null);
       }
     };
 

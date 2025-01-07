@@ -88,16 +88,17 @@ function ExchangeForm({ selectedVinylId, onClose }) {
             return;
         }
         try {
-            const token = localStorage.getItem("access");
-            const response = await fetch(`${URL}/api/records/exchange/${selectedVinylId}`, {
+            const response = await authFetch(`${URL}/api/exchanges/create/`, {
                 method: 'POST',
                 headers: {
-                    Authorization: token ? `Bearer ${token}` : "",
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    vinyls: selectedVinylsForExchange
+                  requested_record_id: selectedVinylId,
+                  offered_records: selectedVinylsForExchange.map(id => ({
+                    record_id: id
+                  }))
                 }),
-                credentials: "include"
             });
             if (!response.ok) {
                 setErrorMessage('Failed to submit exchange request');
@@ -136,7 +137,8 @@ function ExchangeForm({ selectedVinylId, onClose }) {
                 <h3>Select Vinyls for Exchange</h3>
                 <form onSubmit={handleSubmit}>
                     <div className="check-options">
-                        {userVinyls.map(vinyl => (
+                    {userVinyls.map(vinyl => (
+                        vinyl.available_for_exchange ? (
                             <label key={vinyl.id} className="check-option">
                                 <input
                                     type="checkbox"
@@ -149,7 +151,17 @@ function ExchangeForm({ selectedVinylId, onClose }) {
                                     </p>
                                 </div>
                             </label>
-                        ))}
+                        ) : (
+                            <div key={vinyl.id} className="check-option">
+                                <div className="select-text">
+                                    <span onClick={() => handleVinylClick(vinyl.id)}>
+                                        {vinyl.album_name} ({vinyl.catalog_number})
+                                    </span>
+                                    <span className="note">[Currently not available]</span>
+                                </div>
+                            </div>
+                        )
+                    ))}
                     </div>
 
                     {successMessage && <p className="success-message">{successMessage}</p>}

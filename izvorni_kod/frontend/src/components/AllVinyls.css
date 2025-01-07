@@ -33,6 +33,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     text-align: center;
     transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
   }
   
   .vinyl-item:hover {
@@ -74,10 +75,10 @@
     transform: scale(1.1);
     opacity: 0.8;
   }
-  .select-text p{
+  .select-text{
     cursor: pointer;
   }
-  .select-text:hover p{
+  .select-text:hover{
     transform: scale(1.1);
     opacity: 10;
     color:black;

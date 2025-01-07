@@ -5,6 +5,9 @@ import MyVinyls from "./components/pages/my-vinyls";
 import Wishlist from "./components/pages/Wishlist";
 import VinylDetail from "./components/pages/VinylDetail";
 import UserDetail from "./components/pages/UserDetail";
+import Offers from "./components/pages/Offers";
+import History from "./components/pages/History"
+
 
 
 import { UserProvider } from "./contexts/UserContext"; // Importiraj UserProvider
@@ -56,6 +59,8 @@ function App() {
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/vinyl/:id" element={<VinylDetail />} />
               <Route path="/user/:id" element={<UserDetail />}/>
+              <Route path="/Offers/" element={<Offers />}/>
+              <Route path="/history/" element={<History />}/>
             </Routes>
           </main>
         </div>
