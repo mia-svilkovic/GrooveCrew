@@ -149,18 +149,6 @@ def custom_admin_logout(request):
     return HttpResponseRedirect('/admin/login/')  # Redirect to admin login page
 
 
-def oauth_login_success(request):
-    if request.user.socialaccount_set.exists():
-        return JsonResponse({"message": "OAuth login successful"}, status=200)
-    return JsonResponse({"message": "This endpoint is for OAuth logins only."}, status=400)
-
-
-def oauth_logout_success(request):
-    if request.user.socialaccount_set.exists():
-        return JsonResponse({"message": "OAuth logout successful"}, status=200)
-    return JsonResponse({"message": "This endpoint is for OAuth logouts only."}, status=400)
-
-
 class RecordCreateView(generics.CreateAPIView):
     """
     API endpoint for adding a new record along with associated photos.

@@ -11,10 +11,6 @@ urlpatterns = [
    
    path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
 
-   # Google OAuth 2.0 Based Authentication (Redirect Endpoints)
-   path('oauth/login-success/', oauth_login_success, name='oauth-login-success'),
-   path('oauth/logout-success/', oauth_logout_success, name='oauth-logout-success'),
-
    path('records/', RecordListView.as_view(), name='record-list'),
    path('records/create/', RecordCreateView.as_view(), name='record-add'),
    path('records/<int:id>/', RecordDetailView.as_view(), name='record-detail'),
