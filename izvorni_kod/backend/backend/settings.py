@@ -212,19 +212,13 @@ SOCIALACCOUNT_PROVIDERS={
 }
 
 
-# LOCAL DEVELOPMENT EMAIL SETTINGS
-# Emails will be printed in the console instead of being sent
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'Record Exchange <noreply@example.com>'
-SITE_URL = 'http://localhost:8000'
-
-# PRODUCTION EMAIL SETTINGS (uncomment when deploying to production)
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.example.com'  # Replace with your SMTP host
-# EMAIL_PORT = 587  # Use 465 for SSL
-# EMAIL_USE_TLS = True  # Enable TLS for secure connections
-# EMAIL_USE_SSL = False  # Use SSL if required
-# EMAIL_HOST_USER = 'your_email@example.com'  # Replace with your SMTP user
-# EMAIL_HOST_PASSWORD = 'your_password'  # Replace with your SMTP password
-# DEFAULT_FROM_EMAIL = 'Record Exchange <noreply@example.com>'
-# SITE_URL = 'https://your-production-url.com'
+# EMAIL SETTINGS
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = env('EMAIL_HOST', default='localhost')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', default=False)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='Record Exchange <noreply@example.com>')
+SITE_URL = env('SITE_URL', default='http://localhost:8000')
