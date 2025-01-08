@@ -449,7 +449,7 @@ class ExchangeCreateView(generics.CreateAPIView):
     API endpoint for creating a new exchange.
     """
     queryset = Exchange.objects.all()
-    serializer_class = ExchangeSerializer
+    serializer_class = ExchangeCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_serializer_context(self):
@@ -463,7 +463,7 @@ class ExchangeUpdateView(generics.UpdateAPIView):
     API endpoint for updating an exchange.
     """
     queryset = Exchange.objects.all()
-    serializer_class = ExchangeSerializer
+    serializer_class = ExchangeUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'id'
 

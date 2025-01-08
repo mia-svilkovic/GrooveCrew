@@ -73,8 +73,6 @@ class Record(models.Model):
     #     related_name='records'
     # )
 
-    available_for_exchange = models.BooleanField(default=True)
-
     additional_description = models.TextField(blank=True)
 
     record_condition = models.ForeignKey(
@@ -102,6 +100,15 @@ class Record(models.Model):
     class Meta:
         verbose_name = "Record"
         verbose_name_plural = "Records"
+
+    @property
+    def available_for_exchange(self):
+        """
+        Record is available for exchange only if it's not already offered in any active (non-completed) exchange.
+        """
+        return not self.exchanges_where_offered.filter(
+            exchange__completed=False
+        ).exists()
 
     def __str__(self):
         return f'{self.artist} - {self.album_name} ({self.catalog_number})'
