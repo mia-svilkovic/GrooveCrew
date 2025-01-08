@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import login, logout
-from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 
@@ -10,8 +10,12 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
 from .models import *
 from .serializers import *
+
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -115,6 +119,65 @@ class LoginView(APIView):
             return response
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+
+class GoogleLoginView(APIView):
+    """
+    Authenticate users via Google ID Token and return JWT tokens.
+    """
+
+    def post(self, request, *args, **kwargs):
+        id_token_str = request.data.get('id_token')
+
+        if not id_token_str:
+            return Response({'error': 'ID token is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Verificiraj ID Token koristeći Google javni ključ
+            id_info = id_token.verify_oauth2_token(
+                id_token_str,
+                requests.Request(),
+                settings.GOOGLE_CLIENT_ID
+            )
+
+            email = id_info.get('email')
+            first_name = id_info.get('given_name')
+            last_name = id_info.get('family_name')
+
+            if not email:
+                return Response({'error': 'Email not found in ID token'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Dohvati ili kreiraj korisnika
+            user, created = User.objects.get_or_create(email=email, defaults={
+                'username': email.split('@')[0],
+                'first_name': first_name,
+                'last_name': last_name,
+            })
+
+            if created:
+                user.set_unusable_password()
+                user.save()
+
+            tokens = get_tokens_for_user(user)
+
+            user_data = {
+                'id': user.id,
+                'email': user.email,
+                'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            }
+
+            return Response({
+                'message': 'Google Login successful!',
+                'user': user_data,
+                'tokens': tokens
+            }, status=status.HTTP_200_OK)
+
+        except ValueError as e:
+            return Response({'error': 'Invalid ID token', 'details': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class LogoutView(APIView):

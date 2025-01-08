@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import "./Authentication.css";
 import "./forms/Form.css" ;
 import FormLogin from "./forms/FormLogin";
@@ -7,12 +8,13 @@ import { useUser } from "../contexts/UserContext"; // Import useUser hook
 import { useAuthRefresh } from '../contexts/AuthRefresh';
 
 const URL = import.meta.env.VITE_API_URL;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
 
 function Authentication() {
   const [activeForm, setActiveForm] = useState(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const { user, logoutUser } = useUser(); // Get user and logoutUser from context
+  const { user, setUser, logoutUser } = useUser(); // Get user and logoutUser from context
   const { authFetch } = useAuthRefresh();
 
   const openLoginForm = () => setActiveForm("login");
@@ -48,12 +50,45 @@ function Authentication() {
     }
   };
 
+  const handleGoogleLoginSuccess = async (credentialResponse) => {
+    try {
+      const idToken = credentialResponse.credential; // Google ID Token
+
+      const response = await fetch(`${URL}/api/users/google-login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id_token: idToken }),
+      });
+
+      if (!response.ok) throw new Error('Google Login Failed');
+
+      const data = await response.json();
+
+      localStorage.setItem('access', data.tokens.access);
+      localStorage.setItem('refresh', data.tokens.refresh);
+
+      setUser({
+        id: data.user.id,
+        email: data.user.email,
+        username: data.user.username,
+        first_name: data.user.first_name,
+        last_name: data.user.last_name,
+      });
+
+      console.log('Google Login Successful!');
+    } catch (error) {
+      console.error('Google Login Error:', error);
+    }
+  };
+
   const isLoggedIn = localStorage.getItem("access") !== null;
 
   console.log(user) ;
    return (
     <div className="auth-container">
-      {user?.username ? (
+      {isLoggedIn ? (
         <>
         <button className="logout-button" onClick={handleLogoutClick}>
           Logout
@@ -91,6 +126,12 @@ function Authentication() {
               <button className="register-button" onClick={openRegisterForm}>
                 Register
               </button>
+              <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                <GoogleLogin
+                  onSuccess={handleGoogleLoginSuccess}
+                  onError={() => console.log('Google Login Failed')}
+                />
+              </GoogleOAuthProvider>
             </>
           )}
           {activeForm === "login" && (

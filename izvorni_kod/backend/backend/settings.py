@@ -58,10 +58,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
 ]
 
 MIDDLEWARE = [
@@ -73,7 +69,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -188,28 +183,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Google OAuth 2.0 settings
-SITE_ID = 1
-
 AUTHENTICATION_BACKENDS = (
-   "django.contrib.auth.backends.ModelBackend", # Default auth backend
-   "allauth.account.auth_backends.AuthenticationBackend"    # Allauth backend
+   "django.contrib.auth.backends.ModelBackend",
 )
 
-SOCIALACCOUNT_PROVIDERS={
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email'
-        ],
-        'AUTH_PARAMS': {'access_type': 'online'},
-        'APP': {
-            'client_id': env('GOOGLE_CLIENT_ID'),
-            'secret': env('GOOGLE_CLIENT_SECRET'),
-            'key': ''
-        }
-   }
-}
+GOOGLE_CLIENT_ID = env('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = env('GOOGLE_CLIENT_SECRET')
 
 
 # EMAIL SETTINGS

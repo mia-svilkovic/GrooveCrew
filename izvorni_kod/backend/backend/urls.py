@@ -25,7 +25,6 @@ urlpatterns = [
     # Override the default admin logout path
     path('admin/logout/', custom_admin_logout, name='admin-logout'),
     path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.urls')),
     path('api/', include('api.urls')),
 ]
 
