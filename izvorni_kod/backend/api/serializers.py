@@ -576,12 +576,18 @@ class ExchangeCreateSerializer(serializers.ModelSerializer):
         requested_record = validated_data.pop('requested_record')
         receiver_user = requested_record.user
 
-        exchange = Exchange.objects.create(
-            initiator_user=initiator_user,
-            receiver_user=receiver_user,
-            next_user_to_review=receiver_user,
-            requested_record=requested_record
-        )
+        try:
+            exchange = Exchange.objects.create(
+                initiator_user=initiator_user,
+                receiver_user=receiver_user,
+                next_user_to_review=receiver_user,
+                requested_record=requested_record
+            )
+        except Exception as e:
+            raise serializers.ValidationError({
+                'message': f'Exchange for this record has already been initiated between these two participants.'
+            })
+
 
         # Add offered records
         ExchangeOfferedRecord.objects.bulk_create([
