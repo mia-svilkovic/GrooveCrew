@@ -526,7 +526,8 @@ class ExchangeCreateSerializer(serializers.ModelSerializer):
     requested_record_id = serializers.PrimaryKeyRelatedField(
         queryset=Record.objects.all(),
         source='requested_record',
-        write_only=True
+        required=True,
+        write_only=True,
     )
 
     offered_records = ExchangeOfferedRecordSerializer(many=True, required=True)
