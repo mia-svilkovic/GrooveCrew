@@ -13,6 +13,8 @@ export const useAuthRefresh = () => {
       return newAccessToken;
     } catch (error) {
       logoutUser();
+      localStorage.clear('access');
+      localStorage.clear('refresh');
       navigate('/');
     }
   };
@@ -32,6 +34,7 @@ export const useAuthRefresh = () => {
 
       if (response.status === 401) {
         token = await refreshToken();
+        console.log(token);
         return fetch(url, {
           ...options,
           headers: {

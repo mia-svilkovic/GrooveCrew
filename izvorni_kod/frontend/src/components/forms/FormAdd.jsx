@@ -25,7 +25,6 @@ function FormAdd({
   const [additionalDescription, setAdditionalDescription] = useState("");
   const [recordCondition, setRecordCondition] = useState("");
   const [coverCondition, setCoverCondition] = useState("");
-  const [availableForExchange, setAvailableForExchange] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [photoPreviews, setPhotoPreviews] = useState([]);
@@ -67,7 +66,6 @@ function FormAdd({
     formData.append("release_year", releaseYear);
     formData.append("genre_id", genre);
     formData.append("location", location);
-    formData.append("available_for_exchange", availableForExchange);
     formData.append("additional_description", additionalDescription);
     formData.append("record_condition_id", recordCondition);
     formData.append("cover_condition_id", coverCondition);
@@ -168,15 +166,6 @@ function FormAdd({
           onChange={(e) => setLocation(e.target.value)}
           required
         />
-
-        <label>
-          <input
-            type="checkbox"
-            checked={availableForExchange}
-            onChange={(e) => setAvailableForExchange(e.target.checked)}
-          />
-          Available for Exchange
-        </label>
 
         <select
           value={recordCondition}

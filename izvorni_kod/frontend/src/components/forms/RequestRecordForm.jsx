@@ -5,7 +5,7 @@ import './Form.css';
 
 const URL = import.meta.env.VITE_API_URL;
 
-function RequestRecordForm({ exchangeId, initiatorId, onClose, onSuccess }) {
+function RequestRecordForm({ exchangeId, initiatorId, onClose, onSuccess, offeredRecords }) {
     const navigate = useNavigate();
     const [userVinyls, setUserVinyls] = useState([]);
     const [selectedVinylsForRequest, setSelectedVinylsForRequest] = useState([]);
@@ -64,6 +64,10 @@ function RequestRecordForm({ exchangeId, initiatorId, onClose, onSuccess }) {
             }
             return [...prev, vinylId];
         });
+    };
+    const isVinylOffered = (vinylId) => {
+        return offeredRecords.some(record => record.id === vinylId) &&
+        selectedVinylsForRequest.some(record => record.id === vinylId);
     };
 
     const handleSubmit = (e) => {

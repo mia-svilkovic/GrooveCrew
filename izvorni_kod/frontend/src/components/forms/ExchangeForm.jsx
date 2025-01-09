@@ -109,7 +109,7 @@ function ExchangeForm({ selectedVinylId, onClose }) {
             onClose();
         } catch (error) {
             console.error('Error submitting exchange:', error);
-            setErrorMessage('Failed to submit exchange request. Please try again.');
+            setErrorMessage(error);
         }
         
     };

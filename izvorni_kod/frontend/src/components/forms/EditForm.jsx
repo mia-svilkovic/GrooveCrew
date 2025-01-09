@@ -13,7 +13,6 @@ function EditForm({ vinyl, onClose, onUpdate }) {
     release_year: vinyl.release_year,
     genre_id: vinyl.genre.id,
     location: vinyl.location,
-    available_for_exchange: vinyl.available_for_exchange,
     additional_description: vinyl.additional_description,
     record_condition_id: vinyl.record_condition.id,
     cover_condition_id: vinyl.cover_condition.id,
@@ -213,16 +212,6 @@ function EditForm({ vinyl, onClose, onUpdate }) {
           placeholder="Location"
           required
         />
-
-        <label>
-          <input
-            type="checkbox"
-            name="available_for_exchange"
-            checked={formData.available_for_exchange}
-            onChange={handleChange}
-          />
-          Available for Exchange
-        </label>
 
         <select
           name="record_condition_id"

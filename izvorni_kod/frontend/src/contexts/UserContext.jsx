@@ -30,6 +30,7 @@ export const UserProvider = ({ children }) => {
         // If access token is expired or missing but we have refresh token
         if (refreshToken) {
           const newAccessToken = await refreshTokenRequest();
+          console.log(newAccessToken) ;
           const userData = await getUserFromToken(newAccessToken);
           setUser(userData);
         }

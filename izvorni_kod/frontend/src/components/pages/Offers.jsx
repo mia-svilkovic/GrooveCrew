@@ -140,10 +140,16 @@ function Offers() {
 
     if (!recordToAdd) return;
 
+    const updatedOfferedRecords = [
+      ...currentModifiedExchange.offered_records,
+      recordToAdd
+    ];
+
     const updatedExchange = {
       ...currentModifiedExchange,
       records_requested_by_receiver: currentModifiedExchange.records_requested_by_receiver
-        .filter(r => r.id !== recordId && r.record.id !== recordId)
+        .filter(r => r.id !== recordId && r.record.id !== recordId),
+      offered_records: updatedOfferedRecords
     };
 
     setModifiedExchanges(prev => ({
@@ -230,12 +236,12 @@ function Offers() {
 
   const ExchangeStatus = ({ exchange }) => {
     const isInitiator = exchange.initiator_user.id === user.id;
-    const statusText = exchange.next_user_to_review === user.id
+    const statusText = exchange.next_user_to_review.id === user.id
       ? "Waiting for your review"
       : `Waiting for ${isInitiator ? 'receiver' : 'initiator'}'s review`;
 
     return (
-      <div className={`exchange-status ${exchange.next_user_to_review === user.id ? 'active' : 'waiting'}`}>
+      <div className={`exchange-status ${exchange.next_user_to_review.id === user.id ? 'active' : 'waiting'}`}>
         <span>{statusText}</span>
       </div>
     );
@@ -302,7 +308,7 @@ function Offers() {
                         <h3>{record.record.album_name}</h3>
                         <p>Artist: {record.record.artist}</p>
                       </div>
-                      {exchange.next_user_to_review === user.id && (
+                      {exchange.next_user_to_review.id === user.id && (
                         <button onClick={(e) => handleRemoveRecord(e, exchange.id, record.record.id)}>
                           Remove
                         </button>
@@ -323,7 +329,7 @@ function Offers() {
                           <h3>{record.record.album_name}</h3>
                           <p>Artist: {record.record.artist}</p>
                         </div>
-                        {exchange.initiator_user.id === user.id && exchange.next_user_to_review === user.id && (
+                        {exchange.initiator_user.id === user.id && exchange.next_user_to_review.id === user.id && (
                           <div className="record-decision-buttons">
                             <button onClick={() => handleAddToOffered(exchange.id, record.id)}>
                               Accept
@@ -339,12 +345,12 @@ function Offers() {
                 )}
 
                 <div className="exchange-actions">
-                  {exchange.receiver_user.id === user.id && (
+                  {exchange.receiver_user.id === user.id && exchange.next_user_to_review.id ===user.id && (
                     <button onClick={() => handleOpenRequestForm(exchange.id)}>
                       Request Additional Record
                     </button>
                   )}
-                  {exchange.next_user_to_review === user.id && (
+                  {exchange.next_user_to_review.id === user.id && (
                     <>
                       <button 
                         className="review-button"
@@ -360,7 +366,7 @@ function Offers() {
                       </button>
                     </>
                   )}
-                  {exchange.receiver_user.id === user.id && (
+                  {exchange.receiver_user.id === user.id && exchange.next_user_to_review.id ===user.id && (
                     <button 
                       onClick={() => handleFinalize(exchange.id)}
                       className="finalize-button"
