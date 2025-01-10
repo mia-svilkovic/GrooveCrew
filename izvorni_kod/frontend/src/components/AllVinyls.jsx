@@ -45,10 +45,7 @@ function AllVinyls({ filteredVinyls }) {
                             <h3>{vinyl.album_name}</h3>
                             <p>Artist: {vinyl.artist}</p>
                             <p>Location: {vinyl.location}</p>
-                            <p>
-                                Available for Exchange:{" "}
-                                {vinyl.available_for_exchange ? "Yes" : "No"}
-                            </p>
+                           
                             <div className="select-text">
                                 <p onClick={(e) => {
                                     e.stopPropagation();

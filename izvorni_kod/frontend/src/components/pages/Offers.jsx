@@ -25,6 +25,7 @@ function Offers() {
     fetchExchanges();
   }, []);
 
+
   useEffect(() => {
     if (successMessage) setTimeout(() => setSuccessMessage(""), 2000);
     if (errorMessage) setTimeout(() => setErrorMessage(""), 5000);
@@ -50,7 +51,7 @@ function Offers() {
   };
 
   const handleRequestFormSuccess = (selectedRecords) => {
-    const exchange = exchanges.find(e => e.id === selectedExchangeId);
+    const exchange = exchanges.find(e => e.id ===selectedExchangeId);
     const currentModifiedExchange = modifiedExchanges[selectedExchangeId] || exchange;
     
     const updatedRequestedRecords = [
@@ -110,14 +111,14 @@ function Offers() {
 
   const handleRemoveRecord = (e, exchangeId, recordId) => {
     e.stopPropagation();
-    const exchange = exchanges.find(e => e.id === exchangeId);
+    const exchange = exchanges.find(e => e.id ===exchangeId);
     const currentModifiedExchange = modifiedExchanges[exchangeId] || exchange;
     
     const updatedRecords = currentModifiedExchange.offered_records.filter(
-      record => (record.record.id !== recordId && record.id !== recordId)
+      record => (record.record.id !==recordId && record.id !==recordId)
     );
   
-    if (updatedRecords.length === 0 && exchange.initiator_user.id === user.id) {
+    if (updatedRecords.length ===0 && exchange.initiator_user.id ===user.id) {
       setErrorMessage("At least one record must remain offered");
       return;
     }
@@ -132,11 +133,11 @@ function Offers() {
   };
 
   const handleAddToOffered = (exchangeId, recordId) => {
-    const exchange = exchanges.find(e => e.id === exchangeId);
+    const exchange = exchanges.find(e => e.id ===exchangeId);
     const currentModifiedExchange = modifiedExchanges[exchangeId] || exchange;
     
     const recordToAdd = currentModifiedExchange.records_requested_by_receiver
-      .find(r => r.id === recordId || r.record.id === recordId);
+      .find(r => r.id ===recordId || r.record.id ===recordId);
 
     if (!recordToAdd) return;
 
@@ -148,7 +149,7 @@ function Offers() {
     const updatedExchange = {
       ...currentModifiedExchange,
       records_requested_by_receiver: currentModifiedExchange.records_requested_by_receiver
-        .filter(r => r.id !== recordId && r.record.id !== recordId),
+        .filter(r => r.id !==recordId && r.record.id !==recordId),
       offered_records: updatedOfferedRecords
     };
 
@@ -159,13 +160,13 @@ function Offers() {
   };
 
   const handleRejectRequested = (exchangeId, recordId) => {
-    const exchange = exchanges.find(e => e.id === exchangeId);
+    const exchange = exchanges.find(e => e.id ===exchangeId);
     const currentModifiedExchange = modifiedExchanges[exchangeId] || exchange;
 
     const updatedExchange = {
       ...currentModifiedExchange,
       records_requested_by_receiver: currentModifiedExchange.records_requested_by_receiver
-        .filter(r => r.id !== recordId && r.record.id !== recordId)
+        .filter(r => r.id !==recordId && r.record.id !==recordId)
     };
 
     setModifiedExchanges(prev => ({
@@ -183,14 +184,14 @@ function Offers() {
   };
 
   const validateExchange = (exchange, modifiedExchange) => {
-    if (exchange.receiver_user.id === user.id && 
+    if (exchange.receiver_user.id ===user.id && 
         (!modifiedExchange.records_requested_by_receiver?.length)) {
       setErrorMessage("Please request at least one record");
       return false;
     }
 
-    if (exchange.initiator_user.id === user.id) {
-      if (modifiedExchange.offered_records.length === 0) {
+    if (exchange.initiator_user.id ===user.id) {
+      if (modifiedExchange.offered_records.length ===0) {
         setErrorMessage("At least one record must be offered");
         return false;
       }
@@ -199,7 +200,7 @@ function Offers() {
   };
 
   const handleSubmitReview = async (exchangeId) => {
-    const exchange = exchanges.find(e => e.id === exchangeId);
+    const exchange = exchanges.find(e => e.id ===exchangeId);
     const modifiedExchange = modifiedExchanges[exchangeId] || exchange;
     
     if (!validateExchange(exchange, modifiedExchange)) return;
@@ -235,6 +236,14 @@ function Offers() {
   };
 
   const ExchangeStatus = ({ exchange }) => {
+    
+    console.log(exchange.next_user_to_review.id + " ?= " + user.id) ; 
+    console.log({
+      next_reviewer_id: exchange.next_user_to_review.id,
+      user_id: user.id,
+      initiator_id: exchange.initiator_user.id,
+      receiver_id: exchange.receiver_user.id
+    });
     const isInitiator = exchange.initiator_user.id === user.id;
     const statusText = exchange.next_user_to_review.id === user.id
       ? "Waiting for your review"
@@ -257,13 +266,13 @@ function Offers() {
       {errorMessage && <div className="error-message">{errorMessage}</div>}
 
       <div className="exchange-list">
-        {exchanges.filter(exchange => !exchange.completed).length === 0 ? (
+        {exchanges.filter(exchange => !exchange.completed).length ===0 ? (
           <p>You don't have any active exchanges in progress.</p>
         ) : (
           exchanges.filter(exchange => !exchange.completed).map(exchange => {
             const currentExchange = modifiedExchanges[exchange.id] || exchange;
             console.log("Current Exchange:", currentExchange);
-            return (
+            return(
               <div key={exchange.id} className="exchange-container">
                 <ExchangeStatus exchange={exchange} />
                 
@@ -308,7 +317,7 @@ function Offers() {
                         <h3>{record.record.album_name}</h3>
                         <p>Artist: {record.record.artist}</p>
                       </div>
-                      {exchange.next_user_to_review.id === user.id && (
+                      {exchange.next_user_to_review.id ===user.id && (
                         <button onClick={(e) => handleRemoveRecord(e, exchange.id, record.record.id)}>
                           Remove
                         </button>
@@ -329,7 +338,7 @@ function Offers() {
                           <h3>{record.record.album_name}</h3>
                           <p>Artist: {record.record.artist}</p>
                         </div>
-                        {exchange.initiator_user.id === user.id && exchange.next_user_to_review.id === user.id && (
+                        {exchange.initiator_user.id ===user.id && exchange.next_user_to_review.id ===user.id && (
                           <div className="record-decision-buttons">
                             <button onClick={() => handleAddToOffered(exchange.id, record.id)}>
                               Accept
@@ -345,12 +354,8 @@ function Offers() {
                 )}
 
                 <div className="exchange-actions">
-                  {exchange.receiver_user.id === user.id && exchange.next_user_to_review.id ===user.id && (
-                    <button onClick={() => handleOpenRequestForm(exchange.id)}>
-                      Request Additional Record
-                    </button>
-                  )}
-                  {exchange.next_user_to_review.id === user.id && (
+                  
+                  {exchange.next_user_to_review.id ===user.id && (
                     <>
                       <button 
                         className="review-button"
@@ -365,15 +370,23 @@ function Offers() {
                         Reset Changes
                       </button>
                     </>
+                  )} 
+
+                  {exchange.next_user_to_review.id ===user.id && exchange.receiver_user.id ===user.id  && (
+                    <>
+                      <button onClick={() => handleOpenRequestForm(exchange.id)}>
+                        Request Additional Record
+                      </button>
+                      <button 
+                        onClick={() => handleFinalize(exchange.id)}
+                        className="finalize-button"
+                      >
+                        Finalize Exchange
+                      </button>
+                    </>
                   )}
-                  {exchange.receiver_user.id === user.id && exchange.next_user_to_review.id ===user.id && (
-                    <button 
-                      onClick={() => handleFinalize(exchange.id)}
-                      className="finalize-button"
-                    >
-                      Finalize Exchange
-                    </button>
-                  )}
+                  
+
                   <button 
                     onClick={() => handleCancel(exchange.id)}
                     className="cancel-button"
@@ -382,7 +395,7 @@ function Offers() {
                   </button>
                 </div>
               </div>
-            );
+            )
           })
         )}
       </div>
@@ -391,7 +404,7 @@ function Offers() {
         <div className="modal-overlay">
           <RequestRecordForm
             exchangeId={selectedExchangeId}
-            initiatorId={exchanges.find(e => e.id === selectedExchangeId).initiator_user.id}
+            initiatorId={exchanges.find(e => e.id ===selectedExchangeId).initiator_user.id}
             onClose={() => setShowRequestForm(false)}
             onSuccess={handleRequestFormSuccess}
           />
