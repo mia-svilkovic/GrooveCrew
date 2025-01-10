@@ -1,7 +1,7 @@
 import React from "react";
 import "./SearchBar.css";
-import searchIcon from "../assets/images/search.png";
-import filterIcon from "../assets/images/filter.png";
+import searchIcon from "../../assets/images/search.png";
+import filterIcon from "../../assets/images/filter.png";
 
 const SearchBar = ({ searchQuery, onSearchChange, onToggleFilters }) => {
   const handleInputChange = (e) => {

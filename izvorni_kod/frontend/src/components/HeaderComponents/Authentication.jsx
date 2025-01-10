@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import "./Authentication.css";
-import "./forms/Form.css" ;
-import FormLogin from "./forms/FormLogin";
-import FormRegister from "./forms/FormRegister";
-import { useUser } from "../contexts/UserContext"; // Import useUser hook
-import { useAuthRefresh } from '../contexts/AuthRefresh';
+import "../forms/Form.css" ;
+import FormLogin from "../forms/FormLogin";
+import FormRegister from "../forms/FormRegister";
+import { useUser } from "../../contexts/UserContext"; // Import useUser hook
+import { useAuthRefresh } from '../../contexts/AuthRefresh';
 
 const URL = import.meta.env.VITE_API_URL;
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID

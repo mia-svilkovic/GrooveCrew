@@ -1,11 +1,11 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./Menu.css";
-import like from "../assets/images/like.png";
-import exchange from "../assets/images/exchange.png";
-import vinyl from "../assets/images/vinyl.png";
-import history from "../assets/images/history.png";
-import { useUser } from "../contexts/UserContext"; // Import the user context
+import like from "../../assets/images/like.png";
+import exchange from "../../assets/images/exchange.png";
+import vinyl from "../../assets/images/vinyl.png";
+import history from "../../assets/images/history.png";
+import { useUser } from "../../contexts/UserContext"; // Import the user context
 
 const MENU_ITEMS = [
   { icon: like, label: "Wishlist", path: "/wishlist" },

@@ -1,10 +1,10 @@
 import "./Header.css";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Authentication from "./Authentication";
-import Menu from "./Menu";
-import SearchBar from "./SearchBar";
-import FilterPanel from "./FilterPanel";
+import Authentication from "./HeaderComponents/Authentication";
+import Menu from "./HeaderComponents/Menu";
+import SearchBar from "./HeaderComponents/SearchBar";
+import FilterPanel from "./HeaderComponents/FilterPanel";
 import logo from "../assets/images/logo.png";
 import userIcon from "../assets/images/user.png";
 import menuIcon from "../assets/images/menu.png";

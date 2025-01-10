@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
 import { useAuthRefresh } from "../../contexts/AuthRefresh";
+import { ExchangeParties } from '../OfferComponents/ExchangeParties';
+import { RequestedVinylSection } from '../OfferComponents/RequestedVinylSection';
+import { OfferedVinylSection } from '../OfferComponents/OfferedVinylSection';
 
 const URL = import.meta.env.VITE_API_URL;
 
@@ -54,42 +57,15 @@ const History = () => {
                     <span className="exchange-date">
                     Completed on: {new Date(exchange.last_modification_datetime).toLocaleDateString()}
                     </span>
-                    <div className="exchange-parties">
-                    <div className="party initiator">
-                        <span 
-                        className="select-text"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/user/${exchange.initiator_user.id}`);
-                        }}
-                        >
-                        <strong>Initiator:</strong> {exchange.initiator_user.username}
-                        </span>
-                    </div>
-                    <div className="party receiver">
-                        <span 
-                        className="select-text"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/user/${exchange.receiver_user.id}`);
-                        }}
-                        >
-                        <strong>Receiver:</strong> {exchange.receiver_user.username}
-                        </span>
-                    </div>
-                    </div>
+                    
+                    <ExchangeParties exchange={exchange} 
+                    onUserClick={() => navigate(`/user/${exchange.receiver_user.id}`)}  />
                 </div>
 
-                <div className="requested-vinyl">
-                    <h4>Requested Record:</h4>
-                    <div
-                    className="vinyl-item"
-                    onClick={() => handleVinylClick(exchange.requested_record.id)}
-                    >
-                    <h3>{exchange.requested_record.album_name}</h3>
-                    <p>Artist: {exchange.requested_record.artist}</p>
-                    </div>
-                </div>
+                <RequestedVinylSection 
+                    record={exchange.requested_record}
+                    onVinylClick={handleVinylClick}
+                />
 
                 <div className="offered-vinyl">
                     <h4>Exchanged Records:</h4>
@@ -104,24 +80,8 @@ const History = () => {
                     </div>
                     ))}
                 </div>
-                
-                
-                {exchange.records_requested_by_receiver?.length > 0 && (
-                    <div className="additional-records">
-                    <h4>Additional Exchanged Records:</h4>
-                    {exchange.records_requested_by_receiver.map(record => (
-                        <div
-                        key={record.id}
-                        className="vinyl-item"
-                        onClick={() => handleVinylClick(record.record.id)}
-                        >
-                        <h3>{record.record.album_name}</h3>
-                        <p>Artist: {record.record.artist}</p>
-                        </div>
-                    ))}
-                    </div>
-                )}
-                </div>
+            
+            </div>
             ))
             )}
         </div>
