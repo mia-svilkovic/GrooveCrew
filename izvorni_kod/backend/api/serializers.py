@@ -138,6 +138,7 @@ class LocationSerializer(serializers.ModelSerializer):
         """
         Create a location with reverse geocoding.
         """
+
         coordinates = validated_data.get('coordinates')
         if not coordinates:
             raise serializers.ValidationError({"message": "Coordinates are required to create a location."})

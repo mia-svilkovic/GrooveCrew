@@ -12,6 +12,7 @@ import Description from '../addVinylComponents/Description';
 const URL = import.meta.env.VITE_API_URL;
 
 function EditForm({ vinyl, onClose, onUpdate }) {
+  
   const [formData, setFormData] = useState({
     catalog_number: vinyl.catalog_number,
     artist: vinyl.artist,

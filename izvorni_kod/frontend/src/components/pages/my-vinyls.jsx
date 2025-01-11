@@ -97,7 +97,7 @@ function MyVinyls() {
               <h3>{vinyl.album_name}</h3>
               <p>Artist: {vinyl.artist}</p>
               <p>Genre: {vinyl.genre.name}</p>
-              <p>Location: {vinyl.location}</p>
+              
               <p>Available for Exchange: {vinyl.available_for_exchange ? "Yes" : "No"}</p>
               <div>
                 <button onClick={(e) => handleEdit(e, vinyl)} className="vinyl-opt">

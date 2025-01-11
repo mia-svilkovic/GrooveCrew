@@ -6,7 +6,7 @@ const ConditionSelect = ({ conditions, type, value, onChange }) => {
     <select
       name={name}
       value={value}
-      onChange={onChange}
+      onChange={(e) => onChange(e.target.value)}
       required
     >
       <option value="">{type} Condition</option>

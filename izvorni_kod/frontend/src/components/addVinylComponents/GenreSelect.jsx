@@ -3,9 +3,9 @@ import React from 'react';
 export const GenreSelect = ({ genres, selectedGenre, onChange }) => {
   return (
     <select
-      name="genre_id"
+      name="genre"
       value={selectedGenre}
-      onChange={onChange}
+      onChange={(e) => onChange(e.target.value)}
       required
     >
       <option value="">Select Genre</option>

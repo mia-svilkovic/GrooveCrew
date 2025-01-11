@@ -44,7 +44,6 @@ function AllVinyls({ filteredVinyls }) {
                         >
                             <h3>{vinyl.album_name}</h3>
                             <p>Artist: {vinyl.artist}</p>
-                            <p>Location: {vinyl.location}</p>
                            
                             <div className="select-text">
                                 <p onClick={(e) => {

@@ -5,7 +5,7 @@ const Description = ({ value, onChange }) => {
     <textarea
       name="additional_description"
       value={value}
-      onChange={onChange}
+      onChange={(e) => onChange(e.target.value)}
       placeholder="Additional Description"
     />
   );

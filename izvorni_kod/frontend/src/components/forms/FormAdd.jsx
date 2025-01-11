@@ -46,21 +46,7 @@ function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres
     }
   }, [successMessage, errorMessage]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormState(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleLocationChange = (newLocation) => {
-    setFormState(prev => ({
-      ...prev,
-      location: newLocation
-    }));
-  };
-
+  
   const handleImagesChange = (event) => {
     const files = Array.from(event.target.files);
     setFormState(prev => ({
@@ -83,8 +69,17 @@ function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres
 
   const handleAddRecord = async (event) => {
     event.preventDefault();
-
     const formData = new FormData();
+    //   const locationData = {
+    //     coordinates: {
+    //       type: "Point",
+    //       coordinates: [formState.location.lng, formState.location.lat]
+    //     }
+    //   };
+    // console.log("Location data:", JSON.stringify(locationData));
+    // console.log("Form state location:", formState.location);
+    // formData.append("location", JSON.stringify(locationData));
+    
     formState.addPhotos.forEach((photo, index) => {
       formData.append(`add_photos[${index}]`, photo);
     });
@@ -97,6 +92,8 @@ function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres
     formData.append("additional_description", formState.additionalDescription);
     formData.append("record_condition_id", formState.recordCondition);
     formData.append("cover_condition_id", formState.coverCondition);
+
+    console.log("Location being sent:", formData.get("location"));
 
     try {
       const response = await authFetch(`${URL}/api/records/create/`, {
@@ -122,43 +119,50 @@ function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres
     }
   };
 
+  const handleFormChange = (field, value) => {
+    setFormState(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   return (
     <div className="form-container">
       <h2>ADD VINYL</h2>
       <form onSubmit={handleAddRecord}>
-      <BasicInfo 
+        <BasicInfo 
           formData={formState} 
-          onChange={handleChange}
+          onChange={handleFormChange}
         />
         
         <GenreSelect
           genres={genres}
-          selectedGenre={formState.genre_id}
-          onChange={handleChange}
+          selectedGenre={formState.genre}
+          onChange={(value) => handleFormChange('genre', value)}
         />
         
         <LocationPicker
           location={formState.location}
-          onLocationChange={handleLocationChange}
+          onLocationChange={(value) => handleFormChange('location', value)}
         />
         
         <ConditionSelect
           conditions={recordConditions}
           type="Record"
-          value={formState.record_condition_id}
-          onChange={handleChange}
+          value={formState.recordCondition}
+          onChange={(value) => handleFormChange('recordCondition', value)}
         />
         
         <ConditionSelect
           conditions={coverConditions}
           type="Cover"
-          value={formState.cover_condition_id}
-          onChange={handleChange}
+          value={formState.coverCondition}
+          onChange={(value) => handleFormChange('coverCondition', value)}
         />
         
         <Description
-          value={formState.additional_description}
-          onChange={handleChange}
+          value={formState.additionalDescription}
+          onChange={(value) => handleFormChange('additionalDescription', value)}
         />
         
         <PhotoUpload
