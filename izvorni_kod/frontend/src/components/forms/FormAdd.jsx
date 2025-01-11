@@ -2,33 +2,35 @@ import React, { useState, useEffect } from "react";
 import "./Form.css";
 import { useUser } from "../../contexts/UserContext";
 import { useAuthRefresh } from '../../contexts/AuthRefresh';
+import PhotoUpload from '../addVinylComponents/PhotoUpload';
+import BasicInfo from '../addVinylComponents/BasicInfo';
+import GenreSelect from '../addVinylComponents/GenreSelect';
+import LocationPicker from '../addVinylComponents/LocationPicker';
+import ConditionSelect from '../addVinylComponents/ConditionSelect';
+import Description from '../addVinylComponents/Description';
+
 
 const URL = import.meta.env.VITE_API_URL;
 
-function FormAdd({
-  onClose,
-  onAddItem,
-  recordConditions,
-  coverConditions,
-  genres,
-}) {
+function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres }) {
   const { user } = useUser();
   const { authFetch } = useAuthRefresh();
 
-  const [addPhotos, setAddPhotos] = useState([]);
-  const [catalogNumber, setCatalogNumber] = useState("");
-  const [artist, setArtist] = useState("");
-  const [albumName, setAlbumName] = useState("");
-  const [releaseYear, setReleaseYear] = useState("");
-  const [genre, setGenre] = useState("");
-  const [location, setLocation] = useState("");
-  const [additionalDescription, setAdditionalDescription] = useState("");
-  const [recordCondition, setRecordCondition] = useState("");
-  const [coverCondition, setCoverCondition] = useState("");
+  const [formState, setFormState] = useState({
+    addPhotos: [],
+    catalogNumber: "",
+    artist: "",
+    albumName: "",
+    releaseYear: "",
+    genre: "",
+    location: { lat: 0, lng: 0 },
+    additionalDescription: "",
+    recordCondition: "",
+    coverCondition: "",
+  });
+  const [photoPreviews, setPhotoPreviews] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [photoPreviews, setPhotoPreviews] = useState([]);
-
 
   useEffect(() => {
     if (successMessage) {
@@ -44,35 +46,59 @@ function FormAdd({
     }
   }, [successMessage, errorMessage]);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormState(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleLocationChange = (newLocation) => {
+    setFormState(prev => ({
+      ...prev,
+      location: newLocation
+    }));
+  };
+
   const handleImagesChange = (event) => {
     const files = Array.from(event.target.files);
-    setAddPhotos(prev => [...prev, ...files]);
+    setFormState(prev => ({
+      ...prev,
+      addPhotos: [...prev.addPhotos, ...files]
+    }));
     const previews = files.map(file => window.URL.createObjectURL(file));
     setPhotoPreviews(prev => [...prev, ...previews]);
     event.target.value = '';
   };
 
+  const handleRemovePhoto = (index) => {
+    setFormState(prev => ({
+      ...prev,
+      addPhotos: prev.addPhotos.filter((_, i) => i !== index)
+    }));
+    window.URL.revokeObjectURL(photoPreviews[index]);
+    setPhotoPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleAddRecord = async (event) => {
     event.preventDefault();
-    console.log(addPhotos) ;
 
     const formData = new FormData();
-    addPhotos.forEach((photo, index) => {
+    formState.addPhotos.forEach((photo, index) => {
       formData.append(`add_photos[${index}]`, photo);
     });
-    formData.append("catalog_number", catalogNumber);
-    formData.append("artist", artist);
-    formData.append("album_name", albumName);
-    formData.append("release_year", releaseYear);
-    formData.append("genre_id", genre);
-    formData.append("location", location);
-    formData.append("additional_description", additionalDescription);
-    formData.append("record_condition_id", recordCondition);
-    formData.append("cover_condition_id", coverCondition);
+    formData.append("catalog_number", formState.catalogNumber);
+    formData.append("artist", formState.artist);
+    formData.append("album_name", formState.albumName);
+    formData.append("release_year", formState.releaseYear);
+    formData.append("genre_id", formState.genre);
+    formData.append("location", JSON.stringify(formState.location));
+    formData.append("additional_description", formState.additionalDescription);
+    formData.append("record_condition_id", formState.recordCondition);
+    formData.append("cover_condition_id", formState.coverCondition);
 
     try {
-      const token = localStorage.getItem("access");
-
       const response = await authFetch(`${URL}/api/records/create/`, {
         method: "POST",
         body: formData,
@@ -96,147 +122,57 @@ function FormAdd({
     }
   };
 
-  useEffect(() => {
-    return () => {
-      photoPreviews.forEach(preview => window.URL.revokeObjectURL(preview));
-    };
-  }, [photoPreviews]);
-
-  const handleRemovePhoto = (index) => {
-    setAddPhotos(prev => prev.filter((_, i) => i !== index));
-    window.URL.revokeObjectURL(photoPreviews[index]);
-    setPhotoPreviews(prev => prev.filter((_, i) => i !== index));
-  };
-
   return (
-    <div className="form-container" >
+    <div className="form-container">
       <h2>ADD VINYL</h2>
       <form onSubmit={handleAddRecord}>
-        <input
-          type="text"
-          placeholder="Catalog Number"
-          value={catalogNumber}
-          onChange={(e) => setCatalogNumber(e.target.value)}
-          required
+      <BasicInfo 
+          formData={formState} 
+          onChange={handleChange}
         />
-
-        <input
-          type="text"
-          placeholder="Artist"
-          value={artist}
-          onChange={(e) => setArtist(e.target.value)}
-          required
+        
+        <GenreSelect
+          genres={genres}
+          selectedGenre={formState.genre_id}
+          onChange={handleChange}
         />
-
-        <input
-          type="text"
-          placeholder="Album Name"
-          value={albumName}
-          onChange={(e) => setAlbumName(e.target.value)}
-          required
+        
+        <LocationPicker
+          location={formState.location}
+          onLocationChange={handleLocationChange}
         />
-
-        <input
-          type="number"
-          placeholder="Release Year"
-          value={releaseYear}
-          onChange={(e) => setReleaseYear(e.target.value)}
-          min="1900"
-          required
+        
+        <ConditionSelect
+          conditions={recordConditions}
+          type="Record"
+          value={formState.record_condition_id}
+          onChange={handleChange}
         />
-
-        <select
-          value={genre}
-          onChange={(e) => setGenre(e.target.value)}
-          required
-        >
-          <option value="">Select Genre</option>
-          {genres.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-
-        <label>Location</label>
-        <input
-          type="text"
-          placeholder="Location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          required
+        
+        <ConditionSelect
+          conditions={coverConditions}
+          type="Cover"
+          value={formState.cover_condition_id}
+          onChange={handleChange}
         />
-
-        <select
-          value={recordCondition}
-          onChange={(e) => setRecordCondition(e.target.value)}
-          required
-        >
-          <option value="">Record Condition</option>
-          {recordConditions.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={coverCondition}
-          onChange={(e) => setCoverCondition(e.target.value)}
-          required
-        >
-          <option value="">Cover Condition</option>
-          {coverConditions.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-
-        <textarea
-          placeholder="Additional Description"
-          value={additionalDescription}
-          onChange={(e) => setAdditionalDescription(e.target.value)}
-        ></textarea>
-
-        {photoPreviews.length > 0 && (
-          <div className="existing-photos">
-            <h4>Selected Photos:</h4>
-            <div className="photo-grid">
-              {photoPreviews.map((preview, index) => (
-                <div key={index} className="photo-item">
-                  <img src={preview} alt="Preview" className="thumbnail" />
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePhoto(index)}
-                    className="remove-photo"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          style={{ color: 'transparent' }}
-          onChange={handleImagesChange}
+        
+        <Description
+          value={formState.additional_description}
+          onChange={handleChange}
         />
-        {/* {addPhotos.length > 0 && (
-            <span className="note">
-              {addPhotos.length} file{addPhotos.length !== 1 ? 's' : ''} selected
-            </span>
-        )} */}
+        
+        <PhotoUpload
+          photoPreviews={photoPreviews}
+          onPhotoChange={handleImagesChange}
+          onRemovePhoto={handleRemovePhoto}
+        />
 
         <button type="submit">Add Vinyl</button>
         <button className="close-button" onClick={onClose}>
           Close
         </button>
       </form>
+      
       {successMessage && <p className="success-message">{successMessage}</p>}
       {errorMessage && <p className="error-message">{errorMessage}</p>}
     </div>

@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
 import exchange from "../../assets/images/exchange.png";
 import "./VinylDetail.css";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
 const URL = import.meta.env.VITE_API_URL;
 
@@ -58,6 +60,8 @@ function VinylDetail() {
     navigate(`/user/${userId}`);
   };
 
+  const { location } = vinyl;
+
   return (
     <div className="vinyl-detail-container">
       <button onClick={() => navigate(-1)} className="back-button">
@@ -112,7 +116,27 @@ function VinylDetail() {
         </div>
 
         <div className="info-card">
-          <h3>Location: {vinyl.location}</h3>
+          <h3>Location</h3>
+          {location && location.coordinates ? (
+            <MapContainer
+              center={[location.coordinates.lat, location.coordinates.lng]}
+              zoom={13}
+              style={{ height: "300px", width: "100%" }}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+              />
+              <Marker position={[location.coordinates.lat, location.coordinates.lng]}>
+                <Popup>
+                  {location.address} <br />
+                  {location.city}, {location.country}
+                </Popup>
+              </Marker>
+            </MapContainer>
+          ) : (
+            <p>No location information available.</p>
+          )}
         </div>
 
         <div className="info-card">

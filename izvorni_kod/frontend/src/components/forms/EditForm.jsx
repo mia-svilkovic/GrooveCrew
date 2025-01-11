@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import "./Form.css";
 import "./editPhotos.css";
 import { useAuthRefresh } from '../../contexts/AuthRefresh';
+import PhotoUpload from '../addVinylComponents/PhotoUpload';
+import BasicInfo from '../addVinylComponents/BasicInfo';
+import GenreSelect from '../addVinylComponents/GenreSelect';
+import LocationPicker from '../addVinylComponents/LocationPicker';
+import ConditionSelect from '../addVinylComponents/ConditionSelect';
+import Description from '../addVinylComponents/Description';
 
 const URL = import.meta.env.VITE_API_URL;
 
@@ -12,7 +18,7 @@ function EditForm({ vinyl, onClose, onUpdate }) {
     album_name: vinyl.album_name,
     release_year: vinyl.release_year,
     genre_id: vinyl.genre.id,
-    location: vinyl.location,
+    location: JSON.stringify(vinyl.location),
     additional_description: vinyl.additional_description,
     record_condition_id: vinyl.record_condition.id,
     cover_condition_id: vinyl.cover_condition.id,
@@ -28,7 +34,6 @@ function EditForm({ vinyl, onClose, onUpdate }) {
 
   const { authFetch } = useAuthRefresh();
 
-  // Initialize photos from existing vinyl
   useEffect(() => {
     const fetchExistingPhotos = async () => {
       try {
@@ -84,10 +89,10 @@ function EditForm({ vinyl, onClose, onUpdate }) {
   }, []);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
   };
 
@@ -153,127 +158,42 @@ function EditForm({ vinyl, onClose, onUpdate }) {
     <div className="form-container">
       <h2>Edit Vinyl</h2>
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="catalog_number"
-          value={formData.catalog_number}
+        <BasicInfo formData={formData} onChange={handleChange} />
+        
+        <GenreSelect
+          genres={genres}
+          selectedGenre={formData.genre_id}
           onChange={handleChange}
-          placeholder="Catalog Number"
-          required
         />
-
-        <input
-          type="text"
-          name="artist"
-          value={formData.artist}
-          onChange={handleChange}
-          placeholder="Artist"
-          required
+        
+        <LocationPicker
+          location={formData.location}
+          onLocationChange={handleChange}
         />
-
-        <input
-          type="text"
-          name="album_name"
-          value={formData.album_name}
-          onChange={handleChange}
-          placeholder="Album Name"
-          required
-        />
-
-        <input
-          type="number"
-          name="release_year"
-          value={formData.release_year}
-          onChange={handleChange}
-          placeholder="Release Year"
-          min="1900"
-          required
-        />
-
-        <select
-          name="genre_id"
-          value={formData.genre_id}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select Genre</option>
-          {genres.map((genre) => (
-            <option key={genre.id} value={genre.id}>
-              {genre.name}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="text"
-          name="location"
-          value={formData.location}
-          onChange={handleChange}
-          placeholder="Location"
-          required
-        />
-
-        <select
-          name="record_condition_id"
+        
+        <ConditionSelect
+          conditions={recordConditions}
+          type="Record"
           value={formData.record_condition_id}
           onChange={handleChange}
-          required
-        >
-          <option value="">Record Condition</option>
-          {recordConditions.map((condition) => (
-            <option key={condition.id} value={condition.id}>
-              {condition.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          name="cover_condition_id"
+        />
+        
+        <ConditionSelect
+          conditions={coverConditions}
+          type="Cover"
           value={formData.cover_condition_id}
           onChange={handleChange}
-          required
-        >
-          <option value="">Cover Condition</option>
-          {coverConditions.map((condition) => (
-            <option key={condition.id} value={condition.id}>
-              {condition.name}
-            </option>
-          ))}
-        </select>
-
-        <textarea
-          name="additional_description"
+        />
+        
+        <Description
           value={formData.additional_description}
           onChange={handleChange}
-          placeholder="Additional Description"
         />
-
-        {photoPreviews.length > 0 && (
-          <div className="existing-photos">
-            <h4>Photos:</h4>
-            <div className="photo-grid">
-              {photoPreviews.map((preview, index) => (
-                <div key={index} className="photo-item">
-                  <img src={preview} alt="Preview" className="thumbnail" />
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePhoto(index)}
-                    className="remove-photo"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={handleImagesChange}
-          style={{ color: 'transparent' }}
+        
+        <PhotoUpload
+          photoPreviews={photoPreviews}
+          onPhotoChange={handleImagesChange}
+          onRemovePhoto={handleRemovePhoto}
         />
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
