@@ -37,6 +37,7 @@ function Offers() {
       if (!response.ok) throw new Error("Failed to fetch exchanges");
       const data = await response.json();
       setExchanges(data);
+      //setModifiedExchanges(data) ;
       setLoading(false);
     } catch (error) {
       setErrorMessage("Failed to load exchanges");
@@ -179,14 +180,19 @@ function Offers() {
       setErrorMessage("Please request at least one record");
       return false;
     }
-    
+    if (exchange.initiator_user.id === user.id && 
+      (modifiedExchange.records_requested_by_receiver?.length)) {
+    setErrorMessage("Please accept or rejext all requested records");
+    return false;
+    }    
+    return true ;
   };
 
   const handleSubmitReview = async (exchangeId) => {
     console.log("submiting...") ;
     const exchange = exchanges.find(e => e.id === exchangeId);
     const modifiedExchange = modifiedExchanges[exchangeId] || exchange;
-    //if (!validateExchange(exchange, modifiedExchange)) return;
+    if (!validateExchange(exchange, modifiedExchange)) return;
     try {
       const updateResponse = await authFetch(`${URL}/api/exchanges/${exchangeId}/update/`, {
         method: "PUT",
@@ -254,8 +260,8 @@ function Offers() {
       {showRequestForm && (
         <div className="modal-overlay">
           <RequestRecordForm
-            exchange={modifiedExchanges[selectedExchangeId]}
-            initiatorId={exchanges.find(e => e.id === selectedExchangeId).initiator_user.id}
+            exchange={modifiedExchanges[selectedExchangeId] || 
+              exchanges.find(e => e.id === selectedExchangeId)}
             onClose={() => setShowRequestForm(false)}
             onSuccess={handleRequestFormSuccess}
           />
