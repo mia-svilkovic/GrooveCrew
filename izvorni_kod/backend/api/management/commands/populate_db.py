@@ -1,17 +1,16 @@
 import os
 import random
+import time
 import uuid
-
+from django.contrib.gis.geos import Point
+from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.utils import lorem_ipsum
-from django.core.files import File
-
-from api.models import (
-    Genre, GoldmineConditionCover, GoldmineConditionRecord,
-    Photo, Record, User, Wishlist
-)
-
+from api.models import *
 from faker import Faker
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+from api.models import Location
 
 
 def get_or_create_genres():
@@ -165,6 +164,59 @@ def get_or_create_cover_conditions():
     return conditions_list
 
 
+def get_or_create_locations():
+    geolocator = Nominatim(user_agent='real_location_populator')
+
+    places = [
+        "Zagreb, Croatia",
+        "New York, USA",
+        "London, UK",
+        "Berlin, Germany",
+        "Paris, France",
+        "Rome, Italy"
+        "Sydney, Australia",
+        "Tokyo, Japan",
+        "Toronto, Canada",
+    ]
+
+    locations = []
+
+    for place in places:
+        city=place.split(',')[0]
+        country=place.split(',')[-1].strip()
+        
+        location = Location.objects.filter(city=city, country=country).first()
+        if location:
+            locations.append(location)
+            continue 
+
+        try:
+            location_data = geolocator.geocode(place, addressdetails=True)
+            if location_data:
+                coordinates = Point(location_data.longitude, location_data.latitude)
+                address = location_data.address
+
+                location = Location.objects.create(
+                    address=address,
+                    city=city,
+                    country=country,
+                    coordinates=coordinates
+                )
+
+                # print(f"Added: {place} ({location.longitude}, {location.latitude})")
+                locations.append(location)
+            else:
+                # print(f"Could not find: {place}")
+                pass
+            
+            time.sleep(1)  # 1 second pause because of OSM request limit
+
+        except (GeocoderTimedOut, GeocoderServiceError) as e:
+            print(f"Error with {place}: {str(e)}")
+
+    return locations
+
+
 def create_users(num_of_users):
     # Create superuser if it doesn't exist in the database
     superuser = User.objects.filter(is_staff=True, is_superuser=True).first()
@@ -206,7 +258,8 @@ def create_records(num_of_records,
                    users,
                    genres,
                    conditions_record,
-                   conditions_cover):
+                   conditions_cover,
+                   locations):
     fake = Faker('en_US')
 
     records_list = []
@@ -220,7 +273,7 @@ def create_records(num_of_records,
                 'album_name': fake.sentence(nb_words=3).rstrip('.'),
                 'release_year': random.randint(1950, 2024),
                 'genre': random.choice(genres),
-                'location': fake.city(),
+                'location': random.choice(locations),
                 'additional_description': lorem_ipsum.paragraph(),
                 'record_condition': random.choice(conditions_record),
                 'cover_condition': random.choice(conditions_cover),
@@ -286,6 +339,8 @@ class Command(BaseCommand):
         conditions_record = get_or_create_record_conditions()
         conditions_cover = get_or_create_cover_conditions()
 
+        locations = get_or_create_locations()
+
         num_of_users = 10
         users = create_users(num_of_users)
 
@@ -295,7 +350,8 @@ class Command(BaseCommand):
             users=users,
             genres=genres,
             conditions_record=conditions_record,
-            conditions_cover=conditions_cover)
+            conditions_cover=conditions_cover,
+            locations=locations)
 
         create_photos(records)
         create_wishlists(users)

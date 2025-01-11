@@ -299,17 +299,16 @@ class RecordDeleteView(generics.DestroyAPIView):
         instance.delete()
 
 
-# TODO: UNCOMMENT THIS WHEN FRONTEND IS READY FOR OSM
-# class LocationListView(generics.ListCreateAPIView):
-#     queryset = Location.objects.all()
-#     serializer_class = LocationSerializer
-#     permission_classes = [permissions.IsAuthenticated]
+class LocationListView(generics.ListCreateAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
-# class LocationDetailView(generics.RetrieveAPIView):
-#     queryset = Location.objects.all()
-#     serializer_class = LocationSerializer
-#     permission_classes = [permissions.IsAuthenticated]
+class LocationDetailView(generics.RetrieveAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class UserRecordListView(generics.ListAPIView):

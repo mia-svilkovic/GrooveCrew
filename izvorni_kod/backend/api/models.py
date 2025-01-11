@@ -2,8 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models, transaction
 from django.db.models.functions import Lower
 from django.utils import timezone
-# TODO: UNCOMMENT THIS WHEN FRONTEND IS READY FOR OSM
-# from django.contrib.gis.db.models import PointField
+from django.contrib.gis.db.models import PointField
 
 class User(AbstractUser):
     email = models.EmailField(
@@ -62,16 +61,12 @@ class Record(models.Model):
         related_name='records'
     )
 
-    # TODO: DELETE THIS WHEN FRONTEND IS READY FOR OSM
-    location = models.CharField(max_length=255, blank=True)
-
-    # TODO: UNCOMMENT THIS WHEN FRONTEND IS READY FOR OSM
-    # location = models.ForeignKey(
-    #     'Location',
-    #     on_delete=models.SET_NULL,
-    #     null=True,
-    #     related_name='records'
-    # )
+    location = models.ForeignKey(
+        'Location',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='records'
+    )
 
     additional_description = models.TextField(blank=True)
 
@@ -203,15 +198,14 @@ class Photo(models.Model):
         return f'Photo #{self.pk} for {self.record.artist} - {self.record.album_name}'
 
 
-# Uncomment when frontend is ready for OSM
-# class Location(models.Model):
-#     address = models.CharField(max_length=255, blank=True)
-#     city = models.CharField(max_length=100, blank=True)
-#     country = models.CharField(max_length=100, blank=True)
-#     coordinates = PointField(geography=True, srid=4326)  # Geo coordinates
+class Location(models.Model):
+    address = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100, blank=True)
+    coordinates = PointField(geography=True, srid=4326)  # Geo coordinates
 
-#     def __str__(self):
-#         return self.address if self.address else f"{self.city}, {self.country}"
+    def __str__(self):
+        return self.address if self.address else f"{self.city}, {self.country}"
 
 
 class Wishlist(models.Model):

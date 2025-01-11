@@ -24,9 +24,8 @@ urlpatterns = [
    path('goldmine-conditions-record/', GoldmineConditionRecordListView.as_view(), name='goldmine-conditions-record'),
    path('goldmine-conditions-cover/', GoldmineConditionCoverListView.as_view(), name='goldmine-conditions-cover'),
 
-   # TODO: UNCOMMENT THIS WHEN FRONTEND IS READY FOR OSM
-   # path('locations/', LocationListView.as_view(), name='location-list'),
-   # path('locations/<int:id>/', LocationDetailView.as_view(), name='location-detail'),
+   path('locations/', LocationListView.as_view(), name='location-list'),
+   path('locations/<int:id>/', LocationDetailView.as_view(), name='location-detail'),
 
    path('wishlist/', WishlistListView.as_view(), name='wishlist-list'),
    path('wishlist/add/', WishlistCreateView.as_view(), name='wishlist-add'),
