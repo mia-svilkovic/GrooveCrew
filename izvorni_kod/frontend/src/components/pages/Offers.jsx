@@ -65,7 +65,7 @@ function Offers() {
     setModifiedExchanges(prev => ({
       ...prev,
       [selectedExchangeId]: {
-        ...exchange,
+        ...currentModifiedExchange,
         records_requested_by_receiver: updatedRequestedRecords
       }
     }));
@@ -108,18 +108,15 @@ function Offers() {
   };
 
   const handleRemoveRecord = (exchangeId, recordId) => {
+    
     const exchange = exchanges.find(e => e.id === exchangeId);
+    console.log(exchange) ;
     const currentModifiedExchange = modifiedExchanges[exchangeId] || exchange;
-    
+    console.log(currentModifiedExchange) ;
     const updatedRecords = currentModifiedExchange.offered_records.filter(
-      record => record.record.id !== recordId && record.id !== recordId
+      record => record.record.id !== recordId
     );
-  
-    if (updatedRecords.length === 0 && exchange.initiator_user.id === user.id) {
-      setErrorMessage("At least one record must remain offered");
-      return;
-    }
-    
+    console.log(updatedRecords) ;
     setModifiedExchanges(prev => ({
       ...prev,
       [exchangeId]: {
@@ -135,14 +132,12 @@ function Offers() {
     
     const recordToAdd = currentModifiedExchange.records_requested_by_receiver
       .find(r => r.id === recordId || r.record.id === recordId);
-
     if (!recordToAdd) return;
 
     const updatedOfferedRecords = [
       ...currentModifiedExchange.offered_records,
       recordToAdd
     ];
-
     const updatedExchange = {
       ...currentModifiedExchange,
       records_requested_by_receiver: currentModifiedExchange.records_requested_by_receiver
@@ -184,19 +179,14 @@ function Offers() {
       setErrorMessage("Please request at least one record");
       return false;
     }
-    if (exchange.initiator_user.id === user.id) {
-      if (modifiedExchange.offered_records.length === 0) {
-        setErrorMessage("At least one record must be offered");
-        return false;
-      }
-    }
-    return true;
+    
   };
 
   const handleSubmitReview = async (exchangeId) => {
+    console.log("submiting...") ;
     const exchange = exchanges.find(e => e.id === exchangeId);
     const modifiedExchange = modifiedExchanges[exchangeId] || exchange;
-    if (!validateExchange(exchange, modifiedExchange)) return;
+    //if (!validateExchange(exchange, modifiedExchange)) return;
     try {
       const updateResponse = await authFetch(`${URL}/api/exchanges/${exchangeId}/update/`, {
         method: "PUT",
@@ -216,9 +206,7 @@ function Offers() {
       const switchResponse = await authFetch(`${URL}/api/exchanges/${exchangeId}/switch-reviewer/`, {
         method: "POST"
       });
-
       if (!switchResponse.ok) throw new Error("Failed to switch reviewer");
-
       setSuccessMessage("Review submitted successfully");
       handleReset(exchangeId);
       fetchExchanges();
@@ -250,7 +238,7 @@ function Offers() {
                 userId={user.id}
                 onUserClick={(userId) => navigate(`/user/${userId}`)}
                 onVinylClick={handleVinylClick}
-                onRemoveRecord={(recordId) => handleRemoveRecord(recordId, exchange.id)}
+                onRemoveRecord={(exchangeId, recordId) => handleRemoveRecord(exchange.id, recordId)}
                 onAcceptRequest={(recordId) => handleAddToOffered(exchange.id, recordId)}
                 onRejectRequest={(recordId) => handleRejectRequested(exchange.id, recordId)}
                 onSubmitReview={() => handleSubmitReview(exchange.id)}
@@ -266,7 +254,7 @@ function Offers() {
       {showRequestForm && (
         <div className="modal-overlay">
           <RequestRecordForm
-            exchangeId={selectedExchangeId}
+            exchange={modifiedExchanges[selectedExchangeId]}
             initiatorId={exchanges.find(e => e.id === selectedExchangeId).initiator_user.id}
             onClose={() => setShowRequestForm(false)}
             onSuccess={handleRequestFormSuccess}

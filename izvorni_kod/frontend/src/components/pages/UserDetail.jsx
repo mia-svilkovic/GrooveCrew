@@ -27,13 +27,10 @@ function UserDetail() {
           method: "GET",
           credentials: "include",
         });
-
         if (!response.ok) {
           throw new Error("Failed to fetch vinyls");
         }
-
         const data = await response.json();
-
         setVinyls(data);
         setLoading(false);
       } catch (error) {
@@ -42,7 +39,6 @@ function UserDetail() {
         setLoading(false);
       }
     };
-
     fetchVinyls();
   }, []);
 

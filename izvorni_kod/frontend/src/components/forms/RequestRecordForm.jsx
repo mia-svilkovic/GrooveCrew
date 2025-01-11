@@ -5,7 +5,7 @@ import './Form.css';
 
 const URL = import.meta.env.VITE_API_URL;
 
-function RequestRecordForm({ exchangeId, initiatorId, onClose, onSuccess, offeredRecords }) {
+function RequestRecordForm({ exchange, onClose, onSuccess}) {
     const navigate = useNavigate();
     const [userVinyls, setUserVinyls] = useState([]);
     const [selectedVinylsForRequest, setSelectedVinylsForRequest] = useState([]);
@@ -15,6 +15,8 @@ function RequestRecordForm({ exchangeId, initiatorId, onClose, onSuccess, offere
     const [errorMessage, setErrorMessage] = useState("");
 
     const { authFetch } = useAuthRefresh();
+    console.log(exchange) ;
+    const initiatorId = exchange.initiator_user.id ;
 
     useEffect(() => {
         if (successMessage) {
@@ -65,9 +67,11 @@ function RequestRecordForm({ exchangeId, initiatorId, onClose, onSuccess, offere
             return [...prev, vinylId];
         });
     };
-    const isVinylOffered = (vinylId) => {
-        return offeredRecords.some(record => record.id === vinylId) &&
-        selectedVinylsForRequest.some(record => record.id === vinylId);
+    const isVinylRequested = (vinylId) => {
+        console.log(vinylId) ;
+        console.log(exchange.records_requested_by_receiver) ;
+        console.log(selectedVinylsForRequest) ;
+        return exchange.records_requested_by_receiver.some(record => record.record.id === vinylId);
     };
 
     const handleSubmit = (e) => {
@@ -110,6 +114,16 @@ function RequestRecordForm({ exchangeId, initiatorId, onClose, onSuccess, offere
                     <div className="check-options">
                         {userVinyls.map(vinyl => (
                             vinyl.available_for_exchange ? (
+                                isVinylRequested(vinyl.id) ? (
+                                    <label key={vinyl.id} className="check-option">
+                                    <div className="select-text">
+                                        <span onClick={() => handleVinylClick(vinyl.id)}>
+                                            {vinyl.album_name} ({vinyl.catalog_number})
+                                        </span>
+                                        <span className="note">[already requested]</span>
+                                    </div>
+                                </label>
+                                ):(
                                 <label key={vinyl.id} className="check-option">
                                     <input
                                         type="checkbox"
@@ -122,7 +136,8 @@ function RequestRecordForm({ exchangeId, initiatorId, onClose, onSuccess, offere
                                         </p>
                                     </div>
                                 </label>
-                            ) : (
+                                )
+                            ):(
                                 <div key={vinyl.id} className="check-option">
                                     <div className="select-text">
                                         <span onClick={() => handleVinylClick(vinyl.id)}>

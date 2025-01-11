@@ -40,6 +40,7 @@ export const ExchangeItem = ({
         onVinylClick={onVinylClick}
         onRemoveRecord={onRemoveRecord}
         showRemoveButton={isCurrentReviewer}
+        exchange={exchange}
       />
       
       <AdditionalRequestedSection
