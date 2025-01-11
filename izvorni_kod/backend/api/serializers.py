@@ -1,6 +1,7 @@
 import time
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.gis.geos import Point
 from django.db import transaction
 from rest_framework import serializers
 from .models import *
@@ -126,7 +127,6 @@ class PhotoSerializer(serializers.ModelSerializer):
         fields = ('id', 'image', 'record')
         read_only_fields = ('id',)
 
-    
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -148,9 +148,14 @@ class LocationSerializer(serializers.ModelSerializer):
             time.sleep(1)   # Pause for 1 second between requests to comply with OpenStreetMap API limits
 
             geolocator = Nominatim(user_agent="location_serializer")
-            location = geolocator.reverse((coordinates.y, coordinates.x), exactly_one=True)
+            location = geolocator.reverse((coordinates['latitude'], coordinates['longitude']), exactly_one=True)
             address_data = location.raw['address'] if location else {}
 
+            validated_data['coordinates'] = Point(
+                    coordinates['longitude'], 
+                    coordinates['latitude'], 
+                    srid=4326
+                )
             validated_data['address'] = location.address if location else 'Unknown Address'
             validated_data['city'] = address_data.get('city', 'Unknown City')
             validated_data['country'] = address_data.get('country', 'Unknown Country')
@@ -249,15 +254,21 @@ class RecordSerializer(serializers.ModelSerializer):
 
         try:
             # Create or fetch the location
-            if location_data and location_data.get('coordinates'):
+            if location_data:
+                print(location_data)
                 location_serializer = LocationSerializer(data=location_data)
                 location_serializer.is_valid(raise_exception=True)
                 location = location_serializer.save()
                 validated_data['location'] = location
+        except Exception as e:
+            raise serializers.ValidationError({
+                'error': f"Invalid location data: {str(e)}"
+            })
 
-            # Create the record
-            record = Record.objects.create(**validated_data)
+        # Create the record
+        record = Record.objects.create(**validated_data)
 
+        try:
             # Validate and create associated photos
             Photo.objects.bulk_create([
                 Photo(record=record, image=photo)
