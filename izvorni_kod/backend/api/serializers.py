@@ -7,6 +7,7 @@ from rest_framework import serializers
 from .models import *
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+import json
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -199,7 +200,8 @@ class RecordSerializer(serializers.ModelSerializer):
         write_only=True
     )
 
-    location = LocationSerializer()
+    location = LocationSerializer(read_only=True)
+    location_add = serializers.JSONField(write_only=True)
 
     class Meta:
         model = Record
@@ -212,6 +214,7 @@ class RecordSerializer(serializers.ModelSerializer):
             'genre',
             'genre_id', # For creating via ID 
             'location', 
+            'location_add',
             'available_for_exchange',
             'additional_description', 
             'record_condition',
@@ -228,7 +231,8 @@ class RecordSerializer(serializers.ModelSerializer):
             'genre',
             'record_condition',
             'cover_condition',
-            'photos'
+            'photos',
+            'location'
         )
 
     def validate(self, data):
@@ -244,18 +248,16 @@ class RecordSerializer(serializers.ModelSerializer):
         """
         Create a record and handle associated photos.
         """
-
         # Ensure the user is set before creating the object.
         validated_data['user'] = self.context.get('user')
 
         # Extract photos from validated data
         photos = validated_data.pop('add_photos', [])
-        location_data = validated_data.pop('location', None)
+        location_data = validated_data.pop('location_add', None)
 
         try:
             # Create or fetch the location
             if location_data:
-                print(location_data)
                 location_serializer = LocationSerializer(data=location_data)
                 location_serializer.is_valid(raise_exception=True)
                 location = location_serializer.save()
