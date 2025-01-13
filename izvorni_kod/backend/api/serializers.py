@@ -288,7 +288,7 @@ class RecordSerializer(serializers.ModelSerializer):
         """
         Update a record, including location and photos.
         """
-        location_data = validated_data.pop('location', None)
+        location_data = validated_data.pop('location_add', None)
         photos = validated_data.pop('add_photos', [])
 
         for attr, value in validated_data.items():
