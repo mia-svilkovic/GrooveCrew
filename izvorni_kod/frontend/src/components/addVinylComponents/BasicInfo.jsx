@@ -15,7 +15,7 @@ const BasicInfo = ({ formData, onChange }) => {
         type="text"
         name="artist"
         placeholder="Artist"
-        
+        value={formData.artist}
         onChange={(e) => onChange(e.target.name, e.target.value)}
         required
       />
@@ -23,7 +23,7 @@ const BasicInfo = ({ formData, onChange }) => {
         type="text"
         name="albumName"
         placeholder="Album Name"
-        value={formData.album_name}
+        value={formData.albumName}
         onChange={(e) => onChange(e.target.name, e.target.value)}
         required
       />

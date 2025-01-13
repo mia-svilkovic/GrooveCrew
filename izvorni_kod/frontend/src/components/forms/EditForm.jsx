@@ -12,17 +12,28 @@ import Description from '../addVinylComponents/Description';
 const URL = import.meta.env.VITE_API_URL;
 
 function EditForm({ vinyl, onClose, onUpdate }) {
+
+  let coordinates = { lat: 0, lng: 0 } ;
+  if (vinyl.location?.coordinates) {
+    const match = vinyl.location.coordinates.match(/POINT \(([^)]+)\)/);
+    if (match) {
+      const [longitude, latitude] = match[1].split(" ").map(Number);
+      coordinates = { lat:latitude, lng:longitude };
+    }
+  }
+
+  console.log(coordinates) ;
   
-  const [formData, setFormData] = useState({
-    catalog_number: vinyl.catalog_number,
+  const [formState, setFormState] = useState({
+    catalogNumber: vinyl.catalog_number,
     artist: vinyl.artist,
-    album_name: vinyl.album_name,
-    release_year: vinyl.release_year,
-    genre_id: vinyl.genre.id,
-    location: JSON.stringify(vinyl.location),
-    additional_description: vinyl.additional_description,
-    record_condition_id: vinyl.record_condition.id,
-    cover_condition_id: vinyl.cover_condition.id,
+    albumName: vinyl.album_name,
+    releaseYear: vinyl.release_year,
+    genre: vinyl.genre.id,
+    location: coordinates,
+    additionalDescription: vinyl.additional_description,
+    recordCondition: vinyl.record_condition.id,
+    coverCondition: vinyl.cover_condition.id,
   });
 
   const [addPhotos, setAddPhotos] = useState([]);
@@ -89,13 +100,7 @@ function EditForm({ vinyl, onClose, onUpdate }) {
     fetchData();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+
 
   const handleImagesChange = (event) => {
     const files = Array.from(event.target.files);
@@ -113,20 +118,35 @@ function EditForm({ vinyl, onClose, onUpdate }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const submitData = new FormData();
-    Object.keys(formData).forEach((key) => {
-      submitData.append(key, formData[key]);
-    });
-
+    const formData = new FormData();
+    const locationData = {
+        coordinates: {
+          "latitude": formState.location.lat,
+          "longitude": formState.location.lng
+        }
+    };
+    console.log("Location data:", JSON.stringify(locationData));
+    console.log("Form state location:", formState.location);
+    
+    
     addPhotos.forEach((photo, index) => {
-      submitData.append(`add_photos[${index}]`, photo);
+      formData.append(`add_photos[${index}]`, photo);
     });
+    formData.append("catalog_number", formState.catalogNumber);
+    formData.append("artist", formState.artist);
+    formData.append("album_name", formState.albumName);
+    formData.append("release_year", formState.releaseYear);
+    formData.append("genre_id", formState.genre);
+    formData.append("location_add", JSON.stringify(locationData));
+    formData.append("additional_description", formState.additionalDescription);
+    formData.append("record_condition_id", formState.recordCondition);
+    formData.append("cover_condition_id", formState.coverCondition);
 
+    console.log("Location being sent:", formData.get("location"));
     try {
       const response = await authFetch(`${URL}/api/records/${vinyl.id}/update/`, {
         method: "PUT",
-        body: submitData,
+        body: formData,
       });
 
       if (response.ok) {
@@ -155,40 +175,50 @@ function EditForm({ vinyl, onClose, onUpdate }) {
     };
   }, [photoPreviews]);
 
+  const handleFormChange = (field, value) => {
+    setFormState(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   return (
     <div className="form-container">
-      <h2>Edit Vinyl</h2>
+      <h2>UPDATE VINYL</h2>
       <form onSubmit={handleSubmit}>
-        <BasicInfo formData={formData} onChange={handleChange} />
+        <BasicInfo 
+          formData={formState} 
+          onChange={handleFormChange}
+        />
         
         <GenreSelect
           genres={genres}
-          selectedGenre={formData.genre_id}
-          onChange={handleChange}
+          selectedGenre={formState.genre}
+          onChange={(value) => handleFormChange('genre', value)}
         />
         
         <LocationPicker
-          location={formData.location}
-          onLocationChange={handleChange}
+          location={formState.location}
+          onLocationChange={(value) => handleFormChange('location', value)}
         />
         
         <ConditionSelect
           conditions={recordConditions}
           type="Record"
-          value={formData.record_condition_id}
-          onChange={handleChange}
+          value={formState.recordCondition}
+          onChange={(value) => handleFormChange('recordCondition', value)}
         />
         
         <ConditionSelect
           conditions={coverConditions}
           type="Cover"
-          value={formData.cover_condition_id}
-          onChange={handleChange}
+          value={formState.coverCondition}
+          onChange={(value) => handleFormChange('coverCondition', value)}
         />
         
         <Description
-          value={formData.additional_description}
-          onChange={handleChange}
+          value={formState.additionalDescription}
+          onChange={(value) => handleFormChange('additionalDescription', value)}
         />
         
         <PhotoUpload
@@ -197,14 +227,14 @@ function EditForm({ vinyl, onClose, onUpdate }) {
           onRemovePhoto={handleRemovePhoto}
         />
 
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-        {successMessage && <p className="success-message">{successMessage}</p>}
-
         <button type="submit">Update Vinyl</button>
-        <button type="button" onClick={onClose}>
-          Cancel
+        <button className="close-button" onClick={onClose}>
+          Close
         </button>
       </form>
+      
+      {successMessage && <p className="success-message">{successMessage}</p>}
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
     </div>
   );
 }
