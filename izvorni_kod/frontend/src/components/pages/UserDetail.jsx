@@ -19,7 +19,6 @@ function UserDetail() {
     navigate(`/vinyl/${vinylId}`);
   };
 
-  // Fetch all vinyls when the component mounts
   useEffect(() => {
     const fetchVinyls = async () => {
       try {
@@ -82,7 +81,6 @@ function UserDetail() {
                         >
                         <h3>{vinyl.album_name}</h3>
                         <p>Artist: {vinyl.artist}</p>
-                        <p>Location: {vinyl.location}</p>
                         <p>
                             Available for Exchange:{" "}
                             {vinyl.available_for_exchange ? "Yes" : "No"}

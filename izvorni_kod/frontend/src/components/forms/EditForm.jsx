@@ -142,7 +142,7 @@ function EditForm({ vinyl, onClose, onUpdate }) {
     formData.append("record_condition_id", formState.recordCondition);
     formData.append("cover_condition_id", formState.coverCondition);
 
-    console.log("Location being sent:", formData.get("location"));
+    console.log("Location being sent:", formData.get("location_add"));
     try {
       const response = await authFetch(`${URL}/api/records/${vinyl.id}/update/`, {
         method: "PUT",
@@ -180,6 +180,7 @@ function EditForm({ vinyl, onClose, onUpdate }) {
       ...prev,
       [field]: value
     }));
+    console.log(formState) ;
   };
 
   return (
