@@ -70,15 +70,15 @@ function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres
   const handleAddRecord = async (event) => {
     event.preventDefault();
     const formData = new FormData();
-    //   const locationData = {
-    //     coordinates: {
-    //       type: "Point",
-    //       coordinates: [formState.location.lng, formState.location.lat]
-    //     }
-    //   };
-    // console.log("Location data:", JSON.stringify(locationData));
-    // console.log("Form state location:", formState.location);
-    // formData.append("location", JSON.stringify(locationData));
+    const locationData = {
+        coordinates: {
+          "latitude": formState.location.lat,
+          "longitude": formState.location.lng
+        }
+    };
+    console.log("Location data:", JSON.stringify(locationData));
+    console.log("Form state location:", formState.location);
+    
     
     formState.addPhotos.forEach((photo, index) => {
       formData.append(`add_photos[${index}]`, photo);
@@ -88,7 +88,7 @@ function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres
     formData.append("album_name", formState.albumName);
     formData.append("release_year", formState.releaseYear);
     formData.append("genre_id", formState.genre);
-    formData.append("location", JSON.stringify(formState.location));
+    formData.append("location_add", JSON.stringify(locationData));
     formData.append("additional_description", formState.additionalDescription);
     formData.append("record_condition_id", formState.recordCondition);
     formData.append("cover_condition_id", formState.coverCondition);
