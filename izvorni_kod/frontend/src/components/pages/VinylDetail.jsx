@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
 import exchange from "../../assets/images/exchange.png";
+import ExchangeForm from "../forms/ExchangeForm";
 import "./VinylDetail.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -17,6 +18,7 @@ function VinylDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
+  const [showExchangeForm, setShowExchangeForm] = useState(false);
 
   useEffect(() => {
     const fetchVinylDetails = async () => {
@@ -31,7 +33,7 @@ function VinylDetail() {
 
         const data = await response.json();
         setVinyl(data);
-        console.log(vinyl) ;
+        console.log(vinyl);
         
         if (data.photos && data.photos.length > 0) {
           setSelectedPhoto(data.photos[0].image);
@@ -70,6 +72,11 @@ function VinylDetail() {
 
   const handleUserClick = (userId) => {
     navigate(`/user/${userId}`);
+  };
+
+  const handleExchangeClick = (e) => {
+    e.preventDefault();
+    setShowExchangeForm(true);
   };
 
   return (
@@ -198,7 +205,7 @@ function VinylDetail() {
           <div className="exchange-section">
             <div className="exchange-badge">Available for Exchange</div>
             {user && user.username !== vinyl.user?.username && (
-              <button className="vinyl-opt">
+              <button className="vinyl-opt" onClick={handleExchangeClick}>
                 <p>Offer exchange</p>
                 <img src={exchange} alt="Request Exchange" />
               </button>
@@ -206,6 +213,15 @@ function VinylDetail() {
           </div>
         )}
       </div>
+
+      {showExchangeForm && (
+        <div className="modal-overlay">
+          <ExchangeForm
+            selectedVinylId={id}
+            onClose={() => setShowExchangeForm(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }
