@@ -8,7 +8,7 @@ import './Offers.css';
 
 const URL = import.meta.env.VITE_API_URL;
 
-function Offers() {
+function Offers({ onNeedRefresh }) {
   const [exchanges, setExchanges] = useState([]);
   const [modifiedExchanges, setModifiedExchanges] = useState({});
   const [loading, setLoading] = useState(true);
@@ -37,7 +37,6 @@ function Offers() {
       if (!response.ok) throw new Error("Failed to fetch exchanges");
       const data = await response.json();
       setExchanges(data);
-      //setModifiedExchanges(data) ;
       setLoading(false);
     } catch (error) {
       setErrorMessage("Failed to load exchanges");
@@ -74,19 +73,62 @@ function Offers() {
     setShowRequestForm(false);
   };
 
-  const handleFinalize = async (exchangeId) => {
+  const handleUpdateExchange = async (exchangeId) => {
+    const exchange = exchanges.find(e => e.id === exchangeId);
+    const modifiedExchange = modifiedExchanges[exchangeId] || exchange;
+
+    if (!validateExchange(exchange, modifiedExchange)) return false;
+
     try {
-      const response = await authFetch(`${URL}/api/exchanges/${exchangeId}/finalize/`, {
-        method: "POST",
+      const updateResponse = await authFetch(`${URL}/api/exchanges/${exchangeId}/update/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          offered_records: modifiedExchange.offered_records.map(record => ({
+            record_id: record.record.id
+          })),
+          records_requested_by_receiver: modifiedExchange.records_requested_by_receiver.map(record => ({
+            record_id: record.record.id
+          }))
+        })
       });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to finalize exchange");
+
+      if (!updateResponse.ok) {
+        const error = await updateResponse.json();
+        throw new Error(error.message || "Failed to update exchange");
+        //onNeedRefresh() ;
       }
-      setSuccessMessage("Exchange finalized successfully!");
-      fetchExchanges();
+
+      return true;
     } catch (error) {
       setErrorMessage(error.message);
+      return false;
+    }
+  };
+
+  const handleFinalize = async (exchangeId) => {
+    try {
+      setLoading(true);
+      
+      const updateSuccess = await handleUpdateExchange(exchangeId);
+      if (!updateSuccess) return;
+
+      // Then finalize
+      const finalizeResponse = await authFetch(`${URL}/api/exchanges/${exchangeId}/finalize/`, {
+        method: "POST",
+      });
+      
+      if (!finalizeResponse.ok) {
+        const error = await finalizeResponse.json();
+        throw new Error(error.message || "Failed to finalize exchange");
+      }
+
+      setSuccessMessage("Exchange finalized successfully!");
+      onNeedRefresh();
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -102,22 +144,19 @@ function Offers() {
       }
 
       setSuccessMessage("Exchange cancelled successfully!");
-      fetchExchanges();
+      onNeedRefresh();
     } catch (error) {
       setErrorMessage(error.message);
     }
   };
 
   const handleRemoveRecord = (exchangeId, recordId) => {
-    
     const exchange = exchanges.find(e => e.id === exchangeId);
-    console.log(exchange) ;
     const currentModifiedExchange = modifiedExchanges[exchangeId] || exchange;
-    console.log(currentModifiedExchange) ;
     const updatedRecords = currentModifiedExchange.offered_records.filter(
       record => record.record.id !== recordId
     );
-    console.log(updatedRecords) ;
+    
     setModifiedExchanges(prev => ({
       ...prev,
       [exchangeId]: {
@@ -182,42 +221,34 @@ function Offers() {
     }
     if (exchange.initiator_user.id === user.id && 
       (modifiedExchange.records_requested_by_receiver?.length)) {
-    setErrorMessage("Please accept or rejext all requested records");
-    return false;
+      setErrorMessage("Please accept or reject all requested records");
+      return false;
     }    
-    return true ;
+    return true;
   };
 
   const handleSubmitReview = async (exchangeId) => {
-    console.log("submiting...") ;
-    const exchange = exchanges.find(e => e.id === exchangeId);
-    const modifiedExchange = modifiedExchanges[exchangeId] || exchange;
-    if (!validateExchange(exchange, modifiedExchange)) return;
     try {
-      const updateResponse = await authFetch(`${URL}/api/exchanges/${exchangeId}/update/`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          offered_records: modifiedExchange.offered_records.map(record => ({
-            record_id: record.record.id
-          })),
-          records_requested_by_receiver: modifiedExchange.records_requested_by_receiver.map(record => ({
-            record_id: record.record.id
-          }))
-        })
-      });
-
-      if (!updateResponse.ok) throw new Error("Failed to update exchange");
+      setLoading(true);
+      
+      const updateSuccess = await handleUpdateExchange(exchangeId);
+      if (!updateSuccess) onNeedRefresh();
 
       const switchResponse = await authFetch(`${URL}/api/exchanges/${exchangeId}/switch-reviewer/`, {
         method: "POST"
       });
-      if (!switchResponse.ok) throw new Error("Failed to switch reviewer");
+      
+      if (!switchResponse.ok) {
+        const error = await switchResponse.json();
+        throw new Error(error.message || "Failed to switch reviewer");
+      }
+
       setSuccessMessage("Review submitted successfully");
-      handleReset(exchangeId);
-      fetchExchanges();
+      onNeedRefresh();
     } catch (error) {
       setErrorMessage(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 

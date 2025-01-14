@@ -100,16 +100,16 @@ function ExchangeForm({ selectedVinylId, onClose }) {
                   }))
                 }),
             });
+            const data = await response.json();
             if (!response.ok) {
-                setErrorMessage('Failed to submit exchange request');
-                throw new Error('Failed to submit exchange request');
-                
+                setErrorMessage(data.message || 'An error occurred');
+                throw new Error(data.message || 'Failed to submit exchange request'); 
             }
             setSuccessMessage('Exchange request submitted successfully!');
             onClose();
         } catch (error) {
             console.error('Error submitting exchange:', error);
-            setErrorMessage(error);
+            //setErrorMessage(error.message);
         }
         
     };

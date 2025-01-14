@@ -54,7 +54,7 @@ function AllVinyls({ filteredVinyls }) {
                                 </p>
                             </div>
                             <div>
-                            {vinyl.available_for_exchange && (
+                            {vinyl.available_for_exchange && (!user || vinyl.user.id !== user.id) &&(
                                 <button
                                     onClick={(e) => handleExchangeClick(e, vinyl.id, vinyl.user.id)}
                                     className="vinyl-opt">

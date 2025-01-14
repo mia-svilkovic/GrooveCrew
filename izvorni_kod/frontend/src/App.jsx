@@ -5,7 +5,7 @@ import MyVinyls from "./components/pages/my-vinyls";
 import Wishlist from "./components/pages/Wishlist";
 import VinylDetail from "./components/pages/VinylDetail";
 import UserDetail from "./components/pages/UserDetail";
-import Offers from "./components/pages/Offers";
+import OffersWrapper from "./components/OfferComponents/OffersWrapper";
 import History from "./components/pages/History"
 
 
@@ -59,7 +59,7 @@ function App() {
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/vinyl/:id" element={<VinylDetail />} />
               <Route path="/user/:id" element={<UserDetail />}/>
-              <Route path="/Offers/" element={<Offers />}/>
+              <Route path="/Offers/" element={<OffersWrapper />}/>
               <Route path="/history/" element={<History />}/>
             </Routes>
           </main>
