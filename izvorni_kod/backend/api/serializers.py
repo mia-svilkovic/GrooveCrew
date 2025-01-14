@@ -608,6 +608,11 @@ class ExchangeUpdateSerializer(serializers.ModelSerializer):
             for record_data in offered_records
         ])
 
+        offered_records_ids = instance.offered_records.values_list('record_id', flat = True)
+        ExchangeRecordRequestedByReceiver.objects.filter(
+            record_id__in=offered_records_ids
+        ).delete()
+
         ExchangeRecordRequestedByReceiver.objects.filter(exchange=instance).delete()
         ExchangeRecordRequestedByReceiver.objects.bulk_create([
             ExchangeRecordRequestedByReceiver(exchange=instance, **record_data)
