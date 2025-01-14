@@ -24,6 +24,7 @@ export const ExchangeItem = ({
   const isCurrentReviewer = exchange.next_user_to_review.id === userId;
   const isReceiver = exchange.receiver_user.id === userId;
   const isInitiator = exchange.initiator_user.id === userId;
+  const hasRequestedRecords = currentExchange.records_requested_by_receiver?.length > 0;
 
   return (
     <div className="exchange-container">
@@ -59,6 +60,7 @@ export const ExchangeItem = ({
         onOpenRequestForm={onOpenRequestForm}
         onFinalize={onFinalize}
         onCancel={onCancel}
+        hasRequestedRecords={hasRequestedRecords}
       />
     </div>
   );

@@ -7,19 +7,15 @@ export const ExchangeActions = ({
   onReset,
   onOpenRequestForm,
   onFinalize,
-  onCancel
+  onCancel,
+  hasRequestedRecords
 }) => {
   return (
     <div className="exchange-actions">
-      {isCurrentReviewer && (
-        <>
-          <button className="review-button" onClick={onSubmitReview}>
-            Submit Review
-          </button>
-          <button className="reset-button" onClick={onReset}>
-            Reset Changes
-          </button>
-        </>
+      {isCurrentReviewer && !isReceiver && !hasRequestedRecords && (
+        <button className="review-button" onClick={onSubmitReview}>
+          Submit Review
+        </button>
       )}
 
       {isCurrentReviewer && isReceiver && (
@@ -27,9 +23,20 @@ export const ExchangeActions = ({
           <button onClick={onOpenRequestForm}>
             Request Additional Record
           </button>
-          <button className="finalize-button" onClick={onFinalize}>
-            Finalize Exchange
-          </button>
+          {hasRequestedRecords ? (
+            <>
+            <button className="reset-button" onClick={onReset}>
+              Reset Changes
+            </button>
+            <button className="review-button" onClick={onSubmitReview}>
+              Submit Review
+            </button>
+            </>
+          ) : (
+            <button className="finalize-button" onClick={onFinalize}>
+              Finalize Exchange
+            </button>
+          )}
         </>
       )}
 
