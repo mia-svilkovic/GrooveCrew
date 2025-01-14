@@ -42,7 +42,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         Check that the two password fields match.
         """
         if data['password1'] != data['password2']:
-            raise serializers.ValidationError({'error': 'Passwords do not match.'})
+            raise serializers.ValidationError({'message': 'Passwords do not match.'})
         return data
 
     def create(self, validated_data):
@@ -239,7 +239,7 @@ class RecordSerializer(serializers.ModelSerializer):
         user = self.context.get('user')
         if not user:
             raise serializers.ValidationError({
-                'error': "User must be provided when initializing the serializer."
+                'message': "User must be provided when initializing the serializer."
             })
         return data
 
@@ -264,7 +264,7 @@ class RecordSerializer(serializers.ModelSerializer):
                 validated_data['location'] = location
         except Exception as e:
             raise serializers.ValidationError({
-                'error': f"Invalid location data: {str(e)}"
+                'message': f"Invalid location data: {str(e)}"
             })
 
         # Create the record
@@ -278,7 +278,7 @@ class RecordSerializer(serializers.ModelSerializer):
             ])
         except Exception as e:
             raise serializers.ValidationError({
-                'error': f'Failed to create record and associated photos: {str(e)}'
+                'message': f'Failed to create record and associated photos: {str(e)}'
             })
         
         return record
@@ -331,7 +331,7 @@ class WishlistSerializer(serializers.ModelSerializer):
         user = self.context.get('user')
         if not user:
             raise serializers.ValidationError({
-                'error': "User must be provided when initializing the serializer."
+                'message': "User must be provided when initializing the serializer."
             })
         
         if Wishlist.objects.filter(

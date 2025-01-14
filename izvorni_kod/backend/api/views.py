@@ -130,7 +130,7 @@ class GoogleLoginView(APIView):
         id_token_str = request.data.get('id_token')
 
         if not id_token_str:
-            return Response({'error': 'ID token is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'ID token is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             # Verificiraj ID Token koristeći Google javni ključ
@@ -145,7 +145,7 @@ class GoogleLoginView(APIView):
             last_name = id_info.get('family_name')
 
             if not email:
-                return Response({'error': 'Email not found in ID token'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': 'Email not found in ID token'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Dohvati ili kreiraj korisnika
             user, created = User.objects.get_or_create(email=email, defaults={
@@ -175,9 +175,9 @@ class GoogleLoginView(APIView):
             }, status=status.HTTP_200_OK)
 
         except ValueError as e:
-            return Response({'error': 'Invalid ID token', 'details': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Invalid ID token', 'details': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class LogoutView(APIView):
@@ -191,7 +191,7 @@ class LogoutView(APIView):
             refresh_token = request.data.get('refresh')
             if refresh_token is None:
                 return Response(
-                    {'error': 'Refresh token is required for logout.'},
+                    {'message': 'Refresh token is required for logout.'},
                     status=status.HTTP_400_BAD_REQUEST)
 
             token = RefreshToken(refresh_token)
@@ -200,7 +200,7 @@ class LogoutView(APIView):
             return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
         
         except ValidationError as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def custom_admin_logout(request):
