@@ -120,10 +120,10 @@ function Authentication() {
         <>
           {!activeForm && (
             <>
-              <button className="login-button" onClick={openLoginForm}>
+              <button id="login-button" className="login-button" onClick={openLoginForm}>
                 Login
               </button>
-              <button className="register-button" onClick={openRegisterForm}>
+              <button id="register-button" className="register-button" onClick={openRegisterForm}>
                 Register
               </button>
               <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
