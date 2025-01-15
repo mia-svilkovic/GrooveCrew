@@ -15,19 +15,28 @@ function FormLogin({ onClose, showMessage = false }) {
   // Koristi useUser hook za pristup i ažuriranje korisničkog stanja
   const { setUser } = useUser(); // Sada koristi setUser direktno
 
+  const handleSuccessfulLogin = (userData, tokens) => {
+    setSuccessMessage("Login successful!");
+    
+    setTimeout(() => {
+      localStorage.setItem("access", tokens.access);
+      localStorage.setItem("refresh", tokens.refresh);
+      setUser(userData);
+      onClose();
+    }, 2000);
+  };
+  
   useEffect(() => {
-    if (successMessage) {
-      const timer = setTimeout(() => {
-        setSuccessMessage("");
-        onClose();
-      }, 2000); // Poruka nestaje nakon 2 sekundi
-      return () => clearTimeout(timer); // Čisti timer kad se komponenta demontira ili kada se promijeni successMessage
-    }
+    let errorTimer;
     if (errorMessage) {
-      const timer = setTimeout(() => setErrorMessage(""), 5000);
-      return () => clearTimeout(timer); // Čisti timer kad se komponenta demontira ili kada se promijeni errorMessage
+      errorTimer = setTimeout(() => {
+        setErrorMessage("");
+      }, 5000);
     }
-  }, [successMessage, errorMessage]);
+    return () => {
+      if (errorTimer) clearTimeout(errorTimer);
+    };
+  }, [errorMessage]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -53,21 +62,16 @@ function FormLogin({ onClose, showMessage = false }) {
           return;
         }
 
-        // Pohranjivanje tokena ako postoji u odgovoru
-        localStorage.setItem("access", data.tokens.access);
-        localStorage.setItem("refresh", data.tokens.refresh);
-
-        console.log("Login successful:", data);
-        setSuccessMessage("Login successful!");
-
-        // Ažuriranje korisničkog stanja koristeći setUser
-        setUser({
+        const userData = {
           id: data.user.id,
           email: data.user.email,
           username: data.user.username,
           first_name: data.user.first_name,
           last_name: data.user.last_name,
-        });
+        };
+
+        handleSuccessfulLogin(userData, data.tokens);
+
       } else {
         console.log("Login failed");
         setErrorMessage("Invalid credentials. Please try again.");
