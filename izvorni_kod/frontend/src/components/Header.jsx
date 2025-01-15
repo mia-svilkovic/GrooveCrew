@@ -89,7 +89,7 @@ function Header({ filters, searchQuery, onSearchAndFilter, handleFilterReset }) 
           )}
         </div>
 
-        <button className="icon-button" onClick={toggleAuth}>
+        <button id="auth-button" className="icon-button" onClick={toggleAuth}>
           <img src={userIcon} alt="User" />
         </button>
       </header>
