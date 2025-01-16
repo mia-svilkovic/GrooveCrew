@@ -26,10 +26,26 @@ function Offers({ onNeedRefresh }) {
     fetchExchanges();
   }, []);
 
-  useEffect(() => {
-    if (successMessage) setTimeout(() => setSuccessMessage(""), 5000);
-    if (errorMessage) setTimeout(() => setErrorMessage(""), 5000);
-  }, [successMessage, errorMessage]);
+  const showTemporaryMessage = (message, isError = false, shouldRefresh = false) => {
+    if (isError) {
+      setErrorMessage(message);
+      setSuccessMessage('');
+    } else {
+      setSuccessMessage(message);
+      setErrorMessage('');
+    }
+
+    setTimeout(() => {
+      if (isError) {
+        setErrorMessage('');
+      } else {
+        setSuccessMessage('');
+      }
+      if (shouldRefresh) {
+        onNeedRefresh();
+      }
+    }, 2000);
+  };
 
   const fetchExchanges = async () => {
     try {
@@ -39,7 +55,7 @@ function Offers({ onNeedRefresh }) {
       setExchanges(data);
       setLoading(false);
     } catch (error) {
-      setErrorMessage("Failed to load exchanges");
+      showTemporaryMessage("Failed to load exchanges", true);
       setLoading(false);
     }
   };
@@ -69,15 +85,13 @@ function Offers({ onNeedRefresh }) {
         records_requested_by_receiver: updatedRequestedRecords
       }
     }));
-    setSuccessMessage("Records selected successfully!");
+    showTemporaryMessage("Records selected successfully!");
     setShowRequestForm(false);
   };
 
   const handleUpdateExchange = async (exchangeId) => {
     const exchange = exchanges.find(e => e.id === exchangeId);
     const modifiedExchange = modifiedExchanges[exchangeId] || exchange;
-
-    //if (!validateExchange(exchange, modifiedExchange)) return false;
 
     try {
       const updateResponse = await authFetch(`${URL}/api/exchanges/${exchangeId}/update/`, {
@@ -96,12 +110,11 @@ function Offers({ onNeedRefresh }) {
       if (!updateResponse.ok) {
         const error = await updateResponse.json();
         throw new Error(error.message || "Failed to update exchange");
-        //onNeedRefresh() ;
       }
 
       return true;
     } catch (error) {
-      setErrorMessage(error.message);
+      showTemporaryMessage(error.message, true);
       return false;
     }
   };
@@ -122,14 +135,11 @@ function Offers({ onNeedRefresh }) {
         throw new Error(error.message || "Failed to finalize exchange");
       }
 
-      setSuccessMessage("Exchange finalized successfully!");
-      onNeedRefresh();
+      showTemporaryMessage("Exchange finalized successfully!", false, true);
     } catch (error) {
-      setErrorMessage(error.message);
-      onNeedRefresh();
+      showTemporaryMessage(error.message, true, true);
     } finally {
       setLoading(false);
-      onNeedRefresh();
     }
   };
 
@@ -144,10 +154,9 @@ function Offers({ onNeedRefresh }) {
         throw new Error(error.message || "Failed to cancel exchange");
       }
 
-      setSuccessMessage("Exchange cancelled successfully!");
-      onNeedRefresh();
+      showTemporaryMessage("Exchange cancelled successfully!", false, true);
     } catch (error) {
-      setErrorMessage(error.message);
+      showTemporaryMessage(error.message, true, true);
     }
   };
 
@@ -217,12 +226,12 @@ function Offers({ onNeedRefresh }) {
   const validateExchange = (exchange, modifiedExchange) => {
     if (exchange.receiver_user.id === user.id && 
         (!modifiedExchange.records_requested_by_receiver?.length)) {
-      setErrorMessage("Please request at least one record");
+      showTemporaryMessage("Please request at least one record", true);
       return false;
     }
     if (exchange.initiator_user.id === user.id && 
       (modifiedExchange.records_requested_by_receiver?.length)) {
-      setErrorMessage("Please accept or reject all requested records");
+      showTemporaryMessage("Please accept or reject all requested records", true);
       return false;
     }    
     return true;
@@ -237,7 +246,7 @@ function Offers({ onNeedRefresh }) {
       if (!validateExchange(exchange, modifiedExchange)) return false;
 
       const updateSuccess = await handleUpdateExchange(exchangeId);
-      if (!updateSuccess) onNeedRefresh();
+      if (!updateSuccess) return;
 
       const switchResponse = await authFetch(`${URL}/api/exchanges/${exchangeId}/switch-reviewer/`, {
         method: "POST"
@@ -248,10 +257,9 @@ function Offers({ onNeedRefresh }) {
         throw new Error(error.message || "Failed to switch reviewer");
       }
 
-      setSuccessMessage("Review submitted successfully");
-      onNeedRefresh();
+      showTemporaryMessage("Review submitted successfully", false, true);
     } catch (error) {
-      setErrorMessage(error.message);
+      showTemporaryMessage(error.message, true, true);
     } finally {
       setLoading(false);
     }
@@ -280,7 +288,7 @@ function Offers({ onNeedRefresh }) {
                 userId={user.id}
                 onUserClick={(userId) => navigate(`/user/${userId}`)}
                 onVinylClick={handleVinylClick}
-                onRemoveRecord={(exchangeId, recordId) => handleRemoveRecord(exchange.id, recordId)}
+                onRemoveRecord={(recordId) => handleRemoveRecord(exchange.id, recordId)}
                 onAcceptRequest={(recordId) => handleAddToOffered(exchange.id, recordId)}
                 onRejectRequest={(recordId) => handleRejectRequested(exchange.id, recordId)}
                 onSubmitReview={() => handleSubmitReview(exchange.id)}
