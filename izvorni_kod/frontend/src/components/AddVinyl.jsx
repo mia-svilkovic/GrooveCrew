@@ -69,6 +69,7 @@ export default function AddVinyl({ onAddItem }) {
   return (
     <div className="add-container">
       <img
+        id="open-add-button"
         className="add-button"
         src={AddButton}
         alt="Add Vinyl"
