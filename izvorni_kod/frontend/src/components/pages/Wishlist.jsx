@@ -14,6 +14,7 @@ export default function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("") ;
   const [activeForm, setActiveForm] = useState(null);
   const navigate = useNavigate();
 
@@ -23,6 +24,11 @@ export default function Wishlist() {
   const closeForm = () => setActiveForm(null);
 
   const { user } = useUser();
+
+  useEffect(() => {
+    if (successMessage) setTimeout(() => setSuccessMessage(""), 5000);
+    if (errorMessage) setTimeout(() => setErrorMessage(""), 5000);
+  }, [successMessage, errorMessage]);
 
 
   const handleRemove = async (wishlistEntry) => {
@@ -41,6 +47,7 @@ export default function Wishlist() {
       setWishlist((prevWishlist) =>
         prevWishlist.filter((item) => item.id !== entryId)
       );
+      setSuccessMessage("Deleted successfully!")
     } catch (error) {
       console.error("Error removing item:", error);
       setErrorMessage("Failed to remove item. Please try again.");
@@ -81,9 +88,6 @@ export default function Wishlist() {
     return <div>Loading...</div>;
   }
 
-  if (errorMessage) {
-    return <div className="error-message">{errorMessage}</div>;
-  }
 
   console.log(user) ;
 
@@ -91,6 +95,8 @@ export default function Wishlist() {
   return (
     <div className="wishlist-container">
       <h2>My Wishlist</h2>
+      {successMessage && <div className="success-message">{successMessage}</div>}
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       {wishlist.length === 0 ? (
         <p>You don't have anything added to wishlist.</p>
       ) : (
