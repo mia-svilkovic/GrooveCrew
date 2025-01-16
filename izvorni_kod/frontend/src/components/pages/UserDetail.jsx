@@ -22,6 +22,16 @@ function UserDetail() {
   };
 
   useEffect(() => {
+    const handleReload = (e) => {
+      navigate('/');
+    };
+    window.addEventListener('load', handleReload); 
+    return () => {
+      window.removeEventListener('load', handleReload);
+    };
+  }, [navigate]);
+
+  useEffect(() => {
     
     const fetchVinyls = async () => {
       try {

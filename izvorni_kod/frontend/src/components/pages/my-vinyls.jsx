@@ -56,7 +56,10 @@ function MyVinyls() {
   useEffect(() => {
     const fetchVinyls = async () => {
       try {
-        const { user } = useUser();
+        if(!user) {
+          navigate('/');
+          return;
+        }
         const response = await authFetch(`${URL}/api/records/user/${user.id}`, {
           method: "GET",
           credentials: "include",

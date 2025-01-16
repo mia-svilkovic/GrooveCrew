@@ -19,12 +19,20 @@ function VinylDetail() {
   const [error, setError] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
   const [showExchangeForm, setShowExchangeForm] = useState(false);
+  
 
   useEffect(() => {
-    if(!user) {
+    const handleReload = (e) => {
       navigate('/');
-      return;
-    }
+    };
+    window.addEventListener('load', handleReload); 
+    return () => {
+      window.removeEventListener('load', handleReload);
+    };
+  }, [navigate]);
+
+  useEffect(() => {
+    
     const fetchVinylDetails = async () => {
       try {
         const response = await fetch(`${URL}/api/records/${id}/`, {
