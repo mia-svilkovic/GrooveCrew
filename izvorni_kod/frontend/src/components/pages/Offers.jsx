@@ -77,7 +77,7 @@ function Offers({ onNeedRefresh }) {
     const exchange = exchanges.find(e => e.id === exchangeId);
     const modifiedExchange = modifiedExchanges[exchangeId] || exchange;
 
-    if (!validateExchange(exchange, modifiedExchange)) return false;
+    //if (!validateExchange(exchange, modifiedExchange)) return false;
 
     try {
       const updateResponse = await authFetch(`${URL}/api/exchanges/${exchangeId}/update/`, {
@@ -113,7 +113,6 @@ function Offers({ onNeedRefresh }) {
       const updateSuccess = await handleUpdateExchange(exchangeId);
       if (!updateSuccess) return;
 
-      // Then finalize
       const finalizeResponse = await authFetch(`${URL}/api/exchanges/${exchangeId}/finalize/`, {
         method: "POST",
       });
@@ -230,7 +229,11 @@ function Offers({ onNeedRefresh }) {
   const handleSubmitReview = async (exchangeId) => {
     try {
       setLoading(true);
-      
+      const exchange = exchanges.find(e => e.id === exchangeId);
+      const modifiedExchange = modifiedExchanges[exchangeId] || exchange;
+
+      if (!validateExchange(exchange, modifiedExchange)) return false;
+
       const updateSuccess = await handleUpdateExchange(exchangeId);
       if (!updateSuccess) onNeedRefresh();
 
