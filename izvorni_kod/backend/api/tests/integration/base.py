@@ -1,12 +1,7 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import subprocess
-import time
-import os
-import psutil
-import signal
+import subprocess, time, os, signal, psutil
+
 
 class BaseSeleniumTestCase(StaticLiveServerTestCase):
     """
@@ -65,15 +60,3 @@ class BaseSeleniumTestCase(StaticLiveServerTestCase):
             parent.send_signal(sig)
         except psutil.NoSuchProcess:
             pass
-
-    def wait_for_element(self, by, value, timeout=10):
-        """Helper method to wait for and return an element"""
-        return WebDriverWait(self.driver, timeout).until(
-            EC.presence_of_element_located((by, value))
-        )
-
-    def wait_for_clickable(self, by, value, timeout=10):
-        """Helper method to wait for and return a clickable element"""
-        return WebDriverWait(self.driver, timeout).until(
-            EC.element_to_be_clickable((by, value))
-        )
