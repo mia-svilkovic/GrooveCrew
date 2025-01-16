@@ -22,6 +22,10 @@ function UserDetail() {
   };
 
   useEffect(() => {
+    if(!user) {
+      navigate('/');
+      return;
+    }
     const fetchVinyls = async () => {
       try {
         const response = await fetch(`${URL}/api/records/user/${id}`, {

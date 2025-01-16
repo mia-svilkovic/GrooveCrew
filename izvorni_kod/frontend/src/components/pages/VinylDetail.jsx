@@ -21,6 +21,10 @@ function VinylDetail() {
   const [showExchangeForm, setShowExchangeForm] = useState(false);
 
   useEffect(() => {
+    if(!user) {
+      navigate('/');
+      return;
+    }
     const fetchVinylDetails = async () => {
       try {
         const response = await fetch(`${URL}/api/records/${id}/`, {

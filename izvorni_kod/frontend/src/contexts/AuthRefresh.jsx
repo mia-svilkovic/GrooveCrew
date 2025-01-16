@@ -12,6 +12,7 @@ export const useAuthRefresh = () => {
       setUser(getUserFromToken(newAccessToken));
       return newAccessToken;
     } catch (error) {
+      console.log("error refreshing token");
       logoutUser();
       localStorage.clear('access');
       localStorage.clear('refresh');
@@ -33,6 +34,7 @@ export const useAuthRefresh = () => {
       });
 
       if (response.status === 401) {
+        console.log("access token expired")
         token = await refreshToken();
         console.log(token);
         return fetch(url, {
@@ -44,9 +46,10 @@ export const useAuthRefresh = () => {
           credentials: 'include',
         });
       }
+
       return response;
     } catch (error) {
-      throw error;
+      throw error ;
     }
   };
 
