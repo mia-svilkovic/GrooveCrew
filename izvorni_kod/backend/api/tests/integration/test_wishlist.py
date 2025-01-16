@@ -25,35 +25,7 @@ class WishlistTests(BaseSeleniumTestCase):
         self.frontend_url = "http://localhost:5173"
 
     def test_successful_wishlist_entry_removal(self):
-        self.driver.get(self.frontend_url)
-
-        auth_button = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.ID, 'auth-button'))
-        )
-        auth_button.click()
-
-        login_button = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.ID, 'login-button'))
-        )
-        login_button.click()
-
-        email_field = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.NAME, 'email'))
-        )
-        password_field = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.NAME, 'password'))
-        )
-        login_submit = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '[type="submit"]'))
-        )
-
-        email_field.send_keys('testuser@example.com')
-        password_field.send_keys('TestPass123!')
-        login_submit.click()
-
-        WebDriverWait(self.driver, 5).until(
-            EC.invisibility_of_element_located((By.CLASS_NAME, "modal-overlay"))
-        )
+        self.perform_login('testuser@example.com', 'TestPass123!')
 
         menu_button = WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.ID, 'menu_button'))

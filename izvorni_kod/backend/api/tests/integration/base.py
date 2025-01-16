@@ -1,5 +1,8 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 import subprocess, time, os, signal, psutil
 
 
@@ -60,3 +63,47 @@ class BaseSeleniumTestCase(StaticLiveServerTestCase):
             parent.send_signal(sig)
         except psutil.NoSuchProcess:
             pass
+
+    def clean_session(self):
+        """Clean up browser session"""
+        # First navigate to the page
+        self.driver.get('http://localhost:5173')
+        # Then clear storage and cookies
+        self.driver.execute_script("window.localStorage.clear();")
+        self.driver.delete_all_cookies()
+        self.driver.refresh()
+        time.sleep(1)  # Give time for the refresh to complete
+        
+    def perform_login(self, email, password):
+        """Helper method to perform login with fresh session"""
+        self.clean_session()
+        self.driver.get('http://localhost:5173')
+        
+        auth_button = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, 'auth-button'))
+        )
+        auth_button.click()
+
+        login_button = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, 'login-button'))
+        )
+        login_button.click()
+
+        email_field = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.NAME, 'email'))
+        )
+        password_field = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.NAME, 'password'))
+        )
+        login_submit = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[type="submit"]'))
+        )
+
+        email_field.send_keys(email)
+        password_field.send_keys(password)
+        login_submit.click()
+
+        # Wait for modal to disappear
+        WebDriverWait(self.driver, 5).until(
+            EC.invisibility_of_element_located((By.CLASS_NAME, "modal-overlay"))
+        )
