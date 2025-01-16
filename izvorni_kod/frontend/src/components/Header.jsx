@@ -58,7 +58,7 @@ function Header({ filters, searchQuery, onSearchAndFilter, handleFilterReset }) 
   return (
     <div className="container">
       <header className="header-container">
-        <button className="icon-button" onClick={toggleMenu}>
+        <button id="menu_button" className="icon-button" onClick={toggleMenu}>
           <img src={menuIcon} alt="Menu" />
         </button>
         <img

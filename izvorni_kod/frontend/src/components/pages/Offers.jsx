@@ -27,7 +27,7 @@ function Offers({ onNeedRefresh }) {
   }, []);
 
   useEffect(() => {
-    if (successMessage) setTimeout(() => setSuccessMessage(""), 2000);
+    if (successMessage) setTimeout(() => setSuccessMessage(""), 5000);
     if (errorMessage) setTimeout(() => setErrorMessage(""), 5000);
   }, [successMessage, errorMessage]);
 
@@ -126,8 +126,10 @@ function Offers({ onNeedRefresh }) {
       onNeedRefresh();
     } catch (error) {
       setErrorMessage(error.message);
+      onNeedRefresh();
     } finally {
       setLoading(false);
+      onNeedRefresh();
     }
   };
 

@@ -13,9 +13,14 @@ export const ExchangeActions = ({
   return (
     <div className="exchange-actions">
       {isCurrentReviewer && !isReceiver && !hasRequestedRecords && (
+        <>
         <button className="review-button" onClick={onSubmitReview}>
           Submit Review
         </button>
+        <button className="reset-button" onClick={onReset}>
+          Reset Changes
+        </button>
+        </>
       )}
 
       {isCurrentReviewer && isReceiver && (
@@ -23,11 +28,11 @@ export const ExchangeActions = ({
           <button onClick={onOpenRequestForm}>
             Request Additional Record
           </button>
+          <button className="reset-button" onClick={onReset}>
+              Reset Changes
+          </button>
           {hasRequestedRecords ? (
             <>
-            <button className="reset-button" onClick={onReset}>
-              Reset Changes
-            </button>
             <button className="review-button" onClick={onSubmitReview}>
               Submit Review
             </button>

@@ -39,6 +39,7 @@ function Menu({ isOpen }) {
         <div className="menu-bar">
           {MENU_ITEMS.map((item, index) => (
             <button
+              id={`button_${item.label}`}
               key={index}
               className="menu-item"
               onClick={() => handleMenuClick(item.path)}

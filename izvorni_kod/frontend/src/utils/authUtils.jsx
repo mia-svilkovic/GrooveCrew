@@ -26,7 +26,7 @@ export const refreshTokenRequest = async () => {
   return data.access;
 };
 
-export const getUserFromToken = async (token) => {
+export const getUserFromToken = (token) => {
     const decoded = jwtDecode(token);
       return {
         id: decoded.user_id,
