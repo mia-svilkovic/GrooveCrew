@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.gis.geos import Point
-from ...models import *
+from api.models import *
 
 
 class WishlistViewTests(APITestCase):
