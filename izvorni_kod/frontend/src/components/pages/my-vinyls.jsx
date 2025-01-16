@@ -100,7 +100,7 @@ function MyVinyls() {
               
               <p>Available for Exchange: {vinyl.available_for_exchange ? "Yes" : "No"}</p>
               <div>
-                <button onClick={(e) => handleEdit(e, vinyl)} className="vinyl-opt">
+                <button onClick={(e) => handleEdit(e, vinyl)} className="vinyl-opt open-edit-button">
                   <img src={edit} alt="edit" />
                 </button>
                 <button onClick={(e) => handleDelete(e, vinyl)} className="vinyl-opt">

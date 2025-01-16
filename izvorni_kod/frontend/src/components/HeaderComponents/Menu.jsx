@@ -39,7 +39,7 @@ function Menu({ isOpen }) {
         <div className="menu-bar">
           {MENU_ITEMS.map((item, index) => (
             <button
-              id={`button_${item.label}`}
+              id={`button_${item.label.split(" ").join('')}`}
               key={index}
               className="menu-item"
               onClick={() => handleMenuClick(item.path)}
