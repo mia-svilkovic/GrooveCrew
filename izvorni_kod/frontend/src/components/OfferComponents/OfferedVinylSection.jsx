@@ -11,7 +11,7 @@ export const OfferedVinylSection = ({ records, onVinylClick, onRemoveRecord, sho
             <p>Artist: {record.record.artist}</p>
           </div>
           {showRemoveButton && (
-            <button onClick={(e) => {
+            <button className='remove-button' onClick={(e) => {
               e.stopPropagation();
               onRemoveRecord(record.record.id);
             }}>
