@@ -16,7 +16,6 @@ class AuthenticationTests(BaseSeleniumTestCase):
             first_name='Test',
             last_name='User'
         )
-        self.frontend_url = "http://localhost:5173"
 
     def test_successful_login(self):
         """

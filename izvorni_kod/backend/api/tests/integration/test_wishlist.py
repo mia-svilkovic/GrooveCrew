@@ -22,8 +22,6 @@ class WishlistTests(BaseSeleniumTestCase):
             record_catalog_number='TEST001'
         )
 
-        self.frontend_url = "http://localhost:5173"
-
     def test_successful_wishlist_entry_removal(self):
         self.perform_login('testuser@example.com', 'TestPass123!')
 

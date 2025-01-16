@@ -57,8 +57,6 @@ class RecordsTests(BaseSeleniumTestCase):
             additional_description='Test description'
         )
 
-        self.frontend_url = "http://localhost:5173"
-
     def test_unsuccessful_record_add(self):
         self.perform_login('testuser@example.com', 'TestPass123!')
 

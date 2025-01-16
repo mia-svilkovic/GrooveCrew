@@ -330,32 +330,28 @@ def create_wishlists(users):
             if created:
                 i += 1
 
-
-def populate_db():
-    genres = get_or_create_genres()
-    conditions_record = get_or_create_record_conditions()
-    conditions_cover = get_or_create_cover_conditions()
-
-    locations = get_or_create_locations()
-
-    num_of_users = 10
-    users = create_users(num_of_users)
-
-    num_of_records = 50
-    records = create_records(
-        num_of_records=num_of_records,
-        users=users,
-        genres=genres,
-        conditions_record=conditions_record,
-        conditions_cover=conditions_cover,
-        locations=locations)
-
-    create_photos(records)
-    create_wishlists(users)
-
-
+                
 class Command(BaseCommand):
     help = 'Populate database with dummy data'
 
     def handle(self, *args, **options):
-        populate_db()
+        genres = get_or_create_genres()
+        conditions_record = get_or_create_record_conditions()
+        conditions_cover = get_or_create_cover_conditions()
+
+        locations = get_or_create_locations()
+
+        num_of_users = 10
+        users = create_users(num_of_users)
+
+        num_of_records = 50
+        records = create_records(
+            num_of_records=num_of_records,
+            users=users,
+            genres=genres,
+            conditions_record=conditions_record,
+            conditions_cover=conditions_cover,
+            locations=locations)
+
+        create_photos(records)
+        create_wishlists(users)

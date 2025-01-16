@@ -15,6 +15,7 @@ class BaseSeleniumTestCase(StaticLiveServerTestCase):
         super().setUpClass()
         cls.driver = webdriver.Firefox()
         cls.driver.implicitly_wait(10)
+        cls.frontend_url = "http://localhost:5173"
         
         # Get the current file's directory
         current_dir = os.path.dirname(os.path.abspath(__file__))
