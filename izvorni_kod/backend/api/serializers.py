@@ -72,10 +72,6 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError({
                 "message": 'Invalid credentials. Please try again.'
             })
-        if not user.is_active:
-            raise serializers.ValidationError({
-                "message": 'This user account is inactive.'
-            })
         data['user'] = user
         return data
 
@@ -469,18 +465,26 @@ class ExchangeCreateSerializer(serializers.ModelSerializer):
         requested_record = validated_data.pop('requested_record')
         receiver_user = requested_record.user
 
-        try:
-            exchange = Exchange.objects.create(
-                initiator_user=initiator_user,
-                receiver_user=receiver_user,
-                next_user_to_review=receiver_user,
-                requested_record=requested_record
-            )
-        except Exception as e:
+        if initiator_user == receiver_user:
+            raise serializers.ValidationError({
+                'message': f"Initiator can't request their own record."
+            })
+        
+        if Exchange.objects.filter(
+            initiator_user = initiator_user, 
+            receiver_user = receiver_user,
+            requested_record = requested_record,
+            completed = False).exists():
             raise serializers.ValidationError({
                 'message': f'Exchange for this record has already been initiated between these two participants.'
             })
 
+        exchange = Exchange.objects.create(
+            initiator_user=initiator_user,
+            receiver_user=receiver_user,
+            next_user_to_review=receiver_user,
+            requested_record=requested_record
+        )
 
         # Add offered records
         ExchangeOfferedRecord.objects.bulk_create([

@@ -264,12 +264,6 @@ class Exchange(models.Model):
     class Meta:
         verbose_name = "Exchange"
         verbose_name_plural = "Exchanges"
-        constraints = [
-            models.UniqueConstraint(
-                fields=['initiator_user', 'receiver_user', 'requested_record'],
-                name='unique_exchange_per_record_per_user'
-            ),
-        ]
 
     def __str__(self):
         return f'Exchange ({self.status}) between {self.initiator_user} and {self.receiver_user}'
