@@ -93,7 +93,7 @@ class RecordsTests(BaseSeleniumTestCase):
         my_vinyls_button.click()
 
         open_edit_button = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '.open-edit-button'))
+            EC.presence_of_element_located((By.CLASS_NAME, 'open-edit-button'))
         )
         open_edit_button.click()
 

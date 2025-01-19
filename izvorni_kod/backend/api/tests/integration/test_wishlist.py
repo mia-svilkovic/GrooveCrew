@@ -36,7 +36,7 @@ class WishlistTests(BaseSeleniumTestCase):
         wishlist_button.click()
 
         delete_button = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '.wishlist-list>.wishlist-item>.wishlist-remove'))
+            EC.presence_of_element_located((By.CLASS_NAME, 'wishlist-remove'))
         )
         delete_button.click()
 

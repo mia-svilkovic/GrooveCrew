@@ -10,12 +10,15 @@ class BaseSeleniumTestCase(StaticLiveServerTestCase):
     """
     Base class for Selenium tests providing common functionality
     """
+
+    frontend_port = 5174  # Change to the desired port number
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.driver = webdriver.Firefox()
         cls.driver.implicitly_wait(10)
-        cls.frontend_url = "http://localhost:5173"
+        cls.frontend_url = f"http://localhost:{cls.frontend_port}"
         
         # Get the current file's directory
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -27,7 +30,7 @@ class BaseSeleniumTestCase(StaticLiveServerTestCase):
         os.environ['VITE_API_URL'] = cls.live_server_url
         print(f"Setting VITE_API_URL to: {cls.live_server_url}")
         cls.vite_process = subprocess.Popen(
-            ['npm', 'run', 'dev'], 
+            ['npm', 'run', 'dev', '--', '--port', str(cls.frontend_port)], 
             cwd=frontend_dir,
             env=os.environ,
             stdin=subprocess.PIPE,  # Redirect stdin to avoid terminal interaction
@@ -68,7 +71,7 @@ class BaseSeleniumTestCase(StaticLiveServerTestCase):
     def clean_session(self):
         """Clean up browser session"""
         # First navigate to the page
-        self.driver.get('http://localhost:5173')
+        self.driver.get(self.frontend_url)
         # Then clear storage and cookies
         self.driver.execute_script("window.localStorage.clear();")
         self.driver.delete_all_cookies()
@@ -78,7 +81,7 @@ class BaseSeleniumTestCase(StaticLiveServerTestCase):
     def perform_login(self, email, password):
         """Helper method to perform login with fresh session"""
         self.clean_session()
-        self.driver.get('http://localhost:5173')
+        self.driver.get(self.frontend_url)
         
         auth_button = WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.ID, 'auth-button'))
