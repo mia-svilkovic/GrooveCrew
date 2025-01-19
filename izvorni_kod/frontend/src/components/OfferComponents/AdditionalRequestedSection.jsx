@@ -20,8 +20,8 @@ export const AdditionalRequestedSection = ({
           </div>
           {showActions && (
             <div className="record-decision-buttons">
-              <button onClick={() => onAccept(record.id)}>Accept</button>
-              <button onClick={() => onReject(record.id)}>Reject</button>
+              <button className="accept-vinyl-button" onClick={() => onAccept(record.id)}>Accept</button>
+              <button className="reject-vinyl-button" onClick={() => onReject(record.id)}>Reject</button>
             </div>
           )}
         </div>

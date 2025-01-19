@@ -25,7 +25,7 @@ export const ExchangeActions = ({
 
       {isCurrentReviewer && isReceiver && (
         <>
-          <button onClick={onOpenRequestForm}>
+          <button onClick={onOpenRequestForm} className="additional-request-button">
             Request Additional Record
           </button>
           <button className="reset-button" onClick={onReset}>

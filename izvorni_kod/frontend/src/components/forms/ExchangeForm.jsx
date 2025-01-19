@@ -142,6 +142,7 @@ function ExchangeForm({ selectedVinylId, onClose }) {
                             <label key={vinyl.id} className="check-option">
                                 <input
                                     type="checkbox"
+                                    className="vinyl-checkbox"
                                     checked={selectedVinylsForExchange.includes(vinyl.id)}
                                     onChange={() => handleVinylSelection(vinyl.id)}
                                 />

@@ -67,7 +67,7 @@ export default function AddVinyl({ onAddItem }) {
   }
 
   return (
-    <div className="add-container">
+    <div className="add-container" id="open-add-form">
       <img
         id="open-add-button"
         className="add-button"
