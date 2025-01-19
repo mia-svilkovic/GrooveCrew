@@ -2,7 +2,29 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import Record, Wishlist
+from .models import Record, Wishlist, Exchange
+
+@receiver(post_save, sender=Exchange)
+def notify_users_on_new_exchange(sender, instance, created, **kwargs):
+    if created:
+        initiator = instance.initiator_user
+        receiver = instance.receiver_user
+
+        subject = f"New Exchange Offer from {initiator.username}!"
+        message = (
+            f"Hi {receiver.first_name},\n\n"
+            f"User {initiator.username} has proposed a new exchange offer. "
+            f"Check the details of the exchange here: {settings.SITE_URL}/exchanges/{instance.id}/\n\n"
+            f"Best regards,\nThe Record Exchange Team"
+        )
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[receiver.email],
+            fail_silently=False,
+        )
 
 @receiver(post_save, sender=Record)
 def notify_wishlist_users_on_new_record(sender, instance, created, **kwargs):
