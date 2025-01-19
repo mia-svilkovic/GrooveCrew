@@ -129,7 +129,7 @@ function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres
   return (
     <div className="form-container" id="add-form-container">
       <h2>ADD VINYL</h2>
-      <form onSubmit={handleAddRecord}>
+      <form onSubmit={handleAddRecord} id="add-form">
         <BasicInfo 
           formData={formState} 
           onChange={handleFormChange}
