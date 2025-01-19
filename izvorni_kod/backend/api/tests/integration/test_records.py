@@ -66,7 +66,7 @@ class RecordsTests(BaseSeleniumTestCase):
         add_record_button.click()
 
         form = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '.form-container>form'))
+            EC.presence_of_element_located((By.ID, 'add-form'))
         )
 
         submit_button = WebDriverWait(self.driver, 10).until(

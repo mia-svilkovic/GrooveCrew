@@ -77,7 +77,7 @@ export default function AddVinyl({ onAddItem }) {
       />
 
       {activeForm === "add" && (
-        <div className="modal-overlay" id="add-form">
+        <div className="modal-overlay">
           <FormAdd
             onClose={closeForm}
             onAddItem={onAddItem}

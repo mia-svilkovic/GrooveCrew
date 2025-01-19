@@ -110,12 +110,12 @@ class ExchangeTests(BaseSeleniumTestCase):
         self.perform_login(self.initiator_user.email, 'TestPass123!')
 
         exchange_button = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '.vinyl-item button'))
+            EC.presence_of_element_located((By.CLASS_NAME, 'offer-exchange-button'))
         )
         exchange_button.click()
 
         offer_vinyl_checkboxes = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'label.check-option input[type="checkbox"]'))
+            EC.presence_of_all_elements_located((By.CLASS_NAME, 'vinyl-checkbox'))
         )
         for i in range(2):
             offer_vinyl_checkboxes[i].click()
@@ -138,12 +138,12 @@ class ExchangeTests(BaseSeleniumTestCase):
         offers_button.click()
 
         request_additional_record_button = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '.exchange-actions > button'))
+            EC.presence_of_element_located((By.CLASS_NAME, 'additional-request-button'))
         )
         request_additional_record_button.click()
 
         request_vinyl_checkbox = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, 'label.check-option input[type="checkbox"]'))
+            EC.presence_of_element_located((By.CLASS_NAME, 'vinyl-checkbox'))
         )
         request_vinyl_checkbox.click()
 
@@ -170,7 +170,7 @@ class ExchangeTests(BaseSeleniumTestCase):
         offers_button.click()
 
         accept_additionally_requested_record_button = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '.record-decision-buttons > button'))
+            EC.presence_of_element_located((By.CLASS_NAME, 'accept-vinyl-button'))
         )
         accept_additionally_requested_record_button.click()
 
@@ -207,12 +207,12 @@ class ExchangeTests(BaseSeleniumTestCase):
         self.perform_login(self.initiator_user.email, 'TestPass123!')
 
         exchange_button = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '.vinyl-item button'))
+            EC.presence_of_element_located((By.CLASS_NAME, 'offer-exchange-button'))
         )
         exchange_button.click()
 
         offer_vinyl_checkboxes = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'label.check-option input[type="checkbox"]'))
+            EC.presence_of_all_elements_located((By.CLASS_NAME, 'vinyl-checkbox'))
         )
         for i in range(2):
             offer_vinyl_checkboxes[i].click()
