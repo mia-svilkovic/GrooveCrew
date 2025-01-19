@@ -5,6 +5,12 @@
 ```bash
 git clone https://github.com/mia-svilkovic/GrooveCrew.git
 ```
+## Kreiraj bazu
+
+Potrebno je kreirati PostgreSQL.
+Postaviti PostGIS ekstenziju prema uputama koje se mogu naći u dokumentaciji:
+https://postgis.net/documentation
+
 
 ## Stvori Python virtual environment
 
@@ -40,22 +46,27 @@ U direktoriju izvorni_kod/backend mora postojati datoteka naziva ".env.dev", a u
 DJANGO_ENV=development
 
 # Security
-DJANGO_SECRET_KEY="django-insecure-1knbe=omqi2a0@w@u0h+yl2s8t*z_2tpl=r1g6xkh0c!yqc%y7"
+DJANGO_SECRET_KEY=<VAŠ DJANGO SECRET KEY>
 DJANGO_DEBUG=True
 
 # Allowed hosts
 DJANGO_ALLOWED_HOSTS="localhost,127.0.0.1"
 
 # Database
-DATABASE_URL="postgresql://<VAŠ POSTGRES USERNAME>:<LOZINKA VAŠEG USERA>@localhost:5432/<NAZIV BAZE>"
+DATABASE_URL="postgis://<VAŠ POSTGRES USERNAME>:<LOZINKA VAŠEG USERA>@localhost:5432/<NAZIV BAZE>"
 
 # CORS and CSRF
-CORS_ALLOWED_ORIGINS="http://localhost:5173"
-CSRF_TRUSTED_ORIGINS="http://localhost:5173,https://accounts.google.com"
+CORS_ALLOWED_ORIGINS="http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,https://accounts.google.com"
+CSRF_TRUSTED_ORIGINS="http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,https://accounts.google.com"
 
 # Google OAuth
 GOOGLE_CLIENT_ID="<VAŠ GOOGLE CLIENT ID>"
 GOOGLE_CLIENT_SECRET="<VAŠ GOOGLE CLIENT SECRET>"
+
+# Email settings
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+DEFAULT_FROM_EMAIL="Record Exchange <noreply@example.com>"
+SITE_URL=http://localhost:8000
 ```
 
 
@@ -86,6 +97,7 @@ U direktoriju izvorni_kod/frontend mora postojati datoteka naziva ".env", a u nj
 
 ```
 VITE_API_URL=http://localhost:8000
+VITE_GOOGLE_CLIENT_ID="<VAŠ GOOGLE CLIENT SECRET>"
 ```
 
 ## Instaliraj Node.js dependencies za React frontend
