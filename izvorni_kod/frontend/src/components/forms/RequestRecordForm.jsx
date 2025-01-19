@@ -126,6 +126,7 @@ function RequestRecordForm({ exchange, onClose, onSuccess}) {
                                 ):(
                                 <label key={vinyl.id} className="check-option">
                                     <input
+                                        className="vinyl-checkbox"
                                         type="checkbox"
                                         checked={selectedVinylsForRequest.includes(vinyl.id)}
                                         onChange={() => handleVinylSelection(vinyl.id)}
