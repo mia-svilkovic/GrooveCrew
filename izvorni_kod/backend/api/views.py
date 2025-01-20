@@ -108,13 +108,14 @@ class LoginView(APIView):
                 max_age=settings.SESSION_COOKIE_AGE,
             )
 
-            # # Set CSRF token
-            # response.set_cookie(
-            #     key='csrftoken',
-            #     value=csrf_token,
-            #     httponly=settings.CSRF_COOKIE_HTTPONLY,
-            #     samesite=settings.CSRF_COOKIE_SAMESITE,
-            # )
+            # Set CSRF token
+            response.set_cookie(
+                key='csrftoken',
+                value=csrf_token,
+                httponly=settings.CSRF_COOKIE_HTTPONLY,
+                samesite=settings.CSRF_COOKIE_SAMESITE,
+                secure=True,
+            )
 
             return response
 
