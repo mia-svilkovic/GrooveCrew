@@ -34,6 +34,7 @@ urlpatterns = [
     # Override the default admin logout path
     path('admin/logout/', custom_admin_logout, name='admin-logout'),
     path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
     path('media/<path:path>', serve_media_file),  # Dodajte ovu liniju
 ]
 
