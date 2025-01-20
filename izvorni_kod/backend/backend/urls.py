@@ -21,21 +21,11 @@ from django.conf.urls.static import static
 
 from api.views import custom_admin_logout
 
-from django.http import FileResponse, Http404
-import os
-
-def serve_media_file(request, path):
-    file_path = os.path.join(settings.MEDIA_ROOT, path)
-    if os.path.exists(file_path):
-        return FileResponse(open(file_path, 'rb'))
-    raise Http404("File not found")
-
 urlpatterns = [
     # Override the default admin logout path
     path('admin/logout/', custom_admin_logout, name='admin-logout'),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('media/<path:path>', serve_media_file),  # Dodajte ovu liniju
 ]
 
-# urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
