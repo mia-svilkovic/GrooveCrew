@@ -58,6 +58,9 @@ class RecordsTests(BaseSeleniumTestCase):
         )
 
     def test_unsuccessful_record_add(self):
+        """
+        Test unsuccessful record add
+        """
         self.perform_login('testuser@example.com', 'TestPass123!')
 
         add_record_button = WebDriverWait(self.driver, 10).until(
@@ -80,6 +83,9 @@ class RecordsTests(BaseSeleniumTestCase):
 
 
     def test_successful_record_update(self):
+        """
+        Test successful record update
+        """
         self.perform_login('testuser@example.com', 'TestPass123!')
 
         menu_button = WebDriverWait(self.driver, 10).until(

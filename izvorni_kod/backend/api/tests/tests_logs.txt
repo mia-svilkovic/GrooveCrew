@@ -1,0 +1,141 @@
+Creating test database for alias 'default' ('test_progi')...
+test_login_inactive_user (api.tests.unit.test_auth.LoginViewTests)
+Test login with inactive user account ... ok
+test_login_invalid_credentials (api.tests.unit.test_auth.LoginViewTests)
+Test login with invalid password ... ok
+test_login_missing_fields (api.tests.unit.test_auth.LoginViewTests)
+Test login with missing required fields ... ok
+test_login_nonexistent_user (api.tests.unit.test_auth.LoginViewTests)
+Test login with email that doesn't exist in system ... ok
+test_login_regular_user_success (api.tests.unit.test_auth.LoginViewTests)
+Test successful login for regular user ... ok
+test_login_staff_user_success (api.tests.unit.test_auth.LoginViewTests)
+Test successful login for staff user ... ok
+test_create_invalid_user_email_exists (api.tests.unit.test_auth.RegisterViewTests)
+Test creating a user with an email that already exists ... ok
+test_create_invalid_user_missing_fields (api.tests.unit.test_auth.RegisterViewTests)
+Test creating a user with missing required fields ... ok
+test_create_invalid_user_passwords_dont_match (api.tests.unit.test_auth.RegisterViewTests)
+Test creating a new user with non-matching passwords ... ok
+test_create_invalid_user_username_exists (api.tests.unit.test_auth.RegisterViewTests)
+Test creating a user with a username that already exists ... ok
+test_create_valid_user (api.tests.unit.test_auth.RegisterViewTests)
+Test creating a new user with valid payload ... ok
+test_create_exchange_no_authentication (api.tests.unit.test_exchange.ExchangeCreationTests)
+Test exchange creation without authentication ... ok
+test_create_exchange_no_offered_records (api.tests.unit.test_exchange.ExchangeCreationTests)
+Test exchange creation without any offered records ... ok
+test_create_exchange_success (api.tests.unit.test_exchange.ExchangeCreationTests)
+Test successful creation of an exchange with valid data ... ok
+test_create_exchange_with_nonexistent_record (api.tests.unit.test_exchange.ExchangeCreationTests)
+Test exchange creation with non-existent record IDs ... ok
+test_create_exchange_with_own_record (api.tests.unit.test_exchange.ExchangeCreationTests)
+Test exchange creation where user tries to request their own record ... ok
+test_create_exchange_with_unavailable_record (api.tests.unit.test_exchange.ExchangeCreationTests)
+Test exchange creation with a record that's already part of another exchange ... ok
+test_cannot_delete_completed_exchange (api.tests.unit.test_exchange.ExchangeDeleteTests)
+Test that a completed exchange cannot be deleted ... ok
+test_delete_exchange_with_requested_records (api.tests.unit.test_exchange.ExchangeDeleteTests)
+Test deleting exchange that has records requested by receiver ... ok
+test_delete_unauthenticated (api.tests.unit.test_exchange.ExchangeDeleteTests)
+Test that unauthenticated user cannot delete exchange ... ok
+test_initiator_can_delete_active_exchange (api.tests.unit.test_exchange.ExchangeDeleteTests)
+Test that initiator can delete/cancel an active exchange ... ok
+test_non_participant_cannot_delete_exchange (api.tests.unit.test_exchange.ExchangeDeleteTests)
+Test that a user who is not part of the exchange cannot delete it ... ok
+test_receiver_can_delete_active_exchange (api.tests.unit.test_exchange.ExchangeDeleteTests)
+Test that receiver can delete/cancel an active exchange ... ok
+test_finalize_already_completed (api.tests.unit.test_exchange.ExchangeFinalizationTests)
+Test that a completed exchange cannot be finalized again ... ok
+test_finalize_by_initiator (api.tests.unit.test_exchange.ExchangeFinalizationTests)
+Test that initiator cannot finalize the exchange ... ok
+test_finalize_cleans_up_related_exchanges (api.tests.unit.test_exchange.ExchangeFinalizationTests)
+Test that finalization removes other exchanges involving the same records ... ok
+test_finalize_unauthenticated (api.tests.unit.test_exchange.ExchangeFinalizationTests)
+Test that unauthenticated user cannot finalize exchange ... ok
+test_finalize_with_pending_requests (api.tests.unit.test_exchange.ExchangeFinalizationTests)
+Test that exchange cannot be finalized while there are pending requested records ... ok
+test_successful_finalization (api.tests.unit.test_exchange.ExchangeFinalizationTests)
+Test successful finalization of exchange ... ok
+test_initiator_switch_after_resolving_requests (api.tests.unit.test_exchange.ExchangeSwitchReviewerTests)
+Test initiator can switch reviewer after resolving all requested records ... ok
+test_initiator_switch_with_pending_requests (api.tests.unit.test_exchange.ExchangeSwitchReviewerTests)
+Test initiator cannot switch reviewer while there are pending requested records ... ok
+test_receiver_switch_with_requests (api.tests.unit.test_exchange.ExchangeSwitchReviewerTests)
+Test receiver can switch reviewer after requesting additional records ... ok
+test_receiver_switch_without_requests (api.tests.unit.test_exchange.ExchangeSwitchReviewerTests)
+Test receiver cannot switch reviewer if they haven't requested any additional records ... ok
+test_switch_alternates_between_users (api.tests.unit.test_exchange.ExchangeSwitchReviewerTests)
+Test that switch reviewer properly alternates between users ... ok
+test_wrong_user_cannot_switch (api.tests.unit.test_exchange.ExchangeSwitchReviewerTests)
+Test that only the next_user_to_review can switch reviewer ... ok
+test_initiator_add_offered_record (api.tests.unit.test_exchange.ExchangeUpdateTests)
+Test initiator can add new offered records ... ok
+test_initiator_handle_requested_records (api.tests.unit.test_exchange.ExchangeUpdateTests)
+Test initiator handling records requested by receiver ... ok
+test_initiator_remove_offered_record (api.tests.unit.test_exchange.ExchangeUpdateTests)
+Test initiator can remove offered records but must keep at least one ... ok
+test_receiver_add_requested_record (api.tests.unit.test_exchange.ExchangeUpdateTests)
+Test receiver can request additional records ... ok
+test_receiver_cannot_add_offered_record (api.tests.unit.test_exchange.ExchangeUpdateTests)
+Test receiver cannot add new records to offered records ... ok
+test_receiver_remove_all_offered_records (api.tests.unit.test_exchange.ExchangeUpdateTests)
+Test receiver cannot remove all offered records ... ok
+test_receiver_remove_offered_record (api.tests.unit.test_exchange.ExchangeUpdateTests)
+Test receiver can remove an offered record while keeping at least one ... ok
+test_wrong_user_cannot_update (api.tests.unit.test_exchange.ExchangeUpdateTests)
+Test that only the next_user_to_review can update the exchange ... ok
+test_create_record_success (api.tests.unit.test_records.RecordViewTests)
+Test creating a new record with valid data ... ok
+test_create_record_unauthorized (api.tests.unit.test_records.RecordViewTests)
+Test creating a record without authentication ... ok
+test_delete_record_success (api.tests.unit.test_records.RecordViewTests)
+Test deleting a record by its owner ... ok
+test_delete_record_unauthorized (api.tests.unit.test_records.RecordViewTests)
+Test deleting a record by non-owner ... ok
+test_get_record_detail (api.tests.unit.test_records.RecordViewTests)
+Test retrieving a single record ... ok
+test_get_record_list (api.tests.unit.test_records.RecordViewTests)
+Test retrieving list of records ... ok
+test_update_record_success (api.tests.unit.test_records.RecordViewTests)
+Test updating a record by its owner ... ok
+test_update_record_unauthorized (api.tests.unit.test_records.RecordViewTests)
+Test updating a record by non-owner ... ok
+test_create_wishlist_item_duplicate (api.tests.unit.test_wishlist.WishlistViewTests)
+Test creating a wishlist item with already existing catalog number ... ok
+test_create_wishlist_item_success (api.tests.unit.test_wishlist.WishlistViewTests)
+Test creating a new wishlist item with valid data ... ok
+test_create_wishlist_item_unauthenticated (api.tests.unit.test_wishlist.WishlistViewTests)
+Test creating a wishlist item without authentication ... ok
+test_delete_wishlist_item_success (api.tests.unit.test_wishlist.WishlistViewTests)
+Test deleting a wishlist item by its owner ... ok
+test_delete_wishlist_item_unauthenticated (api.tests.unit.test_wishlist.WishlistViewTests)
+Test deleting a wishlist item without authentication ... ok
+test_delete_wishlist_item_unauthorized (api.tests.unit.test_wishlist.WishlistViewTests)
+Test deleting a wishlist item by non-owner ... ok
+test_get_wishlist_authenticated (api.tests.unit.test_wishlist.WishlistViewTests)
+Test retrieving wishlist items for authenticated user ... ok
+test_get_wishlist_unauthenticated (api.tests.unit.test_wishlist.WishlistViewTests)
+Test retrieving wishlist items without authentication ... ok
+test_matching_records_functionality (api.tests.unit.test_wishlist.WishlistViewTests)
+Test the matching_records functionality by creating multiple matching records ... ok
+test_login_with_invalid_credentials (api.tests.integration.test_auth.AuthenticationTests)
+Test login with invalid credentials: ... ok
+test_successful_login (api.tests.integration.test_auth.AuthenticationTests)
+Test successful login flow: ... ok
+test_successful_exchange (api.tests.integration.test_exchange.ExchangeTests)
+Test successful exchange ... ok
+test_unsuccessful_exchange (api.tests.integration.test_exchange.ExchangeTests)
+Test unsuccessful exchange ... ok
+test_successful_record_update (api.tests.integration.test_records.RecordsTests)
+Test successful record update ... ok
+test_unsuccessful_record_add (api.tests.integration.test_records.RecordsTests)
+Test unsuccessful record add ... ok
+test_successful_wishlist_entry_removal (api.tests.integration.test_wishlist.WishlistTests)
+Test successful wishlist entry removal ... ok
+
+----------------------------------------------------------------------
+Ran 67 tests in 164.072s
+
+OK
+Destroying test database for alias 'default' ('test_progi')...

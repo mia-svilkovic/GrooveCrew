@@ -23,6 +23,9 @@ class WishlistTests(BaseSeleniumTestCase):
         )
 
     def test_successful_wishlist_entry_removal(self):
+        """
+        Test successful wishlist entry removal
+        """
         self.perform_login('testuser@example.com', 'TestPass123!')
 
         menu_button = WebDriverWait(self.driver, 10).until(

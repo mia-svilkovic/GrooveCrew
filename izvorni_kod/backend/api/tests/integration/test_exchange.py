@@ -107,6 +107,9 @@ class ExchangeTests(BaseSeleniumTestCase):
         )
 
     def test_successful_exchange(self):
+        """
+        Test successful exchange
+        """
         self.perform_login(self.initiator_user.email, 'TestPass123!')
 
         exchange_button = WebDriverWait(self.driver, 10).until(
@@ -204,6 +207,9 @@ class ExchangeTests(BaseSeleniumTestCase):
 
 
     def test_unsuccessful_exchange(self):
+        """
+        Test unsuccessful exchange
+        """
         self.perform_login(self.initiator_user.email, 'TestPass123!')
 
         exchange_button = WebDriverWait(self.driver, 10).until(
