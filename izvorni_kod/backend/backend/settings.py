@@ -40,6 +40,7 @@ DEBUG = env.bool('DJANGO_DEBUG', default=False)
 
 ALLOWED_HOSTS = env('DJANGO_ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
+SITE_ID = 1
 
 # Application definition
 
