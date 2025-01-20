@@ -1,11 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-
-from .models import (
-    Exchange, ExchangeOfferedRecord, Genre,
-    GoldmineConditionCover, GoldmineConditionRecord,
-    Photo, Record, User, Wishlist
-)
+from .models import *
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
@@ -40,4 +35,6 @@ admin.site.register(GoldmineConditionRecord)
 admin.site.register(Photo)
 admin.site.register(Exchange)
 admin.site.register(ExchangeOfferedRecord)
+admin.site.register(ExchangeRecordRequestedByReceiver)
 admin.site.register(Wishlist)
+admin.site.register(Location)

@@ -209,7 +209,7 @@ def custom_admin_logout(request):
     Ensures session is destroyed and redirects appropriately.
     """
     logout(request)
-    return HttpResponseRedirect('/admin/login/')  # Redirect to admin login page
+    return HttpResponseRedirect('http://localhost:5173')  # Redirect to admin login page
 
 
 class RecordCreateView(generics.CreateAPIView):
