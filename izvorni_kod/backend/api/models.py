@@ -1,141 +1,386 @@
-from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.db import models
-from django.conf import settings
-from django.core.exceptions import ValidationError
-import re
-
-class UserManager(BaseUserManager):
-    def create_user(self, email, username, password=None, **extra_fields):
-        if not email:
-            raise ValueError('Email address is required')
-        if not username:
-            raise ValueError('Username is required')
-            
-        email = self.normalize_email(email)
-        user = self.model(
-            email=email,
-            username=username,
-            **extra_fields
-        )
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, email, username, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        extra_fields.setdefault('is_active', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-        
-        return self.create_user(email, username, password, **extra_fields)
+from django.contrib.auth.models import AbstractUser
+from django.db import models, transaction
+from django.db.models.functions import Lower
+from django.utils import timezone
+from django.contrib.gis.db.models import PointField
 
 class User(AbstractUser):
-    # Custom user fields
     email = models.EmailField(
-        "Email address",
-        max_length=128,
         unique=True,
-        help_text="Required. User's email address for authentication."
+        null=False,
+        blank=False
     )
+
     username = models.CharField(
-        "Username",
-        max_length=32,
+        max_length=150,
         unique=True,
-        help_text="Required. 32 characters or fewer."
+        null=False,
+        blank=False
     )
+
     first_name = models.CharField(
-        "First Name",
-        max_length=64,
-        help_text="User's first name."
+        max_length=150,
+        null=False,
+        blank=False
     )
+
     last_name = models.CharField(
-        "Last name",
-        max_length=64,
-        help_text="User's last name."
-    )
-    
-    # Boolean flags
-    is_active = models.BooleanField(
-        "Active",
-        default=True,
-        help_text="Designates whether this user account is active."
+        max_length=150,
+        null=False,
+        blank=False
     )
 
-    is_staff = models.BooleanField(
-        "Staff",
-        default=False,
-        help_text="Designates whether the user can access admin site."
-    )
-    is_superuser = models.BooleanField(
-        "Superuser",
-        default=False,
-        help_text="Designates whether the user is a superuser."
-    )
-
-    # Authentication settings
+    # Use email as the primary login field
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
-    objects = UserManager()
+    # Fields that *must* be provided when creating a superuser via
+    # `createsuperuser` USERNAME_FIELD + password must be provided by default
+    REQUIRED_FIELDS = ['username']
 
-    def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.username})"
-
-    def has_perm(self, perm, obj=None):
-        return self.is_superuser
-
-    def has_module_perms(self, app_label):
-        return self.is_superuser
-    
-    def clean(self):
-        super().clean()
-        if self.password:
-            if len(self.password) < 8:
-                raise ValidationError('Password must be at least 8 characters long')
-            if not re.search(r'[A-Z]', self.password):
-                raise ValidationError('Password must contain at least one uppercase letter')
-            if not re.search(r'[a-z]', self.password):
-                raise ValidationError('Password must contain at least one lowercase letter')
-            if not re.search(r'\d', self.password):
-                raise ValidationError('Password must contain at least one number')
-
-    def email_clean(self):
-        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', self.email):
-            raise ValidationError('Invalid email format')
-
-class GoldmineCondition(models.Model):
-    name = models.CharField(max_length=32)
-    abbreviation = models.CharField(max_length=8)
-    description = models.CharField(max_length=256)
-
-    def __str__(self):
-        return f"{self.name} ({self.abbreviation})"
-    
     class Meta:
-        verbose_name = "Goldmine Condition"
-        verbose_name_plural = "Goldmine Conditions"
-
-class Record(models.Model):
-    release_mark = models.CharField(max_length=128)
-    artist = models.CharField(max_length=128)
-    album_name = models.CharField(max_length=128)
-    release_year = models.IntegerField()
-    genre = models.CharField(max_length=64)
-    location = models.CharField(max_length=64)
-    available_for_trade = models.BooleanField(default=False)
-    additional_description = models.CharField(max_length=256, blank=True)
-    record_condition = models.ForeignKey(GoldmineCondition, on_delete=models.PROTECT, related_name='record_conditions')
-    sleeve_condition = models.ForeignKey(GoldmineCondition, on_delete=models.PROTECT, related_name='sleeve_conditions')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+        verbose_name = "User"
+        verbose_name_plural = "Users" 
 
     def __str__(self):
-        return f"{self.artist} - {self.album_name}"
+        return f'{self.username} ({self.email})'
+
+
+class Record(models.Model):    
+    catalog_number = models.CharField(max_length=255)
+
+    artist = models.CharField(max_length=255)
+
+    album_name = models.CharField(max_length=255)
+
+    release_year = models.IntegerField()
+
+    genre = models.ForeignKey(
+        'Genre',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='records'
+    )
+
+    location = models.ForeignKey(
+        'Location',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='records'
+    )
+
+    additional_description = models.TextField(blank=True)
+
+    record_condition = models.ForeignKey(
+        'GoldmineConditionRecord',
+        on_delete=models.SET_NULL,
+        related_name='records',
+        null=True,
+        blank=True
+    )
+
+    cover_condition = models.ForeignKey(
+        'GoldmineConditionCover',
+        on_delete=models.SET_NULL,
+        related_name='records',
+        null=True,
+        blank=True
+    )
+
+    user = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        related_name='records'
+    )
     
     class Meta:
         verbose_name = "Record"
         verbose_name_plural = "Records"
+
+    @property
+    def available_for_exchange(self):
+        """
+        Record is available for exchange only if it's not already offered in any active (non-completed) exchange.
+        """
+        return not self.exchanges_where_offered.filter(
+            exchange__completed=False
+        ).exists()
+
+    def __str__(self):
+        return f'{self.artist} - {self.album_name} ({self.catalog_number})'
+
+
+class Genre(models.Model):
+    name = models.CharField(max_length=50)
+
+    class Meta:
+        verbose_name = "Genre"
+        verbose_name_plural = "Genres"
+        constraints = [
+            models.UniqueConstraint(
+                Lower('name'),
+                name='unique_genre_case_insensitive',
+                violation_error_message='A genre with this name already exists (case insensitive).'
+            )
+        ]
+
+    def __str__(self):
+        return self.name
+    
+
+class GoldmineConditionRecord(models.Model):
+    name = models.CharField(max_length=100)
+
+    abbreviation = models.CharField(max_length=10)
+
+    description = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = "Goldmine Condition (Record)"
+        verbose_name_plural = "Goldmine Conditions (Record)"
+        constraints = [
+            models.UniqueConstraint(
+                Lower('name'),
+                name='unique_record_condition_name_case_insensitive',
+                violation_error_message='A record condition with this name already exists (case insensitive).'
+            ),
+            models.UniqueConstraint(
+                Lower('abbreviation'),
+                name='unique_record_condition_abbreviation_case_insensitive',
+                violation_error_message='A record condition with this abbreviation already exists (case insensitive).'
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.name} ({self.abbreviation})'
+
+
+class GoldmineConditionCover(models.Model):
+    name = models.CharField(max_length=100)
+
+    abbreviation = models.CharField(max_length=10)
+
+    description = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = "Goldmine Condition (Cover)"
+        verbose_name_plural = "Goldmine Conditions (Cover)"
+        constraints = [
+            models.UniqueConstraint(
+                Lower('name'),
+                name='unique_cover_condition_name_case_insensitive',
+                violation_error_message='A cover condition with this name already exists (case insensitive).'
+            ),
+            models.UniqueConstraint(
+                Lower('abbreviation'),
+                name='unique_cover_condition_abbreviation_case_insensitive',
+                violation_error_message='A cover condition with this abbreviation already exists (case insensitive).'
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.name} ({self.abbreviation})'
+
+
+class Photo(models.Model):
+    image = models.ImageField(upload_to='record_photos/')
+
+    record = models.ForeignKey(
+        'Record',
+        on_delete=models.CASCADE,
+        related_name='photos'
+    )
+    
+    class Meta:
+        verbose_name = "Photo"
+        verbose_name_plural = "Photos"
+
+    def __str__(self):
+        return f'Photo #{self.pk} for {self.record.artist} - {self.record.album_name}'
+
+
+class Location(models.Model):
+    address = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100, blank=True)
+    coordinates = PointField(geography=True, srid=4326)  # Geo coordinates
+
+    def __str__(self):
+        return self.address if self.address else f"{self.city}, {self.country}"
+
+
+class Wishlist(models.Model):
+    record_catalog_number = models.CharField(max_length=255)
+
+    user = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        related_name='wishlist'
+    )
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['record_catalog_number', 'user'],
+                name='unique_record_catalog_number_per_user',
+                violation_error_message='This record catalog number is already added to the user\'s wishlist.'
+            )
+        ]
+        
+    def __str__(self):
+        return f'Wishlist Item (ID: {self.pk}): {self.user} - {self.record_catalog_number}'
+            
+
+class Exchange(models.Model):
+    creation_datetime = models.DateTimeField(auto_now_add=True)
+    last_modification_datetime = models.DateTimeField(auto_now=True)
+    completed_datetime = models.DateTimeField(null=True, blank=True)
+    
+    initiator_user = models.ForeignKey(
+        'User', 
+        on_delete=models.CASCADE,
+        related_name='initiated_exchanges'
+    )
+
+    receiver_user = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        related_name='received_exchanges'
+    )
+
+    next_user_to_review = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        related_name='exchanges_to_review'
+    )
+
+    requested_record = models.ForeignKey(
+        'Record',
+        on_delete=models.CASCADE,
+        related_name='requesting_exchanges'
+    )
+
+    completed = models.BooleanField(default=False)
+    
+    class Meta:
+        verbose_name = "Exchange"
+        verbose_name_plural = "Exchanges"
+
+    def __str__(self):
+        return f'Exchange ({self.status}) between {self.initiator_user} and {self.receiver_user}'
+
+    @transaction.atomic
+    def switch_reviewer(self):
+        if self.next_user_to_review == self.initiator_user:
+            self.next_user_to_review = self.receiver_user
+        else:
+            self.next_user_to_review = self.initiator_user
+        self.save()
+
+    @transaction.atomic
+    def finalize(self):
+        """
+        Finalizes the exchange by transferring ownership of the records and clearing associated data.
+        """
+        if self.completed:
+            raise ValueError("This exchange is already finalized.")
+
+        if self.records_requested_by_receiver.exists():
+            raise ValueError(
+                "Cannot finalize exchange while there are pending requested records by the receiver."
+            )
+
+        Exchange.objects.filter(
+            requested_record=self.requested_record,
+            completed=False
+            ).exclude(id=self.id).delete()
+
+        ExchangeRecordRequestedByReceiver.objects.filter(
+            record=self.requested_record
+        ).delete()
+
+        ExchangeOfferedRecord.objects.filter(
+            record=self.requested_record
+        ).delete()
+
+        orphaned_exchanges = Exchange.objects.filter(
+            offered_records__isnull=True,
+            completed=False
+        )
+        orphaned_exchanges.delete()
+
+        offered_record_ids = self.offered_records.values_list('record_id', flat=True)
+        Exchange.objects.filter(
+            requested_record_id__in=offered_record_ids,
+            completed=False
+            ).exclude(id=self.id).delete()
+
+        ExchangeRecordRequestedByReceiver.objects.filter(
+            record_id__in=offered_record_ids
+        ).delete()
+
+        # Transfer ownership of the offered records to the receiver
+        for offered_record in self.offered_records.all():
+            offered_record.record.user = self.receiver_user
+            offered_record.record.save(update_fields=['user'])
+
+        # Transfer ownership of the requested record to the initiator
+        self.requested_record.user = self.initiator_user
+        self.requested_record.save(update_fields=['user'])
+
+        self.completed = True
+        self.completed_datetime = timezone.now()
+        self.save()
+
+
+class ExchangeOfferedRecord(models.Model):
+    exchange = models.ForeignKey(
+        'Exchange',
+        on_delete=models.CASCADE,
+        related_name='offered_records'
+    )
+
+    record = models.ForeignKey(
+        'Record',
+        on_delete=models.CASCADE,
+        related_name='exchanges_where_offered'
+    )
+    
+    class Meta:
+        verbose_name = "Offered record"
+        verbose_name_plural = "Offered records"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['exchange', 'record'],
+                name='unique_record_per_exchange'
+            ),
+        ]
+
+    def __str__(self):
+        return f'Offered {self.record} in exchange {self.exchange.id}'
+
+
+class ExchangeRecordRequestedByReceiver(models.Model):
+    exchange = models.ForeignKey(
+        'Exchange',
+        on_delete=models.CASCADE,
+        related_name='records_requested_by_receiver'
+    )
+
+    record = models.ForeignKey(
+        'Record',
+        on_delete=models.CASCADE,
+        related_name='exchanges_where_requested_by_receiver'
+    )
+
+    class Meta:
+        verbose_name = 'Record Requested by Receiver'
+        verbose_name_plural = 'Records Requested by Receiver'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['exchange', 'record'],
+                name='unique_record_requested_per_exchange'
+            )
+        ]
+
+    def __str__(self):
+        return f'Record "{self.record}" requested by receiver in exchange {self.exchange.id}'

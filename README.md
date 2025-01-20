@@ -21,6 +21,7 @@ Cilj je stvoriti funkcionalnu platformu koja olakšava razmjenu gramofonskih plo
 ```bash
 git clone https://github.com/mia-svilkovic/GrooveCrew.git
 ```
+## Kreiraj bazu
 
 ## Kreiraj bazu
 

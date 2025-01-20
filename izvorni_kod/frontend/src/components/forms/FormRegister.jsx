@@ -9,8 +9,8 @@ function FormRegister({ onClose }) {
   const [lastName, setLastName] = useState(""); // promijenjeno u last_name
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState(""); // Dodano za potvrdu lozinke
+  const [password1, setPassword1] = useState("");
+  const [password2, setPassword2] = useState(""); // Dodano za potvrdu lozinke
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -30,36 +30,38 @@ function FormRegister({ onClose }) {
 
   const handleRegister = async (event) => {
     event.preventDefault(); // Prevent default form submission
-    if (password !== passwordConfirm) {
+    if (password1 !== password2) {
       setErrorMessage("Passwords do not match.");
       return;
     }
 
     try {
-      const response = await fetch(`${URL}/api/auth/register/`, {
+      const response = await fetch(`${URL}/api/users/register/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           first_name: firstName, // Mapirano na first_name
           last_name: lastName, // Mapirano na last_name
           username: username,
           email: email,
-          password: password,
-          password_confirm: passwordConfirm, // Poslano i polje za potvrdu lozinke
+          password1: password1,
+          password2: password2, // Poslano i polje za potvrdu lozinke
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
 
-        if (data.access) {
-          localStorage.setItem("jwt", data.access); // Pohrani token
+        if (data.tokens) {
+          localStorage.setItem("access", data.tokens.access);
+          localStorage.setItem("refresh", data.tokens.refresh);
           console.log("Registration successful:", data);
           setSuccessMessage("Registration successful!");
         } else {
-          console.log("No token received");
+          console.log("No tokens received");
           setErrorMessage("Registration failed. Please try again.");
         }
       } else {
@@ -109,24 +111,22 @@ function FormRegister({ onClose }) {
         <input
           type="password"
           placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={password1}
+          onChange={(e) => setPassword1(e.target.value)}
           required
         />
         <input
           type="password"
           placeholder="Confirm Password"
-          value={passwordConfirm}
-          onChange={(e) => setPasswordConfirm(e.target.value)}
+          value={password2}
+          onChange={(e) => setPassword2(e.target.value)}
           required
         />
-        <button type="submit" className="form-button">
-          Register
-        </button>
+        <button type="submit">Register</button>
       </form>
       {successMessage && <p className="success-message">{successMessage}</p>}
       {errorMessage && <p className="error-message">{errorMessage}</p>}
-      <button className="close-button form-button" onClick={onClose}>
+      <button className="close-button" onClick={onClose}>
         Close
       </button>
     </div>

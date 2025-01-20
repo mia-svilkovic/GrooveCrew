@@ -1,136 +1,184 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Form.css";
+import { useUser } from "../../contexts/UserContext";
+import { useAuthRefresh } from '../../contexts/AuthRefresh';
+import PhotoUpload from '../addVinylComponents/PhotoUpload';
+import BasicInfo from '../addVinylComponents/BasicInfo';
+import GenreSelect from '../addVinylComponents/GenreSelect';
+import LocationPicker from '../addVinylComponents/LocationPicker';
+import ConditionSelect from '../addVinylComponents/ConditionSelect';
+import Description from '../addVinylComponents/Description';
 
-// Koristi environment varijablu za API URL
+
 const URL = import.meta.env.VITE_API_URL;
 
-function FormAdd({ onClose }) {
-  const [artist, setArtist] = useState("");
-  const [albumName, setAlbumName] = useState("");
-  const [releaseYear, setReleaseYear] = useState("");
-  const [releaseCode, setReleaseCode] = useState("");
-  const [genre, setGenre] = useState("");
-  const [location, setLocation] = useState("");
-  const [goldmineStandard, setGoldmineStandard] = useState("");
-  const [additionalDescription, setAdditionalDescription] = useState("");
+function FormAdd({ onClose, onAddItem, recordConditions, coverConditions, genres }) {
+  const { user } = useUser();
+  const { authFetch } = useAuthRefresh();
+
+  const [formState, setFormState] = useState({
+    addPhotos: [],
+    catalogNumber: "",
+    artist: "",
+    albumName: "",
+    releaseYear: "",
+    genre: "",
+    location: { lat: 0, lng: 0 },
+    additionalDescription: "",
+    recordCondition: "",
+    coverCondition: "",
+  });
+  const [photoPreviews, setPhotoPreviews] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage("");
+        onClose();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+    if (errorMessage) {
+      const timer = setTimeout(() => setErrorMessage(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, errorMessage]);
+
+  
+  const handleImagesChange = (event) => {
+    const files = Array.from(event.target.files);
+    setFormState(prev => ({
+      ...prev,
+      addPhotos: [...prev.addPhotos, ...files]
+    }));
+    const previews = files.map(file => window.URL.createObjectURL(file));
+    setPhotoPreviews(prev => [...prev, ...previews]);
+    event.target.value = '';
+  };
+
+  const handleRemovePhoto = (index) => {
+    setFormState(prev => ({
+      ...prev,
+      addPhotos: prev.addPhotos.filter((_, i) => i !== index)
+    }));
+    window.URL.revokeObjectURL(photoPreviews[index]);
+    setPhotoPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleAddRecord = async (event) => {
     event.preventDefault();
-
     const formData = new FormData();
-    formData.append("artist", artist);
-    formData.append("album_name", albumName);
-    formData.append("release_year", releaseYear);
-    formData.append("release_code", releaseCode);
-    formData.append("genre", genre);
-    formData.append("location", location);
-    formData.append("goldmine_standard", goldmineStandard);
-    formData.append("additional_description", additionalDescription);
+    const locationData = {
+        coordinates: {
+          "latitude": formState.location.lat,
+          "longitude": formState.location.lng
+        }
+    };
+    console.log("Location data:", JSON.stringify(locationData));
+    console.log("Form state location:", formState.location);
+    
+    
+    formState.addPhotos.forEach((photo, index) => {
+      formData.append(`add_photos[${index}]`, photo);
+    });
+    formData.append("catalog_number", formState.catalogNumber);
+    formData.append("artist", formState.artist);
+    formData.append("album_name", formState.albumName);
+    formData.append("release_year", formState.releaseYear);
+    formData.append("genre_id", formState.genre);
+    formData.append("location_add", JSON.stringify(locationData));
+    formData.append("additional_description", formState.additionalDescription);
+    formData.append("record_condition_id", formState.recordCondition);
+    formData.append("cover_condition_id", formState.coverCondition);
+
+    console.log("Location being sent:", formData.get("location"));
 
     try {
-      const response = await fetch(`${URL}/add_record/`, {
+      const response = await authFetch(`${URL}/api/records/create/`, {
         method: "POST",
         body: formData,
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log("Record added successfully:", data);
         setSuccessMessage("Vinyl added successfully!");
-        setErrorMessage(""); // Clear any previous error messages
-        onClose(); // Call onClose after successful submission
+        const newItem = await response.json();
+        onAddItem(newItem);
       } else {
         const errorData = await response.json();
-        console.error("Failed to add record:", errorData);
-        setErrorMessage("Failed to add vinyl. Please try again.");
-        setSuccessMessage(""); // Clear success message if there was an error
+        setErrorMessage(
+          errorData?.error ||
+            errorData?.message ||
+            "Failed to add vinyl. Please try again."
+        );
       }
     } catch (error) {
       console.error("Error adding record:", error);
       setErrorMessage("Error adding vinyl. Please check your connection.");
-      setSuccessMessage(""); // Clear success message if there was an error
     }
   };
 
+  const handleFormChange = (field, value) => {
+    setFormState(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   return (
-    <div className="form-container">
+    <div className="form-container" id="add-form-container">
       <h2>ADD VINYL</h2>
-      <form onSubmit={handleAddRecord}>
-        <input
-          type="text"
-          placeholder="Artist"
-          value={artist}
-          onChange={(e) => setArtist(e.target.value)}
-          required
+      <form onSubmit={handleAddRecord} id="add-form">
+        <BasicInfo 
+          formData={formState} 
+          onChange={handleFormChange}
         />
-        <input
-          type="text"
-          placeholder="Record Name"
-          value={albumName}
-          onChange={(e) => setAlbumName(e.target.value)}
-          required
+        
+        <GenreSelect
+          genres={genres}
+          selectedGenre={formState.genre}
+          onChange={(value) => handleFormChange('genre', value)}
         />
-        <input
-          type="number"
-          placeholder="Publication Year"
-          value={releaseYear}
-          onChange={(e) => setReleaseYear(e.target.value)}
-          required
-          min="1900"
-          max={new Date().getFullYear()} // Set to current year as max value
+        
+        <LocationPicker
+          location={formState.location}
+          onLocationChange={(value) => handleFormChange('location', value)}
         />
-        <input
-          type="text"
-          placeholder="Publication Identifier"
-          value={releaseCode}
-          onChange={(e) => setReleaseCode(e.target.value)}
-          required
+        
+        <ConditionSelect
+          conditions={recordConditions}
+          type="Record"
+          value={formState.recordCondition}
+          onChange={(value) => handleFormChange('recordCondition', value)}
         />
-        <input
-          type="text"
-          placeholder="Genre"
-          value={genre}
-          onChange={(e) => setGenre(e.target.value)}
-          required
+        
+        <ConditionSelect
+          conditions={coverConditions}
+          type="Cover"
+          value={formState.coverCondition}
+          onChange={(value) => handleFormChange('coverCondition', value)}
         />
-        <select
-          id="Goldmine selection"
-          value={goldmineStandard}
-          onChange={(e) => setGoldmineStandard(e.target.value)}
-          required
-        >
-          <option value="" disabled>
-            Goldmine Standard
-          </option>
-          <option value="M">M</option>
-          <option value="NM">NM</option>
-          <option value="E">E</option>
-          <option value="VG">VG</option>
-          <option value="G">G</option>
-          <option value="P">P</option>
-        </select>
-        <input
-          type="text"
-          placeholder="Location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          required
+        
+        <Description
+          value={formState.additionalDescription}
+          onChange={(value) => handleFormChange('additionalDescription', value)}
         />
-        <input
-          type="text"
-          placeholder="Caption"
-          value={additionalDescription}
-          onChange={(e) => setAdditionalDescription(e.target.value)}
+        
+        <PhotoUpload
+          photoPreviews={photoPreviews}
+          onPhotoChange={handleImagesChange}
+          onRemovePhoto={handleRemovePhoto}
         />
-        <button type="submit">Add vinyl</button>
+
+        <button type="submit">Add Vinyl</button>
+        <button className="close-button" onClick={onClose}>
+          Close
+        </button>
       </form>
+      
       {successMessage && <p className="success-message">{successMessage}</p>}
       {errorMessage && <p className="error-message">{errorMessage}</p>}
-      <button className="cancel-button" onClick={onClose}>
-        Cancel
-      </button>
     </div>
   );
 }
