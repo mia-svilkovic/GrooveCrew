@@ -188,6 +188,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 WHITENOISE_MANIFEST_STRICT = False
 WHITENOISE_USE_FINDERS = True
+WHITENOISE_ALLOW_ALL_ORIGINS = True
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
