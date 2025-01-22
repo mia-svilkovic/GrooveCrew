@@ -33,4 +33,8 @@ img:hover {
 .username {
   font-weight: bold;
   color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
 }

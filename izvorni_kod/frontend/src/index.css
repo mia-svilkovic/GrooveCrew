@@ -9,7 +9,9 @@ body {
 }
 
 header {
-  height: 80px;
+  
   background-color: black;
   width: 100%;
+  display: flex;
+  flex-wrap: wrap;
 }

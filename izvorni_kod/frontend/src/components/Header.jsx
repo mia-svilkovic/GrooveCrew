@@ -71,8 +71,9 @@ function Header({ filters, searchQuery, onSearchAndFilter, handleFilterReset }) 
 
         {/* Ako je korisnik prijavljen, prikaži njegovo ime */}
         {user?.username ? (
-          <span className="username">Prijavljeni ste kao:{user.username}</span>
+          <span className="username">user: {user.username}</span>
         ) : null}
+        <span className="username">user: username</span>
 
         <div className="search-container">
           <SearchBar
