@@ -1,6 +1,6 @@
 # VinylSwap
 
-Aplikacija je dostupna na sljedećoj poveznici: https://groovecrew-frontend.onrender.com/
+Aplikacija je dostupna na sljedećoj poveznici: https://vinyl-swap.onrender.com/
 
 # Opis projekta
 
