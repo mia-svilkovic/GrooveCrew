@@ -73,7 +73,6 @@ function Header({ filters, searchQuery, onSearchAndFilter, handleFilterReset }) 
         {user?.username ? (
           <span className="username">user: {user.username}</span>
         ) : null}
-        <span className="username">user: username</span>
 
         <div className="search-container">
           <SearchBar
